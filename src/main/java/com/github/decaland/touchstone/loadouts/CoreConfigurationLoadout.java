@@ -10,7 +10,6 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.REPO_MAVEN_RELEASES;
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.REPO_MAVEN_SNAPSHOTS;
@@ -41,7 +40,13 @@ abstract class CoreConfigurationLoadout extends GradleVersionAwareLoadout {
         pluginManager.apply(DependencyManagementPlugin.class);
     }
 
-    private void configureMavenPublishPluginExtension() {
+    private void configureCoreExtensions() {
+        configureMavenPublishPluginExtensionRepositories();
+        requireExtension(DependencyManagementExtension.class)
+                .dependencies(DependencyVersionBom::applyDependencyVersionConstraints);
+    }
+
+    private void configureMavenPublishPluginExtensionRepositories() {
         requireExtension(PublishingExtension.class).getRepositories().maven(repository -> {
             if (project.getVersion().toString().endsWith("SNAPSHOT")) {
                 repository.setUrl(REPO_MAVEN_SNAPSHOTS);
@@ -57,11 +62,5 @@ abstract class CoreConfigurationLoadout extends GradleVersionAwareLoadout {
                 );
             });
         });
-    }
-
-    private void configureCoreExtensions() {
-        configureMavenPublishPluginExtension();
-        requireExtension(DependencyManagementExtension.class)
-                .dependencies(DependencyVersionBom::applyDependencyVersionConstraints);
     }
 }
