@@ -11,6 +11,8 @@ At the root of the application that consumes `dcl-touchstone` add the following 
 [source,properties]
 ----
 dcl.version.touchstone = 0.1.0-SNAPSHOT
+
+systemProp.org.gradle.internal.publish.checksums.insecure = true
 ----
 * `settings.gradle`
 +
