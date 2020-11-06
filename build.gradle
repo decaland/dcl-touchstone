@@ -1,0 +1,75 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
+group = 'com.github.decaland.touchstone'
+
+ext {
+    isLocal = project.hasProperty('local')
+}
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
+
+dependencies {
+    testImplementation("junit:junit:${property('dcl.version.junit')}")
+
+    implementation "org.springframework.boot:spring-boot-gradle-plugin:${property('dcl.version.spring-boot')}"
+    implementation "io.spring.gradle:dependency-management-plugin:${property('dcl.version.spring-dependency-management')}"
+    implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:${property('dcl.version.kotlin')}"
+    implementation "org.jetbrains.kotlin:kotlin-allopen:${property('dcl.version.kotlin')}"
+
+    implementation "io.freefair.gradle:lombok-plugin:${property('dcl.version.lombok')}"
+}
+
+publishing {
+    repositories {
+        maven {
+            if (isLocal) {
+                url = "$rootDir/../mvn-repo"
+            } else {
+                url = version.endsWith('SNAPSHOT')
+                        ? property('dcl.repository.maven.snapshots')
+                        : property('dcl.repository.maven.releases')
+            }
+        }
+    }
+}
+
+gradlePlugin {
+    plugins {
+        decalandApplicationJava {
+            id = 'dcl-java'
+            displayName = 'Decaland application written in Java'
+            description = 'Decaland application written in Java'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandApplicationJava'
+        }
+        decalandApplicationJavaKotlin {
+            id = 'dcl-java-kotlin'
+            displayName = 'Decaland application written in Java and Kotlin'
+            description = 'Decaland application written in Java and Kotlin'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandApplicationJavaKotlin'
+        }
+        decalandSpringApplicationJava {
+            id = 'dcl-spring-java'
+            displayName = 'Decaland Spring application written in Java'
+            description = 'Decaland Spring application written in Java'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringApplicationJava'
+        }
+        decalandSpringApplicationJavaKotlin {
+            id = 'dcl-spring-java-kotlin'
+            displayName = 'Decaland Spring application written in Java and Kotlin'
+            description = 'Decaland Spring application written in Java and Kotlin'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringApplicationJavaKotlin'
+        }
+        decalandBasicDependencies {
+            id = 'dcl-basic-dependencies'
+            displayName = 'Decaland basic library dependencies'
+            description = 'Decaland basic library dependencies'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandBasicDependencies'
+        }
+    }
+}

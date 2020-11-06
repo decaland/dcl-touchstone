@@ -1,0 +1,62 @@
+= Decaland Touchstone
+
+This project publishes custom Gradle plugins that provide the common build configuration foundation for Decaland applications.
+
+== Usage
+
+At the root of the application that consumes `dcl-touchstone` add the following files:
+
+* `gradle.properties`
++
+[source,properties]
+----
+dcl.version.touchstone = 0.1.0-SNAPSHOT
+----
+* `settings.gradle`
++
+[source,groovy]
+----
+pluginManagement {
+    plugins {
+        id 'dcl-java' version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-java-kotlin' version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-spring-java' version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-spring-java-kotlin' version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-basic-dependencies' version "${getProperty('dcl.version.touchstone')}"
+    }
+    repositories {
+        maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-releases' }
+        maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-snapshots' }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'dcl-app'
+
+include('dcl-app-alpha', 'dcl-app-bravo', 'dcl-app-charlie')
+----
+
+Finally, in each build module you can apply the Touchstone plugins by including them in the `build.gradle` file, e.g.:
+
+[source,groovy]
+----
+plugins {
+    id 'dcl-java'
+    id 'dcl-basic-dependencies'
+}
+----
+
+== Provided Gradle plugins
+
+The following Gradle plugins are available:
+
+* `*dcl-java*`: provides build configuration for applications written in pure Java.
+* `*dcl-java-kotlin*`: provides build configuration for applications written in Java, Kotlin, or mix thereof.
+* `*dcl-spring-java*`: provides build configuration for Spring Boot-based applications written in pure Java.
+* `*dcl-spring-java-kotlin*`: provides build configuration for Spring Boot-based applications written in Java, Kotlin, or mix thereof.
+
+Normally, the consumers would want to apply exactly one of the above plugins.
+On top of that, a small set of very basic library dependencies is provided via the additional Gradle plugin:
+
+* `*dcl-basic-dependencies*`: provides `lombok` (for all projects), `kotlin-stdlib`, `kotlin-reflect` (for projects that use Kotlin), and `spring-boot-starter-test` (for Spring Boot-based projects).
