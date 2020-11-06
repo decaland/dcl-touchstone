@@ -34,10 +34,10 @@ publishing {
                 url = version.endsWith('SNAPSHOT')
                         ? property('dcl.repository.maven.snapshots')
                         : property('dcl.repository.maven.releases')
-            }
-            credentials {
-                username = property('dcl.repository.maven.username')
-                password = property('dcl.repository.maven.password')
+                credentials {
+                    username = property('dcl.repository.maven.username')
+                    password = property('dcl.repository.maven.password')
+                }
             }
         }
     }
