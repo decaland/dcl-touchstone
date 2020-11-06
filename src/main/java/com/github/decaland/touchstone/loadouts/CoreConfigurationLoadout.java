@@ -10,6 +10,7 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.REPO_MAVEN_RELEASES;
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.REPO_MAVEN_SNAPSHOTS;
@@ -47,6 +48,14 @@ abstract class CoreConfigurationLoadout extends GradleVersionAwareLoadout {
             } else {
                 repository.setUrl(REPO_MAVEN_RELEASES);
             }
+            repository.credentials(passwordCredentials -> {
+                passwordCredentials.setUsername(
+                        requireProjectProperty("dcl.repository.maven.username", Object::toString)
+                );
+                passwordCredentials.setPassword(
+                        requireProjectProperty("dcl.repository.maven.password", Object::toString)
+                );
+            });
         });
     }
 
