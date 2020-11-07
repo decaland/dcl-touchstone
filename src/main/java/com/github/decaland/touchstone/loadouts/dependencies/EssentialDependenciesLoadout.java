@@ -1,6 +1,7 @@
 package com.github.decaland.touchstone.loadouts.dependencies;
 
 import com.github.decaland.touchstone.loadouts.GradleVersionAwareLoadout;
+import io.freefair.gradle.plugins.lombok.LombokExtension;
 import io.freefair.gradle.plugins.lombok.LombokPlugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ModuleDependency;
@@ -30,6 +31,7 @@ public class EssentialDependenciesLoadout extends GradleVersionAwareLoadout {
 
     private void addDependenciesForJava() {
         pluginManager.apply(LombokPlugin.class);
+        project.getTasks().getByName("generateLombokConfig").setEnabled(false);
     }
 
     private void addDependenciesForKotlin() {
