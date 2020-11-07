@@ -42,8 +42,7 @@ public abstract class CoreConfigurationLoadout extends GradleVersionAwareLoadout
 
     private void configureCoreExtensions() {
         configureMavenPublishPluginExtensionRepositories();
-        requireExtension(DependencyManagementExtension.class)
-                .dependencies(DependencyVersionBom::applyDependencyVersionConstraints);
+        configureDependencyManagementPluginExtension();
     }
 
     private void configureMavenPublishPluginExtensionRepositories() {
@@ -62,5 +61,11 @@ public abstract class CoreConfigurationLoadout extends GradleVersionAwareLoadout
                 );
             });
         });
+    }
+
+    private void configureDependencyManagementPluginExtension() {
+        DependencyManagementExtension depManExt = requireExtension(DependencyManagementExtension.class);
+        depManExt.dependencies(DependencyVersionBom::applyDependencyVersionConstraints);
+        depManExt.generatedPomCustomization(customization -> customization.setEnabled(false));
     }
 }
