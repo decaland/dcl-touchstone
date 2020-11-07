@@ -33,10 +33,11 @@ pluginManagement {
         id 'dcl-essential-dependencies' version "${getProperty('dcl.version.touchstone')}"
     }
     repositories {
-        maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-releases' }
-        maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-snapshots' }
+        mavenLocal()
         mavenCentral()
         gradlePluginPortal()
+        maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-releases' }
+        maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-snapshots' }
     }
 }
 

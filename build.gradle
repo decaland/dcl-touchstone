@@ -6,7 +6,7 @@ plugins {
 group = 'com.github.decaland.touchstone'
 
 ext {
-    isLocal = project.hasProperty('local')
+    publishToSerpnet = project.hasProperty('serpnet')
 }
 
 repositories {
@@ -27,10 +27,8 @@ dependencies {
 
 publishing {
     repositories {
-        maven {
-            if (isLocal) {
-                url = "$rootDir/../mvn-repo"
-            } else {
+        if (publishToSerpnet) {
+            maven {
                 url = version.endsWith('SNAPSHOT')
                         ? property('dcl.repository.maven.snapshots')
                         : property('dcl.repository.maven.releases')
@@ -39,6 +37,8 @@ publishing {
                     password = property('dcl.repository.maven.password')
                 }
             }
+        } else {
+            mavenLocal()
         }
     }
 }

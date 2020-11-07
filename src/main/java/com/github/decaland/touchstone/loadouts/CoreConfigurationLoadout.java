@@ -25,12 +25,12 @@ public abstract class CoreConfigurationLoadout extends GradleVersionAwareLoadout
 
     private void setUpRepositories() {
         RepositoryHandler repositories = project.getRepositories();
+        repositories.mavenLocal();
         repositories.mavenCentral();
-        List<String> repositoryUrls = Arrays.asList(
+        for (String repositoryUrl : Arrays.asList(
                 REPO_MAVEN_RELEASES,
                 REPO_MAVEN_SNAPSHOTS
-        );
-        for (String repositoryUrl : repositoryUrls) {
+        )) {
             repositories.maven(repository -> repository.setUrl(repositoryUrl));
         }
     }
@@ -46,20 +46,26 @@ public abstract class CoreConfigurationLoadout extends GradleVersionAwareLoadout
     }
 
     private void configureMavenPublishPluginExtensionRepositories() {
-        requireExtension(PublishingExtension.class).getRepositories().maven(repository -> {
-            if (project.getVersion().toString().endsWith("SNAPSHOT")) {
-                repository.setUrl(REPO_MAVEN_SNAPSHOTS);
+        requireExtension(PublishingExtension.class).repositories(repositories -> {
+            if (project.hasProperty("serpnet")) {
+                repositories.maven(repository -> {
+                    if (project.getVersion().toString().endsWith("SNAPSHOT")) {
+                        repository.setUrl(REPO_MAVEN_SNAPSHOTS);
+                    } else {
+                        repository.setUrl(REPO_MAVEN_RELEASES);
+                    }
+                    repository.credentials(passwordCredentials -> {
+                        passwordCredentials.setUsername(
+                                requireProjectProperty("dcl.repository.maven.username", Object::toString)
+                        );
+                        passwordCredentials.setPassword(
+                                requireProjectProperty("dcl.repository.maven.password", Object::toString)
+                        );
+                    });
+                });
             } else {
-                repository.setUrl(REPO_MAVEN_RELEASES);
+                repositories.mavenLocal();
             }
-            repository.credentials(passwordCredentials -> {
-                passwordCredentials.setUsername(
-                        requireProjectProperty("dcl.repository.maven.username", Object::toString)
-                );
-                passwordCredentials.setPassword(
-                        requireProjectProperty("dcl.repository.maven.password", Object::toString)
-                );
-            });
         });
     }
 
