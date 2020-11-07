@@ -1,16 +1,17 @@
-package com.github.decaland.touchstone.loadouts;
+package com.github.decaland.touchstone.loadouts.libraries;
 
+import com.github.decaland.touchstone.loadouts.SharedFeaturesLoadout;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin;
 
-public class ApplicationJavaLoadout extends SharedFeaturesLoadout {
+public class LibraryJavaLoadout extends SharedFeaturesLoadout {
 
-    public ApplicationJavaLoadout(Project project) {
+    public LibraryJavaLoadout(Project project) {
         super(project);
     }
 
     @Override
-    public void apply() {
+    public void putOn() {
         applyJavaPlugin();
         configureJavaPlugin();
         configureMavenPublishPluginExtensionPublications();

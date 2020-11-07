@@ -6,7 +6,7 @@ import org.gradle.util.GradleVersion;
 
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.MIN_VERSION_GRADLE;
 
-abstract class GradleVersionAwareLoadout extends BaseLoadout {
+public abstract class GradleVersionAwareLoadout extends BaseLoadout {
 
     private static final String MSG_UNSUPPORTED_GRADLE_VERSION
             = "Touchstone plugin requires %s. Current version is %s";

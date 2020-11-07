@@ -14,7 +14,7 @@ import java.util.List;
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.REPO_MAVEN_RELEASES;
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.REPO_MAVEN_SNAPSHOTS;
 
-abstract class CoreConfigurationLoadout extends GradleVersionAwareLoadout {
+public abstract class CoreConfigurationLoadout extends GradleVersionAwareLoadout {
 
     public CoreConfigurationLoadout(Project project) {
         super(project);

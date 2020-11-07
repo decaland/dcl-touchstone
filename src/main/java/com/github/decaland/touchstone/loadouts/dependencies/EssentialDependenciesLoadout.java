@@ -1,5 +1,6 @@
-package com.github.decaland.touchstone.loadouts;
+package com.github.decaland.touchstone.loadouts.dependencies;
 
+import com.github.decaland.touchstone.loadouts.GradleVersionAwareLoadout;
 import io.freefair.gradle.plugins.lombok.LombokPlugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ModuleDependency;
@@ -11,17 +12,17 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin;
 
 import java.util.Map;
 
-public class BasicDependenciesLoadout extends GradleVersionAwareLoadout {
+public class EssentialDependenciesLoadout extends GradleVersionAwareLoadout {
 
     private final DependencyHandler dependencies;
 
-    public BasicDependenciesLoadout(Project project) {
+    public EssentialDependenciesLoadout(Project project) {
         super(project);
         this.dependencies = project.getDependencies();
     }
 
     @Override
-    public void apply() {
+    public void putOn() {
         project.getPlugins().withType(JavaPlugin.class, plugin -> this.addDependenciesForJava());
         project.getPlugins().withType(KotlinPluginWrapper.class, plugin -> this.addDependenciesForKotlin());
         project.getPlugins().withType(SpringBootPlugin.class, plugin -> this.addDependenciesForSpring());

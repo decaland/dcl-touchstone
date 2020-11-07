@@ -45,35 +45,47 @@ publishing {
 
 gradlePlugin {
     plugins {
-        decalandApplicationJava {
-            id = 'dcl-java'
-            displayName = 'Decaland application written in Java'
-            description = 'Decaland application written in Java'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandApplicationJava'
+        decalandLibraryJava {
+            id = 'dcl-lib-java'
+            displayName = 'Decaland library written in Java'
+            description = 'Decaland library written in Java'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandLibraryJava'
         }
-        decalandApplicationJavaKotlin {
-            id = 'dcl-java-kotlin'
-            displayName = 'Decaland application written in Java and Kotlin'
-            description = 'Decaland application written in Java and Kotlin'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandApplicationJavaKotlin'
+        decalandLibraryJavaKotlin {
+            id = 'dcl-lib-java-kotlin'
+            displayName = 'Decaland library written in Java or Kotlin or both'
+            description = 'Decaland library written in Java or Kotlin or both'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandLibraryJavaKotlin'
         }
-        decalandSpringApplicationJava {
-            id = 'dcl-spring-java'
-            displayName = 'Decaland Spring application written in Java'
-            description = 'Decaland Spring application written in Java'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringApplicationJava'
+        decalandSpringBootLibraryJava {
+            id = 'dcl-boot-lib-java'
+            displayName = 'Decaland Spring Boot-based library written in Java'
+            description = 'Decaland Spring Boot-based library written in Java'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringBootLibraryJava'
         }
-        decalandSpringApplicationJavaKotlin {
-            id = 'dcl-spring-java-kotlin'
-            displayName = 'Decaland Spring application written in Java and Kotlin'
-            description = 'Decaland Spring application written in Java and Kotlin'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringApplicationJavaKotlin'
+        decalandSpringBootLibraryJavaKotlin {
+            id = 'dcl-boot-lib-java-kotlin'
+            displayName = 'Decaland Spring Boot-based library written in Java or Kotlin or both'
+            description = 'Decaland Spring Boot-based library written in Java or Kotlin or both'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringBootLibraryJavaKotlin'
         }
-        decalandBasicDependencies {
-            id = 'dcl-basic-dependencies'
-            displayName = 'Decaland basic library dependencies'
-            description = 'Decaland basic library dependencies'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandBasicDependencies'
+        decalandSpringBootApplicationJava {
+            id = 'dcl-boot-app-java'
+            displayName = 'Decaland Spring Boot-based application written in Java'
+            description = 'Decaland Spring Boot-based application written in Java'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringBootApplicationJava'
+        }
+        decalandSpringBootApplicationJavaKotlin {
+            id = 'dcl-boot-app-java-kotlin'
+            displayName = 'Decaland Spring Boot-based application written in Java or Kotlin or both'
+            description = 'Decaland Spring Boot-based application written in Java or Kotlin or both'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringBootApplicationJavaKotlin'
+        }
+        decalandEssentialDependencies {
+            id = 'dcl-essential-dependencies'
+            displayName = 'Decaland essential library dependencies'
+            description = 'Decaland essential library dependencies'
+            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandEssentialDependencies'
         }
     }
 }

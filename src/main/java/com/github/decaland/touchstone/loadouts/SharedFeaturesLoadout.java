@@ -1,5 +1,6 @@
 package com.github.decaland.touchstone.loadouts;
 
+import org.gradle.api.Action;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginExtension;
@@ -13,7 +14,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin;
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.SOURCE_ENCODING;
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.VERSION_JAVA;
 
-abstract class SharedFeaturesLoadout extends CoreConfigurationLoadout {
+public abstract class SharedFeaturesLoadout extends CoreConfigurationLoadout {
 
     public SharedFeaturesLoadout(Project project) {
         super(project);
@@ -44,18 +45,28 @@ abstract class SharedFeaturesLoadout extends CoreConfigurationLoadout {
         pluginManager.apply(SpringBootPlugin.class);
     }
 
+    protected void configureSpringBootLibrary() {
+        project.getTasks().getByName("bootJar").setEnabled(false);
+        project.getTasks().getByName("jar").setEnabled(true);
+    }
+
     protected void configureMavenPublishPluginExtensionPublications() {
-        PublicationContainer publications = requireExtension(PublishingExtension.class).getPublications();
+        String publicationName;
+        Action<MavenPublication> publicationAction;
         if (project.getPlugins().hasPlugin(SpringBootPlugin.class)) {
-            publications.create(
-                    "dclSpringBootApp", MavenPublication.class,
-                    mavenPublication -> mavenPublication.artifact(project.getTasks().getByName("bootJar"))
-            );
+            if (isApplication()) {
+                publicationName = "decalandSpringBootApplication";
+                publicationAction = pub -> pub.artifact(project.getTasks().getByName("bootJar"));
+            } else {
+                publicationName = "decalandSpringBootLibrary";
+                publicationAction = pub -> pub.artifact(project.getTasks().getByName("jar"));
+            }
         } else {
-            publications.create(
-                    "dclLib", MavenPublication.class,
-                    mavenPublication -> mavenPublication.from(project.getComponents().findByName("java"))
-            );
+            publicationName = "decalandLibrary";
+            publicationAction = pub -> pub.from(project.getComponents().findByName("java"));
         }
+        requireExtension(PublishingExtension.class)
+                .getPublications()
+                .create(publicationName, MavenPublication.class, publicationAction);
     }
 }

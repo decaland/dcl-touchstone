@@ -9,7 +9,7 @@ import org.gradle.api.plugins.PluginManager;
 import java.util.Objects;
 import java.util.function.Function;
 
-abstract class BaseLoadout implements Loadout {
+public abstract class BaseLoadout implements Loadout {
 
     private static final String MSG_MISSING_MANDATORY_EXTENSION
             = "Touchstone plugin failed to find mandatory Gradle plugin extension of class '%s'";
@@ -21,6 +21,7 @@ abstract class BaseLoadout implements Loadout {
     protected final Project project;
     protected final Logger logger;
     protected final PluginManager pluginManager;
+    private boolean isApplication = false;
 
     public BaseLoadout(Project project) {
         this.project = project;
@@ -53,5 +54,13 @@ abstract class BaseLoadout implements Loadout {
                     String.format(MSG_ILLEGAL_MANDATORY_PROPERTY, propertyName, propertyObject.toString())
             );
         }
+    }
+
+    protected void makeApplication() {
+        this.isApplication = true;
+    }
+
+    protected boolean isApplication() {
+        return this.isApplication;
     }
 }

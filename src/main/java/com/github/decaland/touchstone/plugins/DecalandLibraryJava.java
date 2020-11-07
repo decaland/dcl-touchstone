@@ -1,14 +1,14 @@
 package com.github.decaland.touchstone.plugins;
 
-import com.github.decaland.touchstone.loadouts.ApplicationJavaLoadout;
+import com.github.decaland.touchstone.loadouts.libraries.LibraryJavaLoadout;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class DecalandApplicationJava implements Plugin<Project> {
+public class DecalandLibraryJava implements Plugin<Project> {
 
     @Override
     public void apply(@NotNull Project project) {
-        new ApplicationJavaLoadout(project).apply();
+        new LibraryJavaLoadout(project).putOn();
     }
 }
