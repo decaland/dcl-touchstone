@@ -13,6 +13,7 @@ public class ApplicationJavaLoadout extends SharedFeaturesLoadout {
     public void apply() {
         applyJavaPlugin();
         configureJavaPlugin();
+        configureMavenPublishPluginExtensionPublications();
     }
 
     private void applyJavaPlugin() {

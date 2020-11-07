@@ -21,6 +21,7 @@ public class ApplicationJavaKotlinLoadout extends SharedFeaturesLoadout {
         applyKotlinPlugin();
         configureJavaPlugin();
         configureKotlinPlugin();
+        configureMavenPublishPluginExtensionPublications();
     }
 
     private void applyKotlinPlugin() {

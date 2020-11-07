@@ -3,6 +3,9 @@ package com.github.decaland.touchstone.loadouts;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginExtension;
+import org.gradle.api.publish.PublicationContainer;
+import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.springframework.boot.gradle.plugin.SpringBootPlugin;
@@ -39,5 +42,20 @@ abstract class SharedFeaturesLoadout extends CoreConfigurationLoadout {
 
     protected void applySpringBootPlugins() {
         pluginManager.apply(SpringBootPlugin.class);
+    }
+
+    protected void configureMavenPublishPluginExtensionPublications() {
+        PublicationContainer publications = requireExtension(PublishingExtension.class).getPublications();
+        if (project.getPlugins().hasPlugin(SpringBootPlugin.class)) {
+            publications.create(
+                    "dclSpringBootApp", MavenPublication.class,
+                    mavenPublication -> mavenPublication.artifact(project.getTasks().getByName("bootJar"))
+            );
+        } else {
+            publications.create(
+                    "dclLib", MavenPublication.class,
+                    mavenPublication -> mavenPublication.from(project.getComponents().findByName("java"))
+            );
+        }
     }
 }
