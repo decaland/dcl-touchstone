@@ -10,7 +10,7 @@ To use the `dcl-touchstone` foundation, add the following files to the consumer 
 +
 [source,properties]
 ----
-dcl.version.touchstone = 0.1.1-SNAPSHOT <1>
+dcl.version.touchstone = 0.1.2-SNAPSHOT <1>
 
 systemProp.org.gradle.internal.publish.checksums.insecure = true <2>
 ----
