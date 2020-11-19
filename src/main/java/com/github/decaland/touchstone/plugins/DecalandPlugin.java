@@ -99,8 +99,8 @@ public abstract class DecalandPlugin implements Plugin<Project> {
     }
 
     @NotNull
-    private String composeListOfClasses(Collection<Class<? extends DecalandPlugin>> requiredPlugins) {
-        return requiredPlugins.stream()
+    private String composeListOfClasses(Collection<Class<? extends DecalandPlugin>> pluginClasses) {
+        return pluginClasses.stream()
                 .map(this::extractDecalandPluginName)
                 .collect(joining("', '", "'", "'"));
     }
@@ -110,10 +110,10 @@ public abstract class DecalandPlugin implements Plugin<Project> {
         return clazz.getSimpleName()
                 .replaceAll("([a-z])([A-Z])", "$1-$2")
                 .toLowerCase()
-                .replaceAll("decaland", "dcl")
-                .replaceAll("spring-boot", "boot")
-                .replaceAll("library", "lib")
-                .replaceAll("application", "app")
-                .replaceAll("-plugin", "");
+                .replace("decaland", "dcl")
+                .replace("spring-boot", "boot")
+                .replace("library", "lib")
+                .replace("application", "app")
+                .replace("-plugin", "");
     }
 }
