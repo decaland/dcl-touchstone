@@ -59,7 +59,7 @@ group = 'com.github.decaland'
 
 == Provided Gradle plugins
 
-The following Gradle plugins are available and provide their described build configuration (only on of these can be applied at a time):
+The following Gradle plugins are available and provide their described build configuration (only one of these can be applied at a time):
 
 [horizontal]
 `*dcl-lib-java*`:: libraries written in pure Java.
@@ -71,4 +71,5 @@ The following Gradle plugins are available and provide their described build con
 
 Along with any of the build configurations above, the consumer might want to also apply a small set of basic library dependencies via the additional Gradle plugin:
 
+[horizontal]
 `*dcl-essential-dependencies*`:: provides `lombok` to all projects; `kotlin-stdlib` and `kotlin-reflect` to projects that use Kotlin; and `spring-boot-starter-test` to Spring Boot-based projects.
