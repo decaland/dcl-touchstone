@@ -14,6 +14,11 @@ repositories {
     gradlePluginPortal()
 }
 
+wrapper {
+    gradleVersion = "${project.property('dcl.minversion.gradle')}"
+    distributionType = Wrapper.DistributionType.ALL
+}
+
 dependencies {
     testImplementation("junit:junit:${property('dcl.version.junit')}")
 
@@ -43,49 +48,47 @@ publishing {
     }
 }
 
-gradlePlugin {
-    plugins {
-        decalandLibraryJava {
-            id = 'dcl-lib-java'
-            displayName = 'Decaland library written in Java'
-            description = 'Decaland library written in Java'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandLibraryJava'
-        }
-        decalandLibraryJavaKotlin {
-            id = 'dcl-lib-java-kotlin'
-            displayName = 'Decaland library written in Java or Kotlin or both'
-            description = 'Decaland library written in Java or Kotlin or both'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandLibraryJavaKotlin'
-        }
-        decalandSpringBootLibraryJava {
-            id = 'dcl-boot-lib-java'
-            displayName = 'Decaland Spring Boot-based library written in Java'
-            description = 'Decaland Spring Boot-based library written in Java'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringBootLibraryJava'
-        }
-        decalandSpringBootLibraryJavaKotlin {
-            id = 'dcl-boot-lib-java-kotlin'
-            displayName = 'Decaland Spring Boot-based library written in Java or Kotlin or both'
-            description = 'Decaland Spring Boot-based library written in Java or Kotlin or both'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringBootLibraryJavaKotlin'
-        }
-        decalandSpringBootApplicationJava {
-            id = 'dcl-boot-app-java'
-            displayName = 'Decaland Spring Boot-based application written in Java'
-            description = 'Decaland Spring Boot-based application written in Java'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringBootApplicationJava'
-        }
-        decalandSpringBootApplicationJavaKotlin {
-            id = 'dcl-boot-app-java-kotlin'
-            displayName = 'Decaland Spring Boot-based application written in Java or Kotlin or both'
-            description = 'Decaland Spring Boot-based application written in Java or Kotlin or both'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandSpringBootApplicationJavaKotlin'
-        }
-        decalandEssentialDependencies {
-            id = 'dcl-essential-dependencies'
-            displayName = 'Decaland essential library dependencies'
-            description = 'Decaland essential library dependencies'
-            implementationClass = 'com.github.decaland.touchstone.plugins.DecalandEssentialDependencies'
-        }
+project.getExtensions().findByType(GradlePluginDevelopmentExtension).plugins { pluginContainer ->
+    pluginContainer.create("decalandLibraryJava") { plugin ->
+        plugin.id = 'dcl-lib-java'
+        plugin.displayName = 'Decaland library written in Java'
+        plugin.description = 'Decaland library written in Java'
+        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.builds.DecalandLibraryJavaPlugin'
+    }
+    pluginContainer.create("decalandLibraryJavaKotlin") { plugin ->
+        plugin.id = 'dcl-lib-java-kotlin'
+        plugin.displayName = 'Decaland library written in Java or Kotlin or both'
+        plugin.description = 'Decaland library written in Java or Kotlin or both'
+        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.builds.DecalandLibraryJavaKotlinPlugin'
+    }
+    pluginContainer.create("decalandSpringBootLibraryJava") { plugin ->
+        plugin.id = 'dcl-boot-lib-java'
+        plugin.displayName = 'Decaland Spring Boot-based library written in Java'
+        plugin.description = 'Decaland Spring Boot-based library written in Java'
+        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.builds.DecalandSpringBootLibraryJavaPlugin'
+    }
+    pluginContainer.create("decalandSpringBootLibraryJavaKotlin") { plugin ->
+        plugin.id = 'dcl-boot-lib-java-kotlin'
+        plugin.displayName = 'Decaland Spring Boot-based library written in Java or Kotlin or both'
+        plugin.description = 'Decaland Spring Boot-based library written in Java or Kotlin or both'
+        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.builds.DecalandSpringBootLibraryJavaKotlinPlugin'
+    }
+    pluginContainer.create("decalandSpringBootApplicationJava") { plugin ->
+        plugin.id = 'dcl-boot-app-java'
+        plugin.displayName = 'Decaland Spring Boot-based application written in Java'
+        plugin.description = 'Decaland Spring Boot-based application written in Java'
+        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.builds.DecalandSpringBootApplicationJavaPlugin'
+    }
+    pluginContainer.create("decalandSpringBootApplicationJavaKotlin") { plugin ->
+        plugin.id = 'dcl-boot-app-java-kotlin'
+        plugin.displayName = 'Decaland Spring Boot-based application written in Java or Kotlin or both'
+        plugin.description = 'Decaland Spring Boot-based application written in Java or Kotlin or both'
+        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.builds.DecalandSpringBootApplicationJavaKotlinPlugin'
+    }
+    pluginContainer.create("decalandEssentialDependencies") { plugin ->
+        plugin.id = 'dcl-essential-dependencies'
+        plugin.displayName = 'Decaland essential library dependencies'
+        plugin.description = 'Decaland essential library dependencies'
+        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.dependencies.DecalandEssentialDependenciesPlugin'
     }
 }

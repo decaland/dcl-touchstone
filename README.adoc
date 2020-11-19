@@ -1,24 +1,22 @@
 = Decaland Touchstone
 
-This project publishes custom Gradle plugins that provide the common build configuration foundation for Decaland applications.
+This project implements custom Gradle plugins that provide the common build configuration for Decaland applications.
 
 == Usage
 
-To base a project on the `dcl-touchstone` foundation, add the following files to the root of the consumer project:
+To use the `dcl-touchstone` foundation, add the following files to the consumer project:
 
-* `gradle.properties`
+* `gradle.properties` (in the root of the consumer project)
 +
 [source,properties]
 ----
-dcl.version.touchstone = 0.1.0-SNAPSHOT <1>
+dcl.version.touchstone = 0.1.1-SNAPSHOT <1>
 
-kotlin.stdlib.default.dependency=false <2>
-systemProp.org.gradle.internal.publish.checksums.insecure = true <3>
+systemProp.org.gradle.internal.publish.checksums.insecure = true <2>
 ----
 <1> Use the latest stable version of the `dcl-touchstone` project.
-<2> This optional property disables a https://kotlinlang.org/docs/reference/using-gradle.html#dependency-on-the-standard-library[default behavior] of the Kotlin plugin.
-<3> This optional property makes Gradle publish https://docs.gradle.org/6.0.1/release-notes.html[insecure checksums] to appease the current implementation of Serpnet’s Artifactory repository.
-* `settings.gradle`
+<2> This optional property makes Gradle publish https://docs.gradle.org/6.0.1/release-notes.html[insecure checksums] to appease the current implementation of Serpnet’s Artifactory repository.
+* `settings.gradle` (in the root of the consumer project)
 +
 [source,groovy]
 ----
@@ -33,11 +31,11 @@ pluginManagement {
         id 'dcl-essential-dependencies' version "${getProperty('dcl.version.touchstone')}"
     }
     repositories {
-        mavenLocal()
-        mavenCentral()
-        gradlePluginPortal()
         maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-releases' }
         maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-snapshots' }
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
     }
 }
 
@@ -45,29 +43,32 @@ rootProject.name = 'dcl-app'
 
 include('dcl-app-alpha', 'dcl-app-bravo', 'dcl-app-charlie')
 ----
-
-Finally, in each build module you can apply the Touchstone plugins by including them in the `build.gradle` file, e.g.:
-
++
+Build modules (the `include(…)` line at the end) are provided as an example and are not required.
+* In each build module you can apply the Touchstone plugins by including them in the `build.gradle` file, e.g.:
++
 [source,groovy]
 ----
 plugins {
     id 'dcl-lib-java'
     id 'dcl-essential-dependencies'
 }
+
+group = 'com.github.decaland'
 ----
 
 == Provided Gradle plugins
 
-The following Gradle plugins are available:
+The following Gradle plugins are available and provide their described build configuration (only on of these can be applied at a time):
 
-* `*dcl-lib-java*`: provides build configuration for libraries written in pure Java.
-* `*dcl-lib-java-kotlin*`: provides build configuration for libraries written in Java, Kotlin, or mix thereof.
-* `*dcl-boot-lib-java*`: provides build configuration for Spring Boot-based libraries written in pure Java.
-* `*dcl-boot-lib-java-kotlin*`: provides build configuration for Spring Boot-based libraries written in Java, Kotlin, or mix thereof.
-* `*dcl-boot-app-java*`: provides build configuration for Spring Boot-based _bootable applications_ written in pure Java.
-* `*dcl-boot-app-java-kotlin*`: provides build configuration for Spring Boot-based _bootable applications_ written in Java, Kotlin, or mix thereof.
+[horizontal]
+`*dcl-lib-java*`:: libraries written in pure Java.
+`*dcl-lib-java-kotlin*`:: libraries written in Java, Kotlin, or mix thereof.
+`*dcl-boot-lib-java*`:: Spring Boot-based libraries written in pure Java.
+`*dcl-boot-lib-java-kotlin*`:: Spring Boot-based libraries written in Java, Kotlin, or mix thereof.
+`*dcl-boot-app-java*`:: Spring Boot-based _bootable applications_ written in pure Java.
+`*dcl-boot-app-java-kotlin*`:: Spring Boot-based _bootable applications_ written in Java, Kotlin, or mix thereof.
 
-Normally, the consumers would want to apply exactly one of the above plugins.
-On top of that, a small set of very basic library dependencies is provided via the additional Gradle plugin:
+Along with any of the build configurations above, the consumer might want to also apply a small set of basic library dependencies via the additional Gradle plugin:
 
-* `*dcl-essential-dependencies*`: provides `lombok` to all projects; `kotlin-stdlib` and `kotlin-reflect` to projects that use Kotlin; and `spring-boot-starter-test` to Spring Boot-based projects.
+`*dcl-essential-dependencies*`:: provides `lombok` to all projects; `kotlin-stdlib` and `kotlin-reflect` to projects that use Kotlin; and `spring-boot-starter-test` to Spring Boot-based projects.

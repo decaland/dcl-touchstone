@@ -10,6 +10,10 @@ public class BuildParametersManifest {
     public static final String SOURCE_ENCODING = "UTF-8";
     public static final String OUTPUT_ENCODING = "UTF-8";
 
+    public static final String PROP_KEY_SERPNET = "serpnet";
+    public static final String PROP_KEY_SERPNET_USERNAME = "dcl.repository.maven.username";
+    public static final String PROP_KEY_SERPNET_PASSWORD = "dcl.repository.maven.password";
+
     static {
         VERSION_KOTLIN_API = extractKotlinApiVersion();
     }

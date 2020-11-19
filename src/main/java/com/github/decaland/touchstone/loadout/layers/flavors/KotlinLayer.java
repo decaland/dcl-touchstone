@@ -1,35 +1,36 @@
-package com.github.decaland.touchstone.loadouts.libraries;
+package com.github.decaland.touchstone.loadout.layers.flavors;
 
-import com.github.decaland.touchstone.loadouts.SharedFeaturesLoadout;
+import com.github.decaland.touchstone.loadout.layers.Layer;
+import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import org.gradle.api.Project;
+import org.jetbrains.kotlin.allopen.gradle.SpringGradleSubplugin;
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
+import org.springframework.boot.gradle.plugin.SpringBootPlugin;
 
+import java.util.Collection;
 import java.util.Collections;
 
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.VERSION_JAVA;
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.VERSION_KOTLIN_API;
 
-public class LibraryJavaKotlinLoadout extends SharedFeaturesLoadout {
+public class KotlinLayer extends ProjectAwareLayer {
 
-    public LibraryJavaKotlinLoadout(Project project) {
-        super(project);
+    public KotlinLayer(Project project, Collection<Layer> layers) {
+        super(project, layers);
     }
 
     @Override
-    public void putOn() {
-        applyKotlinPlugin();
-        configureJavaPlugin();
-        configureKotlinPlugin();
-        configureMavenPublishPluginExtensionPublications();
-    }
-
-    private void applyKotlinPlugin() {
+    public void applyLayer() {
         pluginManager.apply(KotlinPluginWrapper.class);
+        project.getPlugins().withType(SpringBootPlugin.class, plugin -> {
+            pluginManager.apply(SpringGradleSubplugin.class);
+        });
     }
 
-    private void configureKotlinPlugin() {
+    @Override
+    public void configureLayer() {
         project.getTasks().withType(KotlinCompile.class, this::configureKotlinPluginCompileTasks);
     }
 
