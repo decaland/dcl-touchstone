@@ -10,12 +10,15 @@ To use the `dcl-touchstone` foundation, add the following files to the consumer 
 +
 [source,properties]
 ----
-dcl.version.touchstone = 0.1.2-SNAPSHOT <1>
+# ... consumer project’s version probably goes here ...
 
-systemProp.org.gradle.internal.publish.checksums.insecure = true <2>
+dcl.version.touchstone = 0.1.2-SNAPSHOT
+
+systemProp.org.gradle.internal.publish.checksums.insecure = true
 ----
-<1> Use the latest stable version of the `dcl-touchstone` project.
-<2> This optional property makes Gradle publish https://docs.gradle.org/6.0.1/release-notes.html[insecure checksums] to appease the current implementation of Serpnet’s Artifactory repository.
++
+Use the latest stable version of the `dcl-touchstone` project.
+The long-winded property at the end is optional: it makes Gradle publish https://docs.gradle.org/6.0.1/release-notes.html[insecure checksums] to prevent warnings from the current version of Serpnet Artifactory.
 * `settings.gradle` (in the root of the consumer project)
 +
 [source,groovy]
@@ -39,13 +42,9 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'dcl-app'
-
-include('dcl-app-alpha', 'dcl-app-bravo', 'dcl-app-charlie')
+// ... `rootProject.name`, `include`, and so on ...
 ----
-+
-Build modules (the `include(…)` line at the end) are provided as an example and are not required.
-* In each build module you can apply the Touchstone plugins by including them in the `build.gradle` file, e.g.:
+* In each build module the Touchstone plugins can be applied by including them in the `build.gradle` file, e.g.:
 +
 [source,groovy]
 ----
@@ -54,7 +53,7 @@ plugins {
     id 'dcl-essential-dependencies'
 }
 
-group = 'com.github.decaland'
+// ... `group` and so on ...
 ----
 
 == Provided Gradle plugins

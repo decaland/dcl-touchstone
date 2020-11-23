@@ -6,6 +6,10 @@ plugins {
 group = 'com.github.decaland.touchstone'
 
 ext {
+    /*
+    Publishing to Serpnet artifactory is achieved by providing `-Pserpnet`
+    argument to Gradle.
+     */
     publishToSerpnet = project.hasProperty('serpnet')
 }
 
@@ -48,6 +52,10 @@ publishing {
     }
 }
 
+/*
+Deviate from Groovy DSL slightly to silence warnings from Intellij IDEA’s
+static code analyzer.
+ */
 project.getExtensions().findByType(GradlePluginDevelopmentExtension).plugins { pluginContainer ->
     pluginContainer.create("decalandLibraryJava") { plugin ->
         plugin.id = 'dcl-lib-java'
