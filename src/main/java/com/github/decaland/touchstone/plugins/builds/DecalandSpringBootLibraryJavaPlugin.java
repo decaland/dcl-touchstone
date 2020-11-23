@@ -5,6 +5,10 @@ import com.github.decaland.touchstone.loadout.layers.flavors.SpringBootLayer;
 import com.github.decaland.touchstone.plugins.DecalandPlugin;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Arranges for the consuming project to be built as a non-executable,
+ * consumable Spring Boot-based library written in Java.
+ */
 public class DecalandSpringBootLibraryJavaPlugin extends DecalandLibraryJavaPlugin {
 
     @Override

@@ -11,6 +11,10 @@ import com.github.decaland.touchstone.plugins.DecalandBuildConfigPlugin;
 import com.github.decaland.touchstone.plugins.DecalandPlugin;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Arranges for the consuming project to be built as an executable Spring Boot
+ * application written in either Java, or Kotlin, or both.
+ */
 public class DecalandSpringBootApplicationJavaKotlinPlugin extends DecalandBuildConfigPlugin {
 
     @Override

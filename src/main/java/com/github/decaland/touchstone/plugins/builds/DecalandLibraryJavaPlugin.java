@@ -9,6 +9,10 @@ import com.github.decaland.touchstone.plugins.DecalandBuildConfigPlugin;
 import com.github.decaland.touchstone.plugins.DecalandPlugin;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Arranges for the consuming project to be built as a non-executable,
+ * consumable library written in Java.
+ */
 public class DecalandLibraryJavaPlugin extends DecalandBuildConfigPlugin {
 
     @Override
