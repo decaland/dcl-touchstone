@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.configs;
 
-import com.github.decaland.touchstone.loadout.layers.Layer;
+import com.github.decaland.touchstone.loadout.layers.FinalizedLayers;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import com.github.decaland.touchstone.loadout.layers.flavors.SpringBootLayer;
 import org.gradle.api.Action;
@@ -11,8 +11,6 @@ import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 
-import java.util.Collection;
-
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.*;
 import static org.springframework.boot.gradle.plugin.SpringBootPlugin.BOOT_JAR_TASK_NAME;
 
@@ -22,7 +20,7 @@ public class MavenPublishLayer extends ProjectAwareLayer {
     private static final String PUBLICATION_NAME_BOOT_LIB = "decalandSpringBootLibrary";
     private static final String PUBLICATION_NAME_LIB = "decalandLibrary";
 
-    public MavenPublishLayer(Project project, Collection<Layer> layers) {
+    public MavenPublishLayer(Project project, FinalizedLayers layers) {
         super(project, layers);
     }
 
@@ -79,11 +77,12 @@ public class MavenPublishLayer extends ProjectAwareLayer {
     }
 
     private boolean usesSpringBoot() {
-        return layers.stream().anyMatch(p -> p instanceof SpringBootLayer);
+        return layers.contains(SpringBootLayer.class);
     }
 
     private boolean isApplication() {
-        return layers.stream()
+        return layers.asUnmodifiableLinkedSet()
+                .stream()
                 .filter(p -> p instanceof SpringBootLayer)
                 .anyMatch(p -> ((SpringBootLayer) p).isApplication());
     }

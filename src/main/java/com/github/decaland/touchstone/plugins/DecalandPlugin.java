@@ -30,18 +30,18 @@ public abstract class DecalandPlugin implements Plugin<Project> {
     public final void apply(@NotNull Project project) {
         validateGradleVersion();
         ensurePluginIsApplicable(project);
-        Loadout pluginLoadout = new Loadout(project);
-        configurePluginLoadout(pluginLoadout);
-        pluginLoadout.putOn();
+        Loadout.Builder loadoutBuilder = Loadout.builder(project, getPluginId());
+        configurePluginLoadout(loadoutBuilder);
+        loadoutBuilder.build().putOn();
     }
 
-    protected abstract void configurePluginLoadout(Loadout pluginLoadout);
+    protected abstract Loadout.Builder configurePluginLoadout(Loadout.Builder loadoutBuilder);
 
     @NotNull
     protected abstract Class<? extends DecalandPlugin> getPluginType();
 
     @NotNull
-    public final String getPluginName() {
+    public final String getPluginId() {
         return extractDecalandPluginName(getPluginType());
     }
 
@@ -93,7 +93,7 @@ public abstract class DecalandPlugin implements Plugin<Project> {
     private void handlePluginConflict(Collection<Class<? extends DecalandPlugin>> conflictingPlugins, String errorMessage) {
         throw new GradleException(String.format(
                 errorMessage,
-                getPluginName(),
+                getPluginId(),
                 composeListOfClasses(conflictingPlugins)
         ));
     }

@@ -1,24 +1,19 @@
 package com.github.decaland.touchstone.plugins.builds;
 
 import com.github.decaland.touchstone.loadout.Loadout;
-import com.github.decaland.touchstone.loadout.layers.configs.DependencyManagementLayer;
-import com.github.decaland.touchstone.loadout.layers.configs.MavenPublishLayer;
-import com.github.decaland.touchstone.loadout.layers.configs.RepositoryConfigurationLayer;
 import com.github.decaland.touchstone.loadout.layers.flavors.JavaLayer;
+import com.github.decaland.touchstone.loadout.layers.flavors.JavaLibraryLayer;
 import com.github.decaland.touchstone.loadout.layers.flavors.SpringBootLayer;
-import com.github.decaland.touchstone.plugins.DecalandBuildConfigPlugin;
 import com.github.decaland.touchstone.plugins.DecalandPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public class DecalandSpringBootApplicationJavaPlugin extends DecalandBuildConfigPlugin {
+public class DecalandSpringBootApplicationJavaPlugin extends DecalandSpringBootLibraryJavaPlugin {
 
     @Override
-    protected void configurePluginLoadout(Loadout pluginLoadout) {
-        pluginLoadout.addLayer(RepositoryConfigurationLayer.class);
-        pluginLoadout.addLayer(DependencyManagementLayer.class);
-        pluginLoadout.addLayer(MavenPublishLayer.class);
-        pluginLoadout.addLayer(JavaLayer.class);
-        pluginLoadout.addLayer(SpringBootLayer.class, SpringBootLayer::markApplication);
+    protected Loadout.Builder configurePluginLoadout(Loadout.Builder loadoutBuilder) {
+        return super.configurePluginLoadout(loadoutBuilder)
+                .swapLayer(JavaLibraryLayer.class, JavaLayer.class)
+                .swapLayer(SpringBootLayer.class, SpringBootLayer.class, SpringBootLayer::markAsApplication);
     }
 
     @NotNull

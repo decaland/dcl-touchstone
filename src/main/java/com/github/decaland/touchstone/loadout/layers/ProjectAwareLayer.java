@@ -8,7 +8,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.component.SoftwareComponent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -27,7 +26,7 @@ public abstract class ProjectAwareLayer extends Layer {
     private static final String MSG_MISSING_MANDATORY_CONFIGURATION
             = "Touchstone plugin failed to find mandatory Gradle configuration '%s'";
 
-    public ProjectAwareLayer(Project project, Collection<Layer> layers) {
+    public ProjectAwareLayer(Project project, FinalizedLayers layers) {
         super(project, layers);
     }
 

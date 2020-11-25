@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 public class DecalandSpringBootLibraryJavaKotlinPlugin extends DecalandLibraryJavaKotlinPlugin {
 
     @Override
-    protected void configurePluginLoadout(Loadout pluginLoadout) {
-        super.configurePluginLoadout(pluginLoadout);
-        pluginLoadout.addLayer(SpringBootLayer.class);
+    protected Loadout.Builder configurePluginLoadout(Loadout.Builder loadoutBuilder) {
+        return super.configurePluginLoadout(loadoutBuilder)
+                .addLayer(SpringBootLayer.class);
     }
 
     @NotNull

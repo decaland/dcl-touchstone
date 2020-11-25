@@ -4,19 +4,18 @@ import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.plugins.PluginManager;
-
-import java.util.Collection;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class Layer {
 
     protected Project project;
-    protected Collection<Layer> layers;
+    protected FinalizedLayers layers;
     protected Logger logger;
     protected PluginManager pluginManager;
     protected PluginContainer pluginContainer;
-    private boolean layerApplied = false;
+    private boolean isApplied = false;
 
-    public Layer(Project project, Collection<Layer> layers) {
+    public Layer(@NotNull Project project, FinalizedLayers layers) {
         this.project = project;
         this.layers = layers;
         this.logger = project.getLogger();
@@ -24,7 +23,7 @@ public abstract class Layer {
         this.pluginContainer = project.getPlugins();
     }
 
-    public boolean readyForApplication(Collection<Layer> layers) {
+    public boolean readyForApplication() {
         return true;
     }
 
@@ -34,11 +33,11 @@ public abstract class Layer {
     public void configureLayer() {
     }
 
-    public final void markApplied() {
-        layerApplied = true;
+    public final void markAsApplied() {
+        isApplied = true;
     }
 
     public final boolean isApplied() {
-        return this.layerApplied;
+        return this.isApplied;
     }
 }
