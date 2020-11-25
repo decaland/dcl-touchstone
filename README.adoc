@@ -10,7 +10,7 @@ To use the `dcl-touchstone` foundation, add the following files to the consumer 
 +
 [source,properties]
 ----
-# ... consumer project’s version probably goes here ...
+# ... consumer project’s `version` probably goes here ...
 
 dcl.version.touchstone = 0.1.2-SNAPSHOT
 
