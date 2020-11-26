@@ -1,6 +1,7 @@
 plugins {
     id 'java-gradle-plugin'
     id 'maven-publish'
+    id 'idea'
 }
 
 group = 'com.github.decaland.touchstone'
@@ -20,7 +21,7 @@ wrapper {
 }
 
 dependencies {
-    testImplementation("junit:junit:${property('dcl.version.junit')}")
+    testImplementation("org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}")
 
     implementation "org.springframework.boot:spring-boot-gradle-plugin:${property('dcl.version.spring-boot')}"
     implementation "io.spring.gradle:dependency-management-plugin:${property('dcl.version.spring-dependency-management')}"
@@ -28,6 +29,13 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-allopen:${property('dcl.version.kotlin')}"
 
     implementation "io.freefair.gradle:lombok-plugin:${property('dcl.version.lombok')}"
+}
+
+test {
+    useJUnitPlatform {
+        includeEngines('junit-jupiter')
+        excludeEngines('junit-vintage')
+    }
 }
 
 publishing {
@@ -90,5 +98,32 @@ project.getExtensions().findByType(GradlePluginDevelopmentExtension).plugins { p
         plugin.displayName = 'Decaland essential library dependencies'
         plugin.description = 'Decaland essential library dependencies'
         plugin.implementationClass = 'com.github.decaland.touchstone.plugins.dependencies.DecalandEssentialDependenciesPlugin'
+    }
+}
+
+/*
+Add another testing module on top of the standard 'test'. Call it 'integration'
+and use it to house integration testing.
+ */
+sourceSets {
+    integration {}
+}
+
+gradlePlugin.testSourceSets(sourceSets.integration)
+configurations.integrationImplementation.extendsFrom(configurations.testImplementation)
+
+tasks.register('integration', Test) {
+    testClassesDirs = sourceSets.integration.output.classesDirs
+    classpath = sourceSets.integration.runtimeClasspath
+}
+
+tasks.named('check') {
+    dependsOn(tasks.integration)
+}
+
+idea {
+    module {
+        testSourceDirs += project.sourceSets.integration.java.srcDirs
+        testSourceDirs += project.sourceSets.integration.resources.srcDirs
     }
 }

@@ -24,9 +24,11 @@ public class EssentialDependenciesLayer extends ProjectAwareLayer {
 
     @Override
     public void configureLayer() {
+        project.afterEvaluate(this::addFinalDependencies);
         project.getPlugins().withType(JavaPlugin.class, plugin -> this.addDependenciesForJava());
         project.getPlugins().withType(KotlinPluginWrapper.class, plugin -> this.addDependenciesForKotlin());
         project.getPlugins().withType(SpringBootPlugin.class, plugin -> this.addDependenciesForSpring());
+        project.afterEvaluate(this::addFinalDependencies);
     }
 
     private void addDependenciesForJava() {
@@ -37,10 +39,30 @@ public class EssentialDependenciesLayer extends ProjectAwareLayer {
     private void addDependenciesForKotlin() {
         dependencies.add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8");
         dependencies.add("implementation", "org.jetbrains.kotlin:kotlin-reflect");
-        dependencies.add("testImplementation", "org.jetbrains.kotlin:kotlin-test-junit");
     }
 
     private void addDependenciesForSpring() {
+    }
+
+    private void addFinalDependencies(Project project) {
+        if (project.getPlugins().hasPlugin(KotlinPluginWrapper.class)) {
+            dependencies.add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin");
+        }
+        addJUnitDependency();
+    }
+
+    private void addJUnitDependency() {
+        if (project.getPlugins().hasPlugin(SpringBootPlugin.class)) {
+            addJUnitDependencyForSpring();
+        } else {
+            addJUnitDependencyForJava();
+        }
+        if (project.getPlugins().hasPlugin(KotlinPluginWrapper.class)) {
+            addJUnitDependencyForKotlin();
+        }
+    }
+
+    private void addJUnitDependencyForSpring() {
         ModuleDependency springBootStarterTest
                 = (ModuleDependency) dependencies.create("org.springframework.boot:spring-boot-starter-test");
         springBootStarterTest.exclude(
@@ -48,10 +70,17 @@ public class EssentialDependenciesLayer extends ProjectAwareLayer {
         );
         dependencies.add("testImplementation", springBootStarterTest);
 
-        project.getTasks().withType(Test.class, Test::useJUnitPlatform);
+        project.getTasks().withType(Test.class, testTask -> testTask.useJUnitPlatform(jUnitPlatformOptions -> {
+            jUnitPlatformOptions.includeEngines("junit-jupiter");
+            jUnitPlatformOptions.excludeEngines("junit-vintage");
+        }));
+    }
 
-        if (project.getPlugins().hasPlugin(KotlinPluginWrapper.class)) {
-            dependencies.add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin");
-        }
+    private void addJUnitDependencyForKotlin() {
+        dependencies.add("testImplementation", "org.jetbrains.kotlin:kotlin-test-junit");
+    }
+
+    private void addJUnitDependencyForJava() {
+        dependencies.add("testImplementation", "org.junit.jupiter:junit-jupiter");
     }
 }
