@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.dependencies;
 
-import com.github.decaland.touchstone.loadout.layers.Layer;
+import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import io.freefair.gradle.plugins.lombok.LombokPlugin;
 import org.gradle.api.Project;
@@ -11,14 +11,13 @@ import org.gradle.api.tasks.testing.Test;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 import org.springframework.boot.gradle.plugin.SpringBootPlugin;
 
-import java.util.Collection;
 import java.util.Map;
 
 public class EssentialDependenciesLayer extends ProjectAwareLayer {
 
     private final DependencyHandler dependencies;
 
-    public EssentialDependenciesLayer(Project project, Collection<Layer> layers) {
+    public EssentialDependenciesLayer(Project project, LayerAccumulator.Finalized layers) {
         super(project, layers);
         this.dependencies = project.getDependencies();
     }

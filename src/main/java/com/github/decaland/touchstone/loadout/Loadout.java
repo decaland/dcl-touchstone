@@ -1,64 +1,39 @@
 package com.github.decaland.touchstone.loadout;
 
 import com.github.decaland.touchstone.loadout.layers.Layer;
-import org.gradle.api.GradleException;
-import org.gradle.api.Project;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.function.Consumer;
 
-public class Loadout {
+public interface Loadout {
 
-    private static final String MSG_FAILED_TO_INSTANTIATE_LAYER
-            = "Touchstone plugin failed to instantiate loadout layer class '%s'";
+    void putOn();
 
-    private final Project project;
-    private final Collection<Layer> layers;
+    interface Builder {
 
-    public Loadout(Project project) {
-        this.project = project;
-        this.layers = new ArrayList<>();
-    }
+        <T extends Layer> Builder addLayer(Class<T> clazz);
 
-    public void putOn() {
-        if (layers.isEmpty()) return;
-        boolean anyApplied;
-        do {
-            anyApplied = false;
-            for (Layer layer : layers) {
-                if (!layer.isApplied() && layer.readyForApplication(layers)) {
-                    layer.applyLayer();
-                    layer.markApplied();
-                    anyApplied = true;
-                }
-            }
-        } while (anyApplied);
-        for (Layer layer : layers) {
-            if (layer.isApplied()) {
-                layer.configureLayer();
-            }
-        }
-    }
+        <T extends Layer> Builder addLayer(Class<T> clazz, @NotNull Consumer<T> configurer);
 
-    public <T extends Layer> void addLayer(Class<T> clazz) {
-        addLayer(clazz, layer -> {
-        });
-    }
+        <T extends Layer> Builder reconfigureLayer(Class<T> clazz, @NotNull Consumer<T> reconfigurer);
 
-    public <T extends Layer> void addLayer(Class<T> clazz, Consumer<T> configurer) {
-        T layer = createLayer(clazz);
-        configurer.accept(layer);
-        layers.add(layer);
-    }
+        <T extends Layer> Builder removeLayer(Class<T> clazz);
 
-    private <T extends Layer> T createLayer(Class<T> clazz) {
-        try {
-            return clazz
-                    .getDeclaredConstructor(Project.class, Collection.class)
-                    .newInstance(this.project, this.layers);
-        } catch (ReflectiveOperationException e) {
-            throw new GradleException(String.format(MSG_FAILED_TO_INSTANTIATE_LAYER, clazz.getSimpleName()));
-        }
+        <O extends Layer, I extends Layer> Builder swapLayer(Class<O> outgoing, Class<I> incoming);
+
+        <O extends Layer, I extends Layer> Builder swapLayer(
+                Class<O> outgoing, Class<I> incoming, @NotNull Consumer<I> configurer
+        );
+
+        <O extends Layer, I extends Layer> Builder swapOrAddLayer(
+                Class<O> outgoing, Class<I> incoming
+        );
+
+        <O extends Layer, I extends Layer> Builder swapOrAddLayer(
+                Class<O> outgoing, Class<I> incoming, @NotNull Consumer<I> configurer
+        );
+
+        @NotNull
+        Loadout build();
     }
 }

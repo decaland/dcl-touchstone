@@ -1,14 +1,12 @@
 package com.github.decaland.touchstone.loadout.layers.flavors;
 
-import com.github.decaland.touchstone.loadout.layers.Layer;
+import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 
-import java.util.Collection;
-
 public class JavaLibraryLayer extends JavaLayer {
 
-    public JavaLibraryLayer(Project project, Collection<Layer> layers) {
+    public JavaLibraryLayer(Project project, LayerAccumulator.Finalized layers) {
         super(project, layers);
     }
 

@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 public class DecalandLibraryJavaKotlinPlugin extends DecalandLibraryJavaPlugin {
 
     @Override
-    protected void configurePluginLoadout(Loadout pluginLoadout) {
-        super.configurePluginLoadout(pluginLoadout);
-        pluginLoadout.addLayer(KotlinLayer.class);
+    protected Loadout.Builder configurePluginLoadout(Loadout.Builder loadoutBuilder) {
+        return super.configurePluginLoadout(loadoutBuilder)
+                .addLayer(KotlinLayer.class);
     }
 
     @NotNull

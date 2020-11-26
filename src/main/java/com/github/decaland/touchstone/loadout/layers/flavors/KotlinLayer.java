@@ -1,15 +1,15 @@
 package com.github.decaland.touchstone.loadout.layers.flavors;
 
-import com.github.decaland.touchstone.loadout.layers.Layer;
+import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import org.gradle.api.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.allopen.gradle.SpringGradleSubplugin;
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
 import org.springframework.boot.gradle.plugin.SpringBootPlugin;
 
-import java.util.Collection;
 import java.util.Collections;
 
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.VERSION_JAVA;
@@ -17,7 +17,7 @@ import static com.github.decaland.touchstone.configs.BuildParametersManifest.VER
 
 public class KotlinLayer extends ProjectAwareLayer {
 
-    public KotlinLayer(Project project, Collection<Layer> layers) {
+    public KotlinLayer(Project project, LayerAccumulator.Finalized layers) {
         super(project, layers);
     }
 
@@ -34,7 +34,7 @@ public class KotlinLayer extends ProjectAwareLayer {
         project.getTasks().withType(KotlinCompile.class, this::configureKotlinPluginCompileTasks);
     }
 
-    private void configureKotlinPluginCompileTasks(KotlinCompile task) {
+    private void configureKotlinPluginCompileTasks(@NotNull KotlinCompile task) {
         KotlinJvmOptions kotlinOptions = task.getKotlinOptions();
         kotlinOptions.setApiVersion(VERSION_KOTLIN_API);
         kotlinOptions.setLanguageVersion(VERSION_KOTLIN_API);

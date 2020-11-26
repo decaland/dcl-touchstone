@@ -1,19 +1,17 @@
 package com.github.decaland.touchstone.loadout.layers.configs;
 
-import com.github.decaland.touchstone.loadout.layers.Layer;
+import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.MavenRepositoryContentDescriptor;
-
-import java.util.Collection;
 
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.REPO_MAVEN_RELEASES;
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.REPO_MAVEN_SNAPSHOTS;
 
 public class RepositoryConfigurationLayer extends ProjectAwareLayer {
 
-    public RepositoryConfigurationLayer(Project project, Collection<Layer> layers) {
+    public RepositoryConfigurationLayer(Project project, LayerAccumulator.Finalized layers) {
         super(project, layers);
     }
 
