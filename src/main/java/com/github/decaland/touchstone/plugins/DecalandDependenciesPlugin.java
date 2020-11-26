@@ -8,7 +8,7 @@ import java.util.List;
 
 import static com.github.decaland.touchstone.plugins.DecalandBuildConfigPlugin.DECALAND_BUILD_CONFIG_PLUGIN_TYPES;
 
-public abstract class DecalandDependenciesPlugin extends DecalandPlugin {
+public abstract class DecalandDependenciesPlugin extends DecalandBasePlugin {
 
     final static Collection<Class<? extends DecalandPlugin>> DECALAND_DEPENDENCIES_PLUGIN_TYPES = List.of(
             DecalandEssentialDependenciesPlugin.class

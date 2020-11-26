@@ -13,7 +13,7 @@ public class DecalandSpringBootApplicationJavaKotlinPlugin extends DecalandSprin
     protected Loadout.Builder configurePluginLoadout(Loadout.Builder loadoutBuilder) {
         return super.configurePluginLoadout(loadoutBuilder)
                 .swapLayer(JavaLibraryLayer.class, JavaLayer.class)
-                .swapLayer(SpringBootLayer.class, SpringBootLayer.class, SpringBootLayer::markAsApplication);
+                .reconfigureLayer(SpringBootLayer.class, SpringBootLayer::markAsApplication);
     }
 
     @NotNull

@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.flavors;
 
-import com.github.decaland.touchstone.loadout.layers.FinalizedLayers;
+import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import org.gradle.api.Project;
@@ -13,7 +13,7 @@ public class SpringBootLayer extends ProjectAwareLayer {
 
     private boolean isApplication = false;
 
-    public SpringBootLayer(Project project, FinalizedLayers layers) {
+    public SpringBootLayer(Project project, LayerAccumulator.Finalized layers) {
         super(project, layers);
     }
 
@@ -41,7 +41,15 @@ public class SpringBootLayer extends ProjectAwareLayer {
         return isApplication;
     }
 
+    public boolean isLibrary() {
+        return !isApplication;
+    }
+
     public void markAsApplication() {
         this.isApplication = true;
+    }
+
+    public void markAsLibrary() {
+        this.isApplication = false;
     }
 }

@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.configs;
 
-import com.github.decaland.touchstone.loadout.layers.FinalizedLayers;
+import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import com.github.decaland.touchstone.loadout.layers.flavors.SpringBootLayer;
 import org.gradle.api.Action;
@@ -20,7 +20,7 @@ public class MavenPublishLayer extends ProjectAwareLayer {
     private static final String PUBLICATION_NAME_BOOT_LIB = "decalandSpringBootLibrary";
     private static final String PUBLICATION_NAME_LIB = "decalandLibrary";
 
-    public MavenPublishLayer(Project project, FinalizedLayers layers) {
+    public MavenPublishLayer(Project project, LayerAccumulator.Finalized layers) {
         super(project, layers);
     }
 

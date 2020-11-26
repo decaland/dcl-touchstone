@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.function.Function;
 
-public abstract class ProjectAwareLayer extends Layer {
+public abstract class ProjectAwareLayer extends BaseLayer {
 
     private static final String MSG_MISSING_MANDATORY_EXTENSION
             = "Touchstone plugin failed to find mandatory Gradle plugin extension of class '%s'";
@@ -26,7 +26,7 @@ public abstract class ProjectAwareLayer extends Layer {
     private static final String MSG_MISSING_MANDATORY_CONFIGURATION
             = "Touchstone plugin failed to find mandatory Gradle configuration '%s'";
 
-    public ProjectAwareLayer(Project project, FinalizedLayers layers) {
+    public ProjectAwareLayer(Project project, LayerAccumulator.Finalized layers) {
         super(project, layers);
     }
 

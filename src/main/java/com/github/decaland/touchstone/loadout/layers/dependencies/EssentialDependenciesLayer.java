@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.dependencies;
 
-import com.github.decaland.touchstone.loadout.layers.FinalizedLayers;
+import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import io.freefair.gradle.plugins.lombok.LombokPlugin;
 import org.gradle.api.Project;
@@ -17,7 +17,7 @@ public class EssentialDependenciesLayer extends ProjectAwareLayer {
 
     private final DependencyHandler dependencies;
 
-    public EssentialDependenciesLayer(Project project, FinalizedLayers layers) {
+    public EssentialDependenciesLayer(Project project, LayerAccumulator.Finalized layers) {
         super(project, layers);
         this.dependencies = project.getDependencies();
     }

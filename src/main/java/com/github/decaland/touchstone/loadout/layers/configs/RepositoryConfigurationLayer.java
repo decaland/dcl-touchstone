@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.configs;
 
-import com.github.decaland.touchstone.loadout.layers.FinalizedLayers;
+import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
@@ -11,7 +11,7 @@ import static com.github.decaland.touchstone.configs.BuildParametersManifest.REP
 
 public class RepositoryConfigurationLayer extends ProjectAwareLayer {
 
-    public RepositoryConfigurationLayer(Project project, FinalizedLayers layers) {
+    public RepositoryConfigurationLayer(Project project, LayerAccumulator.Finalized layers) {
         super(project, layers);
     }
 
