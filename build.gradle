@@ -16,13 +16,48 @@ repositories {
     gradlePluginPortal()
 }
 
+// Download the full version of Gradle wrapper
 wrapper {
     gradleVersion = "${project.property('dcl.minversion.gradle')}"
     distributionType = Wrapper.DistributionType.ALL
 }
 
+// Extract and store useful objects
+def testTask = tasks.named('test')
+def gradlePlugin = project.getExtensions().findByType(GradlePluginDevelopmentExtension)
+
+// Create and register test-related source sets
+def sourceSets = (SourceSetContainer) project.getProperties().get("sourceSets")
+def testIntegrationSrc = sourceSets.create('testIntegration')
+def testFunctionalSrc = sourceSets.create('testFunctional')
+
+// Link functional tests with Gradle plugin development plugin
+gradlePlugin.testSourceSets(testFunctionalSrc)
+
+// Create and register test-related tasks
+def testIntegrationTask = tasks.register('testIntegration', Test) {
+    group = 'verification'
+    testClassesDirs = testIntegrationSrc.output.classesDirs
+    classpath = testIntegrationSrc.runtimeClasspath
+    it.mustRunAfter(testTask)
+}
+def testFunctionalTask = tasks.register('testFunctional', Test) {
+    group = 'verification'
+    testClassesDirs = testFunctionalSrc.output.classesDirs
+    classpath = testFunctionalSrc.runtimeClasspath
+    it.mustRunAfter(testTask)
+}
+
+// Link up the additional test-related tasks
+tasks.named('check') {
+    it.dependsOn(testIntegrationTask, testFunctionalTask)
+}
+
+// Set up dependencies
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}")
+    testIntegrationImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
+    testFunctionalImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
 
     implementation "org.springframework.boot:spring-boot-gradle-plugin:${property('dcl.version.spring-boot')}"
     implementation "io.spring.gradle:dependency-management-plugin:${property('dcl.version.spring-dependency-management')}"
@@ -32,6 +67,12 @@ dependencies {
     implementation "io.freefair.gradle:lombok-plugin:${property('dcl.version.lombok')}"
 }
 
+// Ensure new test configurations extend from implementation
+def implementationConfiguration = configurations.getByName('implementation')
+configurations.getByName('testIntegrationImplementation').extendsFrom(implementationConfiguration)
+configurations.getByName('testFunctionalImplementation').extendsFrom(implementationConfiguration)
+
+// Configure usage of JUnit in unit tests
 test {
     useJUnitPlatform {
         includeEngines('junit-jupiter')
@@ -39,6 +80,7 @@ test {
     }
 }
 
+// Set up publishing of Touchstone plugins
 publishing {
     repositories {
         if (publishToSerpnet) {
@@ -57,8 +99,7 @@ publishing {
     }
 }
 
-def gradlePlugin = project.getExtensions().findByType(GradlePluginDevelopmentExtension)
-
+// Set up metadata of published Touchstone plugins
 gradlePlugin.plugins { pluginContainer ->
     pluginContainer.create("decalandLibraryJava") { plugin ->
         plugin.id = 'dcl-lib-java'
@@ -104,45 +145,7 @@ gradlePlugin.plugins { pluginContainer ->
     }
 }
 
-/*
-Set up modules for:
-    - unit testing          ('test', built-in)
-    - integration testing   ('testIntegration')
-    - functional testing    ('testFunctional')
- */
-
-// Create and register source sets
-def sourceSets = (SourceSetContainer) project.getProperties().get("sourceSets")
-def testIntegrationSrc = sourceSets.create('testIntegration')
-def testFunctionalSrc = sourceSets.create('testFunctional')
-gradlePlugin.testSourceSets(testIntegrationSrc, testFunctionalSrc)
-
-// Ensure new test configurations extend from existing one
-def testImplementationConfiguration = configurations.getByName('testImplementation')
-configurations.getByName('testIntegrationImplementation').extendsFrom(testImplementationConfiguration)
-configurations.getByName('testFunctionalImplementation').extendsFrom(testImplementationConfiguration)
-
-// Create tasks
-def testTask = tasks.named('test')
-def testIntegrationTask = tasks.register('testIntegration', Test) {
-    group = 'verification'
-    testClassesDirs = testIntegrationSrc.output.classesDirs
-    classpath = testIntegrationSrc.runtimeClasspath
-    it.mustRunAfter(testTask)
-}
-def testFunctionalTask = tasks.register('testFunctional', Test) {
-    group = 'verification'
-    testClassesDirs = testFunctionalSrc.output.classesDirs
-    classpath = testFunctionalSrc.runtimeClasspath
-    it.mustRunAfter(testTask)
-}
-
-// Set up appropriate dependencies
-tasks.named('check') {
-    it.dependsOn(testIntegrationTask, testFunctionalTask)
-}
-
-// Configure Intellij IDEA
+// Configure Intellij IDEA to recognize additional source sets
 idea {
     module {
         testSourceDirs += testIntegrationSrc.java.srcDirs
