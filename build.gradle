@@ -24,7 +24,7 @@ wrapper {
 
 // Extract and store useful objects
 def testTask = tasks.named('test')
-def gradlePlugin = project.getExtensions().findByType(GradlePluginDevelopmentExtension)
+def gradlePluginDevelopmentExtension = project.getExtensions().findByType(GradlePluginDevelopmentExtension)
 
 // Create and register test-related source sets
 def sourceSets = (SourceSetContainer) project.getProperties().get("sourceSets")
@@ -32,7 +32,7 @@ def testIntegrationSrc = sourceSets.create('testIntegration')
 def testFunctionalSrc = sourceSets.create('testFunctional')
 
 // Link functional tests with Gradle plugin development plugin
-gradlePlugin.testSourceSets(testFunctionalSrc)
+gradlePluginDevelopmentExtension.testSourceSets(testFunctionalSrc)
 
 // Create and register test-related tasks
 def testIntegrationTask = tasks.register('testIntegration', Test) {
@@ -53,7 +53,7 @@ tasks.named('check') {
     it.dependsOn(testIntegrationTask, testFunctionalTask)
 }
 
-// Set up dependencies
+// Set up dependencies for plugin development & testing
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}")
     testIntegrationImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
@@ -72,7 +72,7 @@ def implementationConfiguration = configurations.getByName('implementation')
 configurations.getByName('testIntegrationImplementation').extendsFrom(implementationConfiguration)
 configurations.getByName('testFunctionalImplementation').extendsFrom(implementationConfiguration)
 
-// Configure usage of JUnit in unit tests
+// Configure unit tests (and only unit tests) to use JUnit
 test {
     useJUnitPlatform {
         includeEngines('junit-jupiter')
@@ -100,7 +100,7 @@ publishing {
 }
 
 // Set up metadata of published Touchstone plugins
-gradlePlugin.plugins { pluginContainer ->
+gradlePluginDevelopmentExtension.plugins { pluginContainer ->
     pluginContainer.create("decalandLibraryJava") { plugin ->
         plugin.id = 'dcl-lib-java'
         plugin.displayName = 'Decaland library written in Java'
