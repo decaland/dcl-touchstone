@@ -55,6 +55,9 @@ tasks.named('check') {
 
 // Set up dependencies for plugin development & testing
 dependencies {
+    testIntegrationImplementation(project)
+    testFunctionalImplementation(project)
+
     testImplementation("org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}")
     testIntegrationImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
     testFunctionalImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
