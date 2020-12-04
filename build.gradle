@@ -48,9 +48,12 @@ def testFunctionalTask = tasks.register('testFunctional', Test) {
     it.mustRunAfter(testTask)
 }
 
-// Link up the additional test-related tasks
+// Link up the additional test-related tasks; make tests mandatory for publishing
 tasks.named('check') {
     it.dependsOn(testIntegrationTask, testFunctionalTask)
+}
+tasks.withType(AbstractPublishToMaven) {
+    it.dependsOn(tasks.named('check'))
 }
 
 // Set up dependencies for plugin development & testing
