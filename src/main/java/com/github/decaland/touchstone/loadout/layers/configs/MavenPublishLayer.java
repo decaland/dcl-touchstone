@@ -16,9 +16,9 @@ import static org.springframework.boot.gradle.plugin.SpringBootPlugin.BOOT_JAR_T
 
 public class MavenPublishLayer extends ProjectAwareLayer {
 
-    private static final String PUBLICATION_NAME_BOOT_APP = "decalandSpringBootApplication";
-    private static final String PUBLICATION_NAME_BOOT_LIB = "decalandSpringBootLibrary";
-    private static final String PUBLICATION_NAME_LIB = "decalandLibrary";
+    public static final String PUBLICATION_NAME_BOOT_APP = "decalandSpringBootApplication";
+    public static final String PUBLICATION_NAME_BOOT_LIB = "decalandSpringBootLibrary";
+    public static final String PUBLICATION_NAME_LIB = "decalandLibrary";
 
     public MavenPublishLayer(Project project, LayerAccumulator.Finalized layers) {
         super(project, layers);
