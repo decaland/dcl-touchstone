@@ -19,7 +19,7 @@ import spock.lang.Specification
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.VERSION_JAVA
 import static com.github.decaland.touchstone.loadout.layers.configs.RepositoryConfigurationLayer.SERPNET_REPOS
 
-class DecalandLibraryJavaPluginTest extends Specification {
+class DecalandLibraryJavaPluginTestIntegration extends Specification {
 
     @Shared
     def project = ProjectBuilder.builder().build()
@@ -40,6 +40,7 @@ class DecalandLibraryJavaPluginTest extends Specification {
         expect:
         project.plugins.hasPlugin(DependencyManagementPlugin)
     }
+
     def "publishing is set up correctly"() {
         expect:
         project.plugins.hasPlugin(MavenPublishPlugin)
@@ -70,9 +71,9 @@ class DecalandLibraryJavaPluginTest extends Specification {
         }
     }
 
-    private static boolean isMavenCentral(ArtifactRepository repotisory) {
-        repotisory instanceof MavenArtifactRepository &&
-                (repotisory as MavenArtifactRepository).url.toString() == 'https://repo.maven.apache.org/maven2/'
+    private static boolean isMavenCentral(ArtifactRepository repository) {
+        repository instanceof MavenArtifactRepository &&
+                (repository as MavenArtifactRepository).url.toString() == 'https://repo.maven.apache.org/maven2/'
     }
 
     private static boolean isMavenLocal(ArtifactRepository repository) {

@@ -62,6 +62,8 @@ dependencies {
     testFunctionalImplementation(project)
 
     testImplementation("org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}")
+    testImplementation("org.mockito:mockito-junit-jupiter:${property('dcl.version.mockito')}")
+    testImplementation("org.assertj:assertj-core:${property('dcl.version.assertj')}")
     testIntegrationImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
     testFunctionalImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
 
