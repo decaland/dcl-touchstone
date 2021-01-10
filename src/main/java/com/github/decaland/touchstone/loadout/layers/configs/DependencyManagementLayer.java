@@ -1,33 +1,39 @@
 package com.github.decaland.touchstone.loadout.layers.configs;
 
-import com.github.decaland.touchstone.configs.DependencyVersionBom;
-import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
+import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import org.gradle.api.Project;
 
+import static com.github.decaland.touchstone.configs.dependencies.DependencyBom.getDependencyBom;
+
 public class DependencyManagementLayer extends ProjectAwareLayer {
 
     private boolean isCustomizingPom = false;
 
-    public DependencyManagementLayer(Project project, LayerAccumulator.Finalized layers) {
-        super(project, layers);
+    public DependencyManagementLayer() {
+    }
+
+    public DependencyManagementLayer(boolean isCustomizingPom) {
+        this.isCustomizingPom = isCustomizingPom;
     }
 
     @Override
-    public void applyLayer() {
-        pluginManager.apply(DependencyManagementPlugin.class);
+    public void apply(Project project, Loadout.Layers layers) {
+        project.getPluginManager().apply(DependencyManagementPlugin.class);
     }
 
     @Override
-    public void configureLayer() {
-        DependencyManagementExtension extension = requireExtension(DependencyManagementExtension.class);
-        extension.dependencies(DependencyVersionBom::applyDependencyVersionConstraints);
+    public void configure(Project project, Loadout.Layers layers) {
+        DependencyManagementExtension extension = requireExtension(project, DependencyManagementExtension.class);
+        extension.dependencies(dependenciesHandler ->
+                getDependencyBom().forEach(dependency -> dependency.apply(dependenciesHandler))
+        );
         extension.generatedPomCustomization(handler -> handler.setEnabled(isCustomizingPom));
     }
 
-    public void enablePomCustomization() {
-        this.isCustomizingPom = true;
+    public boolean isCustomizingPom() {
+        return isCustomizingPom;
     }
 }

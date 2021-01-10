@@ -18,6 +18,9 @@ public class BuildParametersManifest {
         VERSION_KOTLIN_API = extractKotlinApiVersion();
     }
 
+    private BuildParametersManifest() {
+    }
+
     private static String extractKotlinApiVersion() {
         try {
             return VERSION_KOTLIN.substring(0, VERSION_KOTLIN.indexOf('.', VERSION_KOTLIN.indexOf('.') + 1));

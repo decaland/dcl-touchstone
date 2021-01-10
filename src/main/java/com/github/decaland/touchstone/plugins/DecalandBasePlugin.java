@@ -1,6 +1,5 @@
 package com.github.decaland.touchstone.plugins;
 
-import com.github.decaland.touchstone.loadout.BaseLoadout;
 import com.github.decaland.touchstone.loadout.Loadout;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -28,15 +27,16 @@ public abstract class DecalandBasePlugin implements DecalandPlugin {
 
     @Override
     public final void apply(@NotNull Project project) {
-        project.getLogger().lifecycle(String.format("  Apply Touchstone plugin '%s'", getPluginId()));
+        String pluginId = getPluginId();
+        project.getLogger().lifecycle(String.format("  Apply Touchstone plugin '%s'", pluginId));
         validateGradleVersion();
         ensurePluginIsApplicable(project);
-        Loadout.Builder loadoutBuilder = BaseLoadout.builder(project, getPluginId());
-        configurePluginLoadout(loadoutBuilder);
-        loadoutBuilder.build().putOn();
+        supplyLoadout().apply(project, pluginId);
     }
 
-    protected abstract Loadout.Builder configurePluginLoadout(Loadout.Builder loadoutBuilder);
+
+    @NotNull
+    public abstract Loadout supplyLoadout();
 
     @NotNull
     protected abstract Class<? extends DecalandPlugin> getPluginType();
@@ -48,23 +48,32 @@ public abstract class DecalandBasePlugin implements DecalandPlugin {
     }
 
     @NotNull
-    protected Collection<Class<? extends DecalandPlugin>> getRequiredPlugins() {
+    @Override
+    public GradleVersion getMinimumGradleVersion() {
+        return GradleVersion.version(MIN_VERSION_GRADLE);
+    }
+
+    @NotNull
+    @Override
+    public Collection<Class<? extends DecalandPlugin>> getAnyRequiredPlugins() {
         return List.of();
     }
 
     @NotNull
-    protected Collection<Class<? extends DecalandPlugin>> getAnyRequiredPlugins() {
+    @Override
+    public Collection<Class<? extends DecalandPlugin>> getAllRequiredPlugins() {
         return List.of();
     }
 
     @NotNull
-    protected Collection<Class<? extends DecalandPlugin>> getIncompatiblePlugins() {
+    @Override
+    public Collection<Class<? extends DecalandPlugin>> getIncompatiblePlugins() {
         return List.of();
     }
 
     private void validateGradleVersion() {
         GradleVersion currentVersion = GradleVersion.current();
-        GradleVersion minVersion = GradleVersion.version(MIN_VERSION_GRADLE);
+        GradleVersion minVersion = getMinimumGradleVersion();
         if (currentVersion.compareTo(minVersion) < 0) {
             throw new GradleException(String.format(MSG_UNSUPPORTED_GRADLE_VERSION, minVersion, currentVersion));
         }
@@ -73,7 +82,7 @@ public abstract class DecalandBasePlugin implements DecalandPlugin {
     private void ensurePluginIsApplicable(@NotNull Project project) {
         PluginContainer pluginContainer = project.getPlugins();
 
-        Collection<Class<? extends DecalandPlugin>> requiredPlugins = getRequiredPlugins();
+        Collection<Class<? extends DecalandPlugin>> requiredPlugins = getAllRequiredPlugins();
         if (!requiredPlugins.stream().allMatch(pluginContainer::hasPlugin)) {
             handlePluginConflict(requiredPlugins, MSG_MISSING_REQUIRED_PLUGINS);
         }

@@ -16,13 +16,13 @@ public abstract class DecalandDependenciesPlugin extends DecalandBasePlugin {
 
     @NotNull
     @Override
-    protected Collection<Class<? extends DecalandPlugin>> getAnyRequiredPlugins() {
+    public Collection<Class<? extends DecalandPlugin>> getAnyRequiredPlugins() {
         return DECALAND_BUILD_CONFIG_PLUGIN_TYPES;
     }
 
     @NotNull
     @Override
-    protected Collection<Class<? extends DecalandPlugin>> getIncompatiblePlugins() {
+    public Collection<Class<? extends DecalandPlugin>> getIncompatiblePlugins() {
         return DECALAND_DEPENDENCIES_PLUGIN_TYPES;
     }
 }

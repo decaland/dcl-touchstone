@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.flavors;
 
-import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
+import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
@@ -15,24 +15,23 @@ import static com.github.decaland.touchstone.configs.BuildParametersManifest.VER
 
 public class JavaLayer extends ProjectAwareLayer {
 
-    public JavaLayer(Project project, LayerAccumulator.Finalized layers) {
-        super(project, layers);
+    public JavaLayer() {
     }
 
     @Override
-    public void applyLayer() {
-        pluginManager.apply(JavaPlugin.class);
+    public void apply(Project project, Loadout.Layers layers) {
+        project.getPluginManager().apply(JavaPlugin.class);
     }
 
     @Override
-    public void configureLayer() {
-        configureJavaPluginExtension();
+    public void configure(Project project, Loadout.Layers layers) {
+        configureJavaPluginExtension(project);
         project.getTasks().withType(JavaCompile.class, this::configureJavaPluginCompileTasks);
         project.getTasks().withType(Test.class, this::configureJavaPluginTestCompileTasks);
     }
 
-    private void configureJavaPluginExtension() {
-        JavaPluginExtension javaPluginExtension = requireExtension(JavaPluginExtension.class);
+    private void configureJavaPluginExtension(Project project) {
+        JavaPluginExtension javaPluginExtension = requireExtension(project, JavaPluginExtension.class);
         JavaVersion javaVersion = JavaVersion.toVersion(VERSION_JAVA);
         javaPluginExtension.setSourceCompatibility(javaVersion);
         javaPluginExtension.setTargetCompatibility(javaVersion);

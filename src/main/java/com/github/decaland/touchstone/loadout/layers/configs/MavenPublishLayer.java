@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.configs;
 
-import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
+import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import com.github.decaland.touchstone.loadout.layers.flavors.SpringBootLayer;
 import org.gradle.api.Action;
@@ -20,23 +20,22 @@ public class MavenPublishLayer extends ProjectAwareLayer {
     public static final String PUBLICATION_NAME_BOOT_LIB = "decalandSpringBootLibrary";
     public static final String PUBLICATION_NAME_LIB = "decalandLibrary";
 
-    public MavenPublishLayer(Project project, LayerAccumulator.Finalized layers) {
-        super(project, layers);
+    public MavenPublishLayer() {
     }
 
     @Override
-    public void applyLayer() {
-        pluginManager.apply(MavenPublishPlugin.class);
+    public void apply(Project project, Loadout.Layers layers) {
+        project.getPluginManager().apply(MavenPublishPlugin.class);
     }
 
     @Override
-    public void configureLayer() {
-        PublishingExtension publishingExtension = requireExtension(PublishingExtension.class);
-        publishingExtension.repositories(this::configureRepositories);
-        configurePublications(publishingExtension.getPublications());
+    public void configure(Project project, Loadout.Layers layers) {
+        PublishingExtension publishingExtension = requireExtension(project, PublishingExtension.class);
+        publishingExtension.repositories(repositories -> configureRepositories(project, repositories));
+        configurePublications(project, layers, publishingExtension.getPublications());
     }
 
-    private void configureRepositories(RepositoryHandler repositories) {
+    private void configureRepositories(Project project, RepositoryHandler repositories) {
         if (project.hasProperty(PROP_KEY_SERPNET)) {
             repositories.maven(repository -> {
                 if (project.getVersion().toString().endsWith("SNAPSHOT")) {
@@ -46,10 +45,10 @@ public class MavenPublishLayer extends ProjectAwareLayer {
                 }
                 repository.credentials(passwordCredentials -> {
                     passwordCredentials.setUsername(
-                            requireProjectProperty(PROP_KEY_SERPNET_USERNAME, Object::toString)
+                            requireProjectProperty(project, PROP_KEY_SERPNET_USERNAME, Object::toString)
                     );
                     passwordCredentials.setPassword(
-                            requireProjectProperty(PROP_KEY_SERPNET_PASSWORD, Object::toString)
+                            requireProjectProperty(project, PROP_KEY_SERPNET_PASSWORD, Object::toString)
                     );
                 });
             });
@@ -58,32 +57,31 @@ public class MavenPublishLayer extends ProjectAwareLayer {
         }
     }
 
-    private void configurePublications(PublicationContainer publications) {
+    private void configurePublications(Project project, Loadout.Layers layers, PublicationContainer publications) {
         String publicationName;
         Action<MavenPublication> publicationAction;
-        if (usesSpringBoot()) {
-            if (isApplication()) {
+        if (usesSpringBoot(layers)) {
+            if (isApplication(layers)) {
                 publicationName = PUBLICATION_NAME_BOOT_APP;
-                publicationAction = pub -> pub.artifact(requireTask(BOOT_JAR_TASK_NAME));
+                publicationAction = pub -> pub.artifact(requireTask(project, BOOT_JAR_TASK_NAME));
             } else {
                 publicationName = PUBLICATION_NAME_BOOT_LIB;
-                publicationAction = pub -> pub.from(requireComponent("java"));
+                publicationAction = pub -> pub.from(requireComponent(project, "java"));
             }
         } else {
             publicationName = PUBLICATION_NAME_LIB;
-            publicationAction = pub -> pub.from(requireComponent("java"));
+            publicationAction = pub -> pub.from(requireComponent(project, "java"));
         }
         publications.create(publicationName, MavenPublication.class, publicationAction);
     }
 
-    private boolean usesSpringBoot() {
-        return layers.contains(SpringBootLayer.class);
+    private boolean usesSpringBoot(Loadout.Layers layers) {
+        return layers.stream().anyMatch(layer -> layer instanceof SpringBootLayer);
     }
 
-    private boolean isApplication() {
-        return layers.asUnmodifiableLinkedSet()
-                .stream()
-                .filter(p -> p instanceof SpringBootLayer)
-                .anyMatch(p -> ((SpringBootLayer) p).isApplication());
+    private boolean isApplication(Loadout.Layers layers) {
+        return layers.stream()
+                .filter(layer -> layer instanceof SpringBootLayer)
+                .anyMatch(layer -> ((SpringBootLayer) layer).isApplication());
     }
 }

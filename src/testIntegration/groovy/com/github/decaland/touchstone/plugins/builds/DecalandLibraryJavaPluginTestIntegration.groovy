@@ -32,8 +32,8 @@ class DecalandLibraryJavaPluginTestIntegration extends Specification {
         expect:
         project.repositories.size() == 4
         projectHasRepos(project.repositories, SERPNET_REPOS)
-        project.repositories.any {isMavenCentral(it) }
-        project.repositories.any {isMavenLocal(it) }
+        project.repositories.any { isMavenCentral(it) }
+        project.repositories.any { isMavenLocal(it) }
     }
 
     def "dependency management is set up correctly"() {

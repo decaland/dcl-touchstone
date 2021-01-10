@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.flavors;
 
-import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
+import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.NotNull;
@@ -17,20 +17,19 @@ import static com.github.decaland.touchstone.configs.BuildParametersManifest.VER
 
 public class KotlinLayer extends ProjectAwareLayer {
 
-    public KotlinLayer(Project project, LayerAccumulator.Finalized layers) {
-        super(project, layers);
+    public KotlinLayer() {
     }
 
     @Override
-    public void applyLayer() {
-        pluginManager.apply(KotlinPluginWrapper.class);
+    public void apply(Project project, Loadout.Layers layers) {
+        project.getPluginManager().apply(KotlinPluginWrapper.class);
         project.getPlugins().withType(SpringBootPlugin.class, plugin -> {
-            pluginManager.apply(SpringGradleSubplugin.class);
+            project.getPluginManager().apply(SpringGradleSubplugin.class);
         });
     }
 
     @Override
-    public void configureLayer() {
+    public void configure(Project project, Loadout.Layers layers) {
         project.getTasks().withType(KotlinCompile.class, this::configureKotlinPluginCompileTasks);
     }
 

@@ -26,12 +26,8 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     private static final String MSG_MISSING_MANDATORY_CONFIGURATION
             = "Touchstone plugin failed to find mandatory Gradle configuration '%s'";
 
-    public ProjectAwareLayer(Project project, LayerAccumulator.Finalized layers) {
-        super(project, layers);
-    }
-
     @NotNull
-    protected Task requireTask(String taskName) {
+    protected Task requireTask(Project project, String taskName) {
         try {
             return Objects.requireNonNull(project.getTasks().findByName(taskName));
         } catch (NullPointerException ignored) {
@@ -40,7 +36,7 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     }
 
     @NotNull
-    protected SoftwareComponent requireComponent(String componentName) {
+    protected SoftwareComponent requireComponent(Project project, String componentName) {
         try {
             return Objects.requireNonNull(project.getComponents().findByName(componentName));
         } catch (NullPointerException ignored) {
@@ -49,7 +45,7 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     }
 
     @NotNull
-    protected Configuration requireConfiguration(String configurationName) {
+    protected Configuration requireConfiguration(Project project, String configurationName) {
         try {
             return Objects.requireNonNull(project.getConfigurations().findByName(configurationName));
         } catch (NullPointerException ignored) {
@@ -58,7 +54,7 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     }
 
     @NotNull
-    protected <T> T requireExtension(Class<T> clazz) {
+    protected <T> T requireExtension(Project project, Class<T> clazz) {
         try {
             return Objects.requireNonNull(project.getExtensions().findByType(clazz));
         } catch (NullPointerException ignored) {
@@ -67,7 +63,7 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     }
 
     @NotNull
-    protected Object requireProjectProperty(String propertyName) {
+    protected Object requireProjectProperty(Project project, String propertyName) {
         try {
             return Objects.requireNonNull(project.property(propertyName));
         } catch (MissingPropertyException | NullPointerException ignored) {
@@ -76,8 +72,8 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     }
 
     @NotNull
-    protected <T> T requireProjectProperty(String propertyName, Function<Object, T> function) {
-        Object propertyObject = requireProjectProperty(propertyName);
+    protected <T> T requireProjectProperty(Project project, String propertyName, Function<Object, T> function) {
+        Object propertyObject = requireProjectProperty(project, propertyName);
         try {
             return function.apply(propertyObject);
         } catch (RuntimeException ignored) {

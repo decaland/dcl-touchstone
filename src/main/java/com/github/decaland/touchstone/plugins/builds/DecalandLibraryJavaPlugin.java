@@ -11,13 +11,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class DecalandLibraryJavaPlugin extends DecalandBuildConfigPlugin {
 
+    @NotNull
     @Override
-    protected Loadout.Builder configurePluginLoadout(Loadout.Builder loadoutBuilder) {
-        return loadoutBuilder
-                .addLayer(RepositoryConfigurationLayer.class)
-                .addLayer(DependencyManagementLayer.class)
-                .addLayer(MavenPublishLayer.class)
-                .addLayer(JavaLibraryLayer.class);
+    public Loadout supplyLoadout() {
+        return Loadout.builder()
+                .add(new RepositoryConfigurationLayer())
+                .add(new DependencyManagementLayer())
+                .add(new MavenPublishLayer())
+                .add(new JavaLibraryLayer())
+                .build();
     }
 
     @NotNull

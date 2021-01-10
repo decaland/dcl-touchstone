@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.flavors;
 
-import com.github.decaland.touchstone.loadout.layers.LayerAccumulator;
+import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import org.gradle.api.Project;
@@ -13,28 +13,31 @@ public class SpringBootLayer extends ProjectAwareLayer {
 
     private boolean isApplication = false;
 
-    public SpringBootLayer(Project project, LayerAccumulator.Finalized layers) {
-        super(project, layers);
+    public SpringBootLayer() {
+    }
+
+    public SpringBootLayer(boolean isApplication) {
+        this.isApplication = isApplication;
     }
 
     @Override
-    public void applyLayer() {
-        if (!pluginContainer.hasPlugin(DependencyManagementPlugin.class)) {
-            pluginManager.apply(DependencyManagementPlugin.class);
+    public void apply(Project project, Loadout.Layers layers) {
+        if (!project.getPlugins().hasPlugin(DependencyManagementPlugin.class)) {
+            project.getPluginManager().apply(DependencyManagementPlugin.class);
         }
-        pluginManager.apply(SpringBootPlugin.class);
+        project.getPluginManager().apply(SpringBootPlugin.class);
     }
 
     @Override
-    public void configureLayer() {
-        if (!isApplication()) {
-            configureSpringBootLibrary();
+    public void configure(Project project, Loadout.Layers layers) {
+        if (isLibrary()) {
+            configureSpringBootLibrary(project);
         }
     }
 
-    protected void configureSpringBootLibrary() {
-        requireTask(BOOT_JAR_TASK_NAME).setEnabled(false);
-        requireTask(JAR_TASK_NAME).setEnabled(true);
+    private void configureSpringBootLibrary(Project project) {
+        requireTask(project, BOOT_JAR_TASK_NAME).setEnabled(false);
+        requireTask(project, JAR_TASK_NAME).setEnabled(true);
     }
 
     public boolean isApplication() {
@@ -43,13 +46,5 @@ public class SpringBootLayer extends ProjectAwareLayer {
 
     public boolean isLibrary() {
         return !isApplication;
-    }
-
-    public void markAsApplication() {
-        this.isApplication = true;
-    }
-
-    public void markAsLibrary() {
-        this.isApplication = false;
     }
 }
