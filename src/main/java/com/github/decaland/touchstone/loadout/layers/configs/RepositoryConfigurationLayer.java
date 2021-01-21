@@ -1,33 +1,29 @@
 package com.github.decaland.touchstone.loadout.layers.configs;
 
-import com.github.decaland.touchstone.loadout.layers.Layer;
+import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.MavenRepositoryContentDescriptor;
 
-import java.util.Collection;
-
-import static com.github.decaland.touchstone.configs.BuildParametersManifest.REPO_MAVEN_RELEASES;
-import static com.github.decaland.touchstone.configs.BuildParametersManifest.REPO_MAVEN_SNAPSHOTS;
+import static com.github.decaland.touchstone.configs.BuildParametersManifest.*;
 
 public class RepositoryConfigurationLayer extends ProjectAwareLayer {
 
-    public RepositoryConfigurationLayer(Project project, Collection<Layer> layers) {
-        super(project, layers);
+    public RepositoryConfigurationLayer() {
     }
 
     @Override
-    public void configureLayer() {
+    public void configure(Project project, Loadout.Layers layers) {
         RepositoryHandler repositories = project.getRepositories();
         repositories.maven(repository -> {
-            repository.setName("serpnetReleases");
-            repository.setUrl(REPO_MAVEN_RELEASES);
+            repository.setName(REPO_MAVEN_RELEASES_NAME);
+            repository.setUrl(REPO_MAVEN_RELEASES_URL);
             repository.mavenContent(MavenRepositoryContentDescriptor::releasesOnly);
         });
         repositories.maven(repository -> {
-            repository.setName("serpnetSnapshots");
-            repository.setUrl(REPO_MAVEN_SNAPSHOTS);
+            repository.setName(REPO_MAVEN_SNAPSHOTS_NAME);
+            repository.setUrl(REPO_MAVEN_SNAPSHOTS_URL);
             repository.mavenContent(MavenRepositoryContentDescriptor::snapshotsOnly);
         });
         repositories.mavenCentral();

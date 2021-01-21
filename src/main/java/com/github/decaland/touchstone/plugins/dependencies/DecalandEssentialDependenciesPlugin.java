@@ -8,9 +8,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class DecalandEssentialDependenciesPlugin extends DecalandDependenciesPlugin {
 
+    @NotNull
     @Override
-    protected void configurePluginLoadout(Loadout pluginLoadout) {
-        pluginLoadout.addLayer(EssentialDependenciesLayer.class);
+    public Loadout supplyLoadout() {
+        return Loadout.builder()
+                .add(new EssentialDependenciesLayer())
+                .build();
     }
 
     @NotNull

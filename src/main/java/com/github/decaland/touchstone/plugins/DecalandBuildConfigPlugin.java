@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class DecalandBuildConfigPlugin extends DecalandPlugin {
+public abstract class DecalandBuildConfigPlugin extends DecalandBasePlugin {
 
     final static Collection<Class<? extends DecalandPlugin>> DECALAND_BUILD_CONFIG_PLUGIN_TYPES = List.of(
             DecalandLibraryJavaPlugin.class,
