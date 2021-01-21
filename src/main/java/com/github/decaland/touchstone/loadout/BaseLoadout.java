@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 
-public final class BaseLoadout implements Loadout {
+public class BaseLoadout implements Loadout {
 
     private static final String MSG_FAILED_TO_APPLY_ALL_LAYERS
             = "Touchstone plugin '%s' failed to apply loadout layers: %s";
@@ -49,7 +49,7 @@ public final class BaseLoadout implements Loadout {
             for (Layer layer : layerList) {
                 if (!appliedLayers.contains(layer) && layer.isReady(project, layers)) {
                     project.getLogger().lifecycle(
-                            String.format("    - apply layer '%s'", layer.getClass().getSimpleName())
+                            String.format(LIFECYCLE_LOG_APPLY_LAYER, layer.getClass().getSimpleName())
                     );
                     layer.apply(project, layers);
                     anyApplied = true;
@@ -78,13 +78,13 @@ public final class BaseLoadout implements Loadout {
     private void configureAppliedLayers(@NotNull LinkedHashSet<Layer> appliedLayers, Project project) {
         for (Layer appliedLayer : appliedLayers) {
             project.getLogger().lifecycle(
-                    String.format("    - configure layer '%s'", appliedLayer.getClass().getSimpleName())
+                    String.format(LIFECYCLE_LOG_CONFIGURE_LAYER, appliedLayer.getClass().getSimpleName())
             );
             appliedLayer.configure(project, layers);
         }
     }
 
-    public static final class BaseBuilder implements Builder {
+    public static class BaseBuilder implements Builder {
 
         private final Collection<Layer> innerLayers;
         private final Layers layers;
@@ -107,7 +107,7 @@ public final class BaseLoadout implements Loadout {
         }
     }
 
-    private static final class BaseLayers implements Layers {
+    private static class BaseLayers implements Layers {
 
         private final Collection<Layer> layers;
 

@@ -15,6 +15,15 @@ import java.util.stream.Stream;
 public interface Loadout {
 
     /**
+     * Messages to be printed to Gradle lifecycle log whenever a {@link Layer}
+     * is applied and configured; each should contain a single <code>%s</code>
+     * placeholder that is to be substituted for the simple name of the
+     * {@link Layer} class.
+     */
+    String LIFECYCLE_LOG_APPLY_LAYER = "    - apply layer '%s'";
+    String LIFECYCLE_LOG_CONFIGURE_LAYER = "    - configure layer '%s'";
+
+    /**
      * Shortcut to default {@link Builder} implementation.
      *
      * @return default {@link Builder} implementation

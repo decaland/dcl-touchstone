@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BaseLoadoutTest extends LoadoutTest<BaseLoadout> {
+public class BaseLoadoutTest extends AbstractLoadoutTest<BaseLoadout> {
 
     @Override
     public Loadout.Builder supplyBuilder() {

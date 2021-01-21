@@ -39,9 +39,9 @@ public class MavenPublishLayer extends ProjectAwareLayer {
         if (project.hasProperty(PROP_KEY_SERPNET)) {
             repositories.maven(repository -> {
                 if (project.getVersion().toString().endsWith("SNAPSHOT")) {
-                    repository.setUrl(REPO_MAVEN_SNAPSHOTS);
+                    repository.setUrl(REPO_MAVEN_SNAPSHOTS_URL);
                 } else {
-                    repository.setUrl(REPO_MAVEN_RELEASES);
+                    repository.setUrl(REPO_MAVEN_RELEASES_URL);
                 }
                 repository.credentials(passwordCredentials -> {
                     passwordCredentials.setUsername(

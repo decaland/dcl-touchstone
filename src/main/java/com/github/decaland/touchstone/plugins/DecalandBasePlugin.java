@@ -25,18 +25,36 @@ public abstract class DecalandBasePlugin implements DecalandPlugin {
     private static final String MSG_FOUND_INCOMPATIBLE_PLUGINS
             = "Cannot apply Touchstone plugin '%s': it conflicts with these plugins: %s";
 
+    protected Loadout loadout;
+
     @Override
     public final void apply(@NotNull Project project) {
         String pluginId = getPluginId();
-        project.getLogger().lifecycle(String.format("  Apply Touchstone plugin '%s'", pluginId));
+        project.getLogger().lifecycle(String.format(LIFECYCLE_LOG_APPLY_PLUGIN, pluginId));
         validateGradleVersion();
         ensurePluginIsApplicable(project);
-        supplyLoadout().apply(project, pluginId);
+        getLoadout().apply(project, pluginId);
     }
 
+    /**
+     * Acts as an abstract factory that actually constructs the instance of
+     * {@link Loadout} for this plugin; care must be taken to only call this
+     * method once, and store its result, so that the {@link #getLoadout()}
+     * always returns the same instance.
+     *
+     * @return the constructed instance of {@link Loadout}
+     */
+    @NotNull
+    protected abstract Loadout supplyLoadout();
 
     @NotNull
-    public abstract Loadout supplyLoadout();
+    @Override
+    public Loadout getLoadout() {
+        if (loadout == null) {
+            loadout = supplyLoadout();
+        }
+        return loadout;
+    }
 
     @NotNull
     protected abstract Class<? extends DecalandPlugin> getPluginType();

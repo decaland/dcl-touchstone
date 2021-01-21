@@ -10,12 +10,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 /**
- * Extended Gradle {@link Plugin} that employs the {@link Loadout} construct to
- * aggregate and systematically apply the logic in {@link Layer}s, while also
- * being aware of other {@link DecalandPlugin}s that were applied to the Gradle
- * {@link Project} before the current one.
+ * Extended Gradle {@link Plugin}, immutable and stateless, that employs the
+ * {@link Loadout} construct to aggregate and systematically apply the logic in
+ * {@link Layer}s, while also being aware of other {@link DecalandPlugin}s that
+ * were applied to the Gradle {@link Project} before the current one.
  */
 public interface DecalandPlugin extends Plugin<Project> {
+
+    /**
+     * Message to be printed to Gradle lifecycle log whenever a
+     * {@link DecalandPlugin} is applied; should contain a single
+     * <code>%s</code> placeholder that is to be substituted for the plugin ID,
+     * as returned by the {@link DecalandPlugin#getPluginId()} method.
+     */
+    String LIFECYCLE_LOG_APPLY_PLUGIN = "  Apply Touchstone plugin '%s'";
 
     /**
      * Ensures that the user’s Gradle is of compatible version and that the
@@ -28,12 +36,13 @@ public interface DecalandPlugin extends Plugin<Project> {
     void apply(@NotNull Project target);
 
     /**
-     * Constructs and returns the {@link Loadout} to apply with this plugin.
+     * Returns the {@link Loadout} instance that is associated with this plugin
+     * instance.
      *
-     * @return the {@link Loadout} to apply with this plugin
+     * @return the {@link Loadout} that is used by this plugin
      */
     @NotNull
-    Loadout supplyLoadout();
+    Loadout getLoadout();
 
     /**
      * Returns the textual plugin ID, the one that is used by the end user when

@@ -3,13 +3,12 @@ package com.github.decaland.touchstone.loadout;
 import com.github.decaland.touchstone.loadout.layers.Layer;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,16 +16,16 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public abstract class LoadoutTest<T extends Loadout> {
+public abstract class AbstractLoadoutTest<T extends Loadout> {
 
     protected static final String PLUGIN_ID = "test-plugin-id";
 
-    public abstract Loadout.Builder supplyBuilder();
+    protected abstract Loadout.Builder supplyBuilder();
 
-    public abstract Class<T> supplyLoadoutClass();
+    protected abstract Class<T> supplyLoadoutClass();
 
     @Test
-    public void givenLoadoutBuilder_whenLoadoutIsBuild_thenItIsOfExpectedType() {
+    public void givenLoadoutBuilder_whenLoadoutIsBuilt_thenItIsOfExpectedType() {
         assertThat(supplyBuilder().build().getClass()).isSameAs(supplyLoadoutClass());
     }
 
@@ -71,7 +70,7 @@ public abstract class LoadoutTest<T extends Loadout> {
         // Given
         Layer layer = mock(Layer.class);
         Loadout loadout = supplyBuilder().add(layer).build();
-        Project project = mock(Project.class, RETURNS_MOCKS);
+        Project project = ProjectBuilder.builder().build();
         when(layer.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
 
         // When
@@ -89,7 +88,7 @@ public abstract class LoadoutTest<T extends Loadout> {
         Layer layerA = mock(Layer.class);
         Layer layerB = mock(Layer.class);
         Loadout loadout = supplyBuilder().add(layerA).add(layerB).build();
-        Project project = mock(Project.class, RETURNS_MOCKS);
+        Project project = ProjectBuilder.builder().build();
         when(layerA.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
         when(layerB.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
 
@@ -113,7 +112,7 @@ public abstract class LoadoutTest<T extends Loadout> {
         Layer layerB = mock(Layer.class);
         Layer layerC = mock(Layer.class);
         Loadout loadout = supplyBuilder().add(layerB).add(layerC).add(layerA).build();  // note the order
-        Project project = mock(Project.class, RETURNS_MOCKS);
+        Project project = ProjectBuilder.builder().build();
         when(layerA.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
         when(layerB.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
         when(layerC.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
@@ -145,10 +144,8 @@ public abstract class LoadoutTest<T extends Loadout> {
         Layer layerA = mock(Layer.class);
         Layer layerB = mock(Layer.class);
         Loadout loadout = supplyBuilder().add(layerA).add(layerB).build();  // note the order
-        Project project = mock(Project.class, RETURNS_MOCKS);
-        AtomicBoolean layerAIsReady = new AtomicBoolean(false);
-        when(layerA.isReady(eq(project), eq(loadout.layers())))
-                .thenAnswer((Answer<Boolean>) invocation -> layerAIsReady.getAndSet(true));
+        Project project = ProjectBuilder.builder().build();
+        when(layerA.isReady(eq(project), eq(loadout.layers()))).thenReturn(false).thenReturn(true);
         when(layerB.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
         InOrder inOrder = inOrder(layerA, layerB);
 
@@ -175,7 +172,7 @@ public abstract class LoadoutTest<T extends Loadout> {
         Layer layerB = mock(Layer.class);
         Layer layerC = mock(Layer.class);
         Loadout loadout = supplyBuilder().add(layerB).add(layerC).add(layerA).build();  // note the order
-        Project project = mock(Project.class, RETURNS_MOCKS);
+        Project project = ProjectBuilder.builder().build();
         when(layerA.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
         when(layerB.isReady(eq(project), eq(loadout.layers()))).thenReturn(false);
         when(layerC.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
@@ -202,6 +199,42 @@ public abstract class LoadoutTest<T extends Loadout> {
         inOrder.verify(layerA).apply(eq(project), eq(loadout.layers()));
 
         inOrder.verify(layerB).isReady(eq(project), eq(loadout.layers()));
+
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void givenLoadout_whenItIsAppliedMultipleTimes_thenLayersAreAppliedThatNumberOfTimes() {
+        // Given
+        Layer layerA = mock(Layer.class);
+        Layer layerB = mock(Layer.class);
+
+        Loadout loadout = supplyBuilder().add(layerA).add(layerB).build();
+        Project project = ProjectBuilder.builder().build();
+
+        when(layerA.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
+        when(layerB.isReady(eq(project), eq(loadout.layers()))).thenReturn(true);
+
+        InOrder inOrder = inOrder(layerA, layerB);
+
+        // When
+        loadout.apply(project, PLUGIN_ID);
+        loadout.apply(project, PLUGIN_ID);
+
+        // Then
+        inOrder.verify(layerA).isReady(eq(project), eq(loadout.layers()));
+        inOrder.verify(layerA).apply(eq(project), eq(loadout.layers()));
+        inOrder.verify(layerB).isReady(eq(project), eq(loadout.layers()));
+        inOrder.verify(layerB).apply(eq(project), eq(loadout.layers()));
+        inOrder.verify(layerA).configure(eq(project), eq(loadout.layers()));
+        inOrder.verify(layerB).configure(eq(project), eq(loadout.layers()));
+
+        inOrder.verify(layerA).isReady(eq(project), eq(loadout.layers()));
+        inOrder.verify(layerA).apply(eq(project), eq(loadout.layers()));
+        inOrder.verify(layerB).isReady(eq(project), eq(loadout.layers()));
+        inOrder.verify(layerB).apply(eq(project), eq(loadout.layers()));
+        inOrder.verify(layerA).configure(eq(project), eq(loadout.layers()));
+        inOrder.verify(layerB).configure(eq(project), eq(loadout.layers()));
 
         inOrder.verifyNoMoreInteractions();
     }
