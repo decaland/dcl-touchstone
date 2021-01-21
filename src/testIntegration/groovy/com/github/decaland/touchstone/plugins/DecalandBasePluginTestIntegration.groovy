@@ -1,13 +1,26 @@
 package com.github.decaland.touchstone.plugins
 
+
 import com.github.decaland.touchstone.loadout.Loadout
 import com.github.decaland.touchstone.loadout.layers.Layer
 import com.github.decaland.touchstone.plugins.DecalandBasePlugin
 import com.github.decaland.touchstone.plugins.DecalandPlugin
 import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.util.GradleVersion
 import spock.lang.Specification
 
+import static com.github.decaland.touchstone.configs.BuildParametersManifest.MIN_VERSION_GRADLE
+
 class DecalandBasePluginTestIntegration extends Specification {
+
+    def "current version of Gradle satisfies requirement for consumers"() {
+        given:
+        GradleVersion currentVersion = GradleVersion.current()
+        GradleVersion minimumVersion = GradleVersion.version(MIN_VERSION_GRADLE)
+
+        expect:
+        currentVersion >= minimumVersion
+    }
 
     def "when plugin is applied, methods are called on its layers in correct order"() {
         given:
