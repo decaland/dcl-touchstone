@@ -33,12 +33,12 @@ public class DependencyBom {
                 .version("1.0.2")
                 .add();
 
-        // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
+        // https://junit.org/junit5/docs/snapshot/release-notes
         group("org.junit.jupiter")
                 .name("junit-jupiter")
                 .version("5.7.0")
                 .add();
-        // https://mvnrepository.com/artifact/junit/junit
+        // https://github.com/junit-team/junit4/releases
         group("junit")
                 .name("junit")
                 .version("4.13.1")
