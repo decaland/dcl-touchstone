@@ -8,6 +8,10 @@ plugins {
 group = 'com.github.decaland.touchstone'
 
 ext {
+    /*
+    Publishing to Serpnet artifactory is achieved by providing `-Pserpnet`
+    argument to Gradle.
+     */
     publishToSerpnet = project.hasProperty('serpnet')
 }
 

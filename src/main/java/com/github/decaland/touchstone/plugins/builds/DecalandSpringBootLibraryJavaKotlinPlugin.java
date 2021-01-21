@@ -11,6 +11,11 @@ import com.github.decaland.touchstone.plugins.DecalandBuildConfigPlugin;
 import com.github.decaland.touchstone.plugins.DecalandPlugin;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Arranges for the consuming project to be built as a non-executable,
+ * consumable Spring Boot-based library written in either Java, or Kotlin, or
+ * both.
+ */
 public class DecalandSpringBootLibraryJavaKotlinPlugin extends DecalandBuildConfigPlugin {
 
     @NotNull
