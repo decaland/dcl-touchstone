@@ -11,16 +11,23 @@ import com.github.decaland.touchstone.plugins.DecalandBuildConfigPlugin;
 import com.github.decaland.touchstone.plugins.DecalandPlugin;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Arranges for the consuming project to be built as an executable Spring Boot
+ * application written in either Java, or Kotlin, or both.
+ */
 public class DecalandSpringBootApplicationJavaKotlinPlugin extends DecalandBuildConfigPlugin {
 
+    @NotNull
     @Override
-    protected void configurePluginLoadout(Loadout pluginLoadout) {
-        pluginLoadout.addLayer(RepositoryConfigurationLayer.class);
-        pluginLoadout.addLayer(DependencyManagementLayer.class);
-        pluginLoadout.addLayer(MavenPublishLayer.class);
-        pluginLoadout.addLayer(JavaLayer.class);
-        pluginLoadout.addLayer(KotlinLayer.class);
-        pluginLoadout.addLayer(SpringBootLayer.class, SpringBootLayer::markApplication);
+    public Loadout supplyLoadout() {
+        return Loadout.builder()
+                .add(new RepositoryConfigurationLayer())
+                .add(new DependencyManagementLayer())
+                .add(new MavenPublishLayer())
+                .add(new JavaLayer())
+                .add(new KotlinLayer())
+                .add(new SpringBootLayer(true))
+                .build();
     }
 
     @NotNull

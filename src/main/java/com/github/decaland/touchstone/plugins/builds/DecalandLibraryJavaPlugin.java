@@ -9,14 +9,21 @@ import com.github.decaland.touchstone.plugins.DecalandBuildConfigPlugin;
 import com.github.decaland.touchstone.plugins.DecalandPlugin;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Arranges for the consuming project to be built as a non-executable,
+ * consumable library written in Java.
+ */
 public class DecalandLibraryJavaPlugin extends DecalandBuildConfigPlugin {
 
+    @NotNull
     @Override
-    protected void configurePluginLoadout(Loadout pluginLoadout) {
-        pluginLoadout.addLayer(RepositoryConfigurationLayer.class);
-        pluginLoadout.addLayer(DependencyManagementLayer.class);
-        pluginLoadout.addLayer(MavenPublishLayer.class);
-        pluginLoadout.addLayer(JavaLibraryLayer.class);
+    public Loadout supplyLoadout() {
+        return Loadout.builder()
+                .add(new RepositoryConfigurationLayer())
+                .add(new DependencyManagementLayer())
+                .add(new MavenPublishLayer())
+                .add(new JavaLibraryLayer())
+                .build();
     }
 
     @NotNull
