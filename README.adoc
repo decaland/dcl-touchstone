@@ -1,24 +1,24 @@
 = Decaland Touchstone
 
-This project implements custom Gradle plugins that provide the common build configuration for Decaland applications.
+Custom Gradle plugins that provide the common build configuration for Decaland applications.
 
 == Usage
 
-To use the `dcl-touchstone` foundation, add the following files to the consumer project:
+To use the Touchstone plugins, add the following files to the consumer Gradle project:
 
 * `gradle.properties` (in the root of the consumer project)
 +
 [source,properties]
 ----
-# ... consumer project’s `version` probably goes here ...
+# version = 0.1.0-SNAPSHOT  # consumer project’s version
 
-dcl.version.touchstone = 0.1.2-SNAPSHOT
+dcl.version.touchstone = 0.1.2-SNAPSHOT  # Touchstone version
 
 systemProp.org.gradle.internal.publish.checksums.insecure = true
 ----
 +
 Use the latest stable version of the `dcl-touchstone` project.
-The long-winded property at the end is optional: it makes Gradle publish https://docs.gradle.org/6.0.1/release-notes.html[insecure checksums] to prevent warnings from the current version of Serpnet Artifactory.
+The long-winded property at the end is optional: it forces Gradle to publish https://docs.gradle.org/6.0.1/release-notes.html[insecure checksums], to prevent warnings from the current version of Serpnet Artifactory.
 * `settings.gradle` (in the root of the consumer project)
 +
 [source,groovy]
@@ -42,7 +42,8 @@ pluginManagement {
     }
 }
 
-// ... `rootProject.name`, `include`, and so on ...
+// rootProject.name = 'dcl-project'
+// include('dcl-project-alpha', 'dcl-project-bravo', 'dcl-project-charlie')
 ----
 * In each build module the Touchstone plugins can be applied by including them in the `build.gradle` file, e.g.:
 +
@@ -53,12 +54,12 @@ plugins {
     id 'dcl-essential-dependencies'
 }
 
-// ... `group` and so on ...
+// group = 'com.github.decaland'
 ----
 
 == Provided Gradle plugins
 
-The following Gradle plugins are available and provide their described build configuration (only one of these can be applied at a time):
+The following Touchstone plugins are available and provide their described build configuration (only one of these can be applied at a time):
 
 [horizontal]
 `*dcl-lib-java*`:: libraries written in pure Java.
@@ -71,4 +72,4 @@ The following Gradle plugins are available and provide their described build con
 Along with any of the build configurations above, the consumer might want to also apply a small set of basic library dependencies via the additional Gradle plugin:
 
 [horizontal]
-`*dcl-essential-dependencies*`:: provides `lombok` to all projects; `kotlin-stdlib` and `kotlin-reflect` to projects that use Kotlin; and `spring-boot-starter-test` to Spring Boot-based projects.
+`*dcl-essential-dependencies*`:: `lombok`; `kotlin-stdlib` & `kotlin-reflect`; `spring-boot-starter-test`.
