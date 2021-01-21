@@ -3,7 +3,6 @@ package com.github.decaland.touchstone.plugins
 import com.github.decaland.touchstone.plugins.builds.*
 import com.github.decaland.touchstone.plugins.dependencies.DecalandEssentialDependenciesPlugin
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.gradle.testkit.runner.UnexpectedBuildSuccess
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -18,7 +17,9 @@ import static com.github.decaland.touchstone.plugins.DecalandPlugin.LIFECYCLE_LO
 
 class DecalandPluginTestFunctional extends Specification {
 
-    @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
+    @Rule
+    TemporaryFolder testProjectDir = new TemporaryFolder()
+
     File buildFile
 
     def setup() {
