@@ -1,44 +1,52 @@
 package com.github.decaland.touchstone.loadout.layers;
 
+import com.github.decaland.touchstone.loadout.Loadout;
 import org.gradle.api.Project;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.plugins.PluginContainer;
-import org.gradle.api.plugins.PluginManager;
 
-import java.util.Collection;
+/**
+ * A stateless, immutable container for logic that configures a given Gradle
+ * {@link Project} for a singular well-defined purpose. Although nothing
+ * prevents the user from calling these methods indiscriminately, the correct
+ * application of layers is guaranteed by a {@link Loadout}.
+ */
+public interface Layer {
 
-public abstract class Layer {
+    /**
+     * Analyzes current state of the provided Gradle {@link Project}, as well
+     * as the stream of layers included in the current {@link Loadout}, and
+     * returns a judgement on whether the current layer can be applied at this
+     * point in time.
+     * <p/>
+     * The goal is to allow ordering of layers while they are being applied to
+     * a {@link Project}. The {@link Loadout} does not provide means to tell
+     * whether a particular {@link Layer} has been applied or not: instead
+     * judgement has to be made based on the side-effects the other layers have
+     * on the {@link Project}.
+     *
+     * @param project the Gradle {@link Project} to analyze
+     * @param layers  the list of layers in current {@link Loadout}
+     * @return whether this layer can be applied at this point in time
+     */
+    boolean isReady(Project project, Loadout.Layers layers);
 
-    protected Project project;
-    protected Collection<Layer> layers;
-    protected Logger logger;
-    protected PluginManager pluginManager;
-    protected PluginContainer pluginContainer;
-    private boolean layerApplied = false;
+    /**
+     * Applies the logic of this layer to the given Gradle {@link Project},
+     * while the stream of layers included in the current {@link Loadout} can
+     * be analyzed to appropriately modify that logic.
+     *
+     * @param project the Gradle {@link Project} to apply the layer to
+     * @param layers  the list of layers in current {@link Loadout}
+     */
+    void apply(Project project, Loadout.Layers layers);
 
-    public Layer(Project project, Collection<Layer> layers) {
-        this.project = project;
-        this.layers = layers;
-        this.logger = project.getLogger();
-        this.pluginManager = project.getPluginManager();
-        this.pluginContainer = project.getPlugins();
-    }
-
-    public boolean readyForApplication(Collection<Layer> layers) {
-        return true;
-    }
-
-    public void applyLayer() {
-    }
-
-    public void configureLayer() {
-    }
-
-    public final void markApplied() {
-        layerApplied = true;
-    }
-
-    public final boolean isApplied() {
-        return this.layerApplied;
-    }
+    /**
+     * Applies additional configuration logic to the given Gradle
+     * {@link Project}, after all {@link #apply(Project, Loadout.Layers)}
+     * methods of all layers in the current {@link Loadout} have been called,
+     * and in the same order.
+     *
+     * @param project the Gradle {@link Project} to configure the layer with
+     * @param layers  the list of layers in current {@link Loadout}
+     */
+    void configure(Project project, Loadout.Layers layers);
 }

@@ -1,6 +1,8 @@
 plugins {
     id 'java-gradle-plugin'
     id 'maven-publish'
+    id 'groovy'
+    id 'idea'
 }
 
 group = 'com.github.decaland.touchstone'
@@ -18,13 +20,56 @@ repositories {
     gradlePluginPortal()
 }
 
+// Download the full version of Gradle wrapper
 wrapper {
     gradleVersion = "${project.property('dcl.minversion.gradle')}"
     distributionType = Wrapper.DistributionType.ALL
 }
 
+// Extract and store useful objects
+def testTask = tasks.named('test')
+def gradlePluginDevelopmentExtension = project.getExtensions().findByType(GradlePluginDevelopmentExtension)
+
+// Create and register test-related source sets
+def sourceSets = (SourceSetContainer) project.getProperties().get("sourceSets")
+def testIntegrationSrc = sourceSets.create('testIntegration')
+def testFunctionalSrc = sourceSets.create('testFunctional')
+
+// Link functional tests with Gradle plugin development plugin
+gradlePluginDevelopmentExtension.testSourceSets(testFunctionalSrc)
+
+// Create and register test-related tasks
+def testIntegrationTask = tasks.register('testIntegration', Test) {
+    group = 'verification'
+    testClassesDirs = testIntegrationSrc.output.classesDirs
+    classpath = testIntegrationSrc.runtimeClasspath
+    it.mustRunAfter(testTask)
+}
+def testFunctionalTask = tasks.register('testFunctional', Test) {
+    group = 'verification'
+    testClassesDirs = testFunctionalSrc.output.classesDirs
+    classpath = testFunctionalSrc.runtimeClasspath
+    it.mustRunAfter(testTask)
+}
+
+// Link up the additional test-related tasks; make tests mandatory for publishing
+tasks.named('check') {
+    it.dependsOn(testIntegrationTask, testFunctionalTask)
+}
+tasks.withType(AbstractPublishToMaven) {
+    it.dependsOn(tasks.named('check'))
+}
+
+// Set up dependencies for plugin development & testing
 dependencies {
-    testImplementation("junit:junit:${property('dcl.version.junit')}")
+    testIntegrationImplementation(project)
+    testFunctionalImplementation(project)
+
+    testImplementation("org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}")
+    testImplementation("org.mockito:mockito-junit-jupiter:${property('dcl.version.mockito')}")
+    testImplementation("org.assertj:assertj-core:${property('dcl.version.assertj')}")
+    testIntegrationImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
+    testFunctionalImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
 
     implementation "org.springframework.boot:spring-boot-gradle-plugin:${property('dcl.version.spring-boot')}"
     implementation "io.spring.gradle:dependency-management-plugin:${property('dcl.version.spring-dependency-management')}"
@@ -34,6 +79,20 @@ dependencies {
     implementation "io.freefair.gradle:lombok-plugin:${property('dcl.version.lombok')}"
 }
 
+// Ensure new test configurations extend from implementation
+def implementationConfiguration = configurations.getByName('implementation')
+configurations.getByName('testIntegrationImplementation').extendsFrom(implementationConfiguration)
+configurations.getByName('testFunctionalImplementation').extendsFrom(implementationConfiguration)
+
+// Configure unit tests (and only unit tests) to use JUnit
+test {
+    useJUnitPlatform {
+        includeEngines('junit-jupiter')
+        excludeEngines('junit-vintage')
+    }
+}
+
+// Set up publishing of Touchstone plugins
 publishing {
     repositories {
         if (publishToSerpnet) {
@@ -52,11 +111,8 @@ publishing {
     }
 }
 
-/*
-Deviate from Groovy DSL slightly to silence warnings from Intellij IDEA’s
-static code analyzer.
- */
-project.getExtensions().findByType(GradlePluginDevelopmentExtension).plugins { pluginContainer ->
+// Set up metadata of published Touchstone plugins
+gradlePluginDevelopmentExtension.plugins { pluginContainer ->
     pluginContainer.create("decalandLibraryJava") { plugin ->
         plugin.id = 'dcl-lib-java'
         plugin.displayName = 'Decaland library written in Java'
@@ -98,5 +154,17 @@ project.getExtensions().findByType(GradlePluginDevelopmentExtension).plugins { p
         plugin.displayName = 'Decaland essential library dependencies'
         plugin.description = 'Decaland essential library dependencies'
         plugin.implementationClass = 'com.github.decaland.touchstone.plugins.dependencies.DecalandEssentialDependenciesPlugin'
+    }
+}
+
+// Configure Intellij IDEA to recognize additional source sets
+idea {
+    module {
+        testSourceDirs += testIntegrationSrc.java.srcDirs
+        testSourceDirs += testIntegrationSrc.groovy.srcDirs
+        testSourceDirs += testIntegrationSrc.resources.srcDirs
+        testSourceDirs += testFunctionalSrc.java.srcDirs
+        testSourceDirs += testFunctionalSrc.groovy.srcDirs
+        testSourceDirs += testFunctionalSrc.resources.srcDirs
     }
 }

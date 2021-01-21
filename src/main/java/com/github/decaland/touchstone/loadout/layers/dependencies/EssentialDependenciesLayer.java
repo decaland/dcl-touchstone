@@ -1,58 +1,81 @@
 package com.github.decaland.touchstone.loadout.layers.dependencies;
 
-import com.github.decaland.touchstone.loadout.layers.Layer;
+import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import io.freefair.gradle.plugins.lombok.LombokPlugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ModuleDependency;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.tasks.testing.Test;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 import org.springframework.boot.gradle.plugin.SpringBootPlugin;
 
-import java.util.Collection;
 import java.util.Map;
 
 public class EssentialDependenciesLayer extends ProjectAwareLayer {
 
-    private final DependencyHandler dependencies;
-
-    public EssentialDependenciesLayer(Project project, Collection<Layer> layers) {
-        super(project, layers);
-        this.dependencies = project.getDependencies();
+    public EssentialDependenciesLayer() {
     }
 
     @Override
-    public void configureLayer() {
-        project.getPlugins().withType(JavaPlugin.class, plugin -> this.addDependenciesForJava());
-        project.getPlugins().withType(KotlinPluginWrapper.class, plugin -> this.addDependenciesForKotlin());
-        project.getPlugins().withType(SpringBootPlugin.class, plugin -> this.addDependenciesForSpring());
+    public void configure(Project project, Loadout.Layers layers) {
+        project.getPlugins().withType(JavaPlugin.class, plugin -> this.addDependenciesForJava(project));
+        project.getPlugins().withType(KotlinPluginWrapper.class, plugin -> this.addDependenciesForKotlin(project));
+        project.getPlugins().withType(SpringBootPlugin.class, plugin -> this.addDependenciesForSpring(project));
+        project.afterEvaluate(this::addFinalDependencies);
     }
 
-    private void addDependenciesForJava() {
-        pluginManager.apply(LombokPlugin.class);
-        requireTask("generateLombokConfig").setEnabled(false);
+    private void addDependenciesForJava(Project project) {
+        project.getPluginManager().apply(LombokPlugin.class);
+        requireTask(project, "generateLombokConfig").setEnabled(false);
     }
 
-    private void addDependenciesForKotlin() {
-        dependencies.add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8");
-        dependencies.add("implementation", "org.jetbrains.kotlin:kotlin-reflect");
-        dependencies.add("testImplementation", "org.jetbrains.kotlin:kotlin-test-junit");
+    private void addDependenciesForKotlin(Project project) {
+        project.getDependencies().add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8");
+        project.getDependencies().add("implementation", "org.jetbrains.kotlin:kotlin-reflect");
     }
 
-    private void addDependenciesForSpring() {
+    private void addDependenciesForSpring(Project project) {
+    }
+
+    private void addFinalDependencies(Project project) {
+        if (project.getPlugins().hasPlugin(KotlinPluginWrapper.class)) {
+            project.getDependencies().add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin");
+        }
+        addJUnitDependency(project);
+    }
+
+    private void addJUnitDependency(Project project) {
+        if (project.getPlugins().hasPlugin(SpringBootPlugin.class)) {
+            addJUnitDependencyForSpring(project);
+        } else {
+            addJUnitDependencyForJava(project);
+        }
+        if (project.getPlugins().hasPlugin(KotlinPluginWrapper.class)) {
+            addJUnitDependencyForKotlin(project);
+        }
+    }
+
+    private void addJUnitDependencyForSpring(Project project) {
         ModuleDependency springBootStarterTest
-                = (ModuleDependency) dependencies.create("org.springframework.boot:spring-boot-starter-test");
+                = (ModuleDependency) project.getDependencies()
+                .create("org.springframework.boot:spring-boot-starter-test");
         springBootStarterTest.exclude(
                 Map.of("group", "org.junit.vintage", "module", "junit-vintage-engine")
         );
-        dependencies.add("testImplementation", springBootStarterTest);
+        project.getDependencies().add("testImplementation", springBootStarterTest);
 
-        project.getTasks().withType(Test.class, Test::useJUnitPlatform);
+        project.getTasks().withType(Test.class, testTask -> testTask.useJUnitPlatform(jUnitPlatformOptions -> {
+            jUnitPlatformOptions.includeEngines("junit-jupiter");
+            jUnitPlatformOptions.excludeEngines("junit-vintage");
+        }));
+    }
 
-        if (project.getPlugins().hasPlugin(KotlinPluginWrapper.class)) {
-            dependencies.add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin");
-        }
+    private void addJUnitDependencyForKotlin(Project project) {
+        project.getDependencies().add("testImplementation", "org.jetbrains.kotlin:kotlin-test-junit");
+    }
+
+    private void addJUnitDependencyForJava(Project project) {
+        project.getDependencies().add("testImplementation", "org.junit.jupiter:junit-jupiter");
     }
 }

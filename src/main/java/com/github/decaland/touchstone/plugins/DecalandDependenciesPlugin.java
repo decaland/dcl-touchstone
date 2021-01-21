@@ -12,7 +12,7 @@ import static com.github.decaland.touchstone.plugins.DecalandBuildConfigPlugin.D
  * The base abstraction of a Decaland Touchstone plugin that configures a set of
  * dependencies for the consuming project.
  */
-public abstract class DecalandDependenciesPlugin extends DecalandPlugin {
+public abstract class DecalandDependenciesPlugin extends DecalandBasePlugin {
 
     /**
      * Catalogues all plugin types that extend this base abstraction.
@@ -30,7 +30,13 @@ public abstract class DecalandDependenciesPlugin extends DecalandPlugin {
      */
     @NotNull
     @Override
-    protected Collection<Class<? extends DecalandPlugin>> getAnyRequiredPlugins() {
+    public Collection<Class<? extends DecalandPlugin>> getAnyRequiredPlugins() {
         return DECALAND_BUILD_CONFIG_PLUGIN_TYPES;
+    }
+
+    @NotNull
+    @Override
+    public Collection<Class<? extends DecalandPlugin>> getIncompatiblePlugins() {
+        return DECALAND_DEPENDENCIES_PLUGIN_TYPES;
     }
 }

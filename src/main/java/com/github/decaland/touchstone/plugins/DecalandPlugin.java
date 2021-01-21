@@ -1,196 +1,94 @@
 package com.github.decaland.touchstone.plugins;
 
 import com.github.decaland.touchstone.loadout.Loadout;
-import org.gradle.api.GradleException;
+import com.github.decaland.touchstone.loadout.layers.Layer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.PluginContainer;
 import org.gradle.util.GradleVersion;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.github.decaland.touchstone.configs.BuildParametersManifest.MIN_VERSION_GRADLE;
-import static java.util.stream.Collectors.joining;
 
 /**
- * The root abstraction of a Decaland Touchstone plugin.
+ * Extended Gradle {@link Plugin}, immutable and stateless, that employs the
+ * {@link Loadout} construct to aggregate and systematically apply the logic in
+ * {@link Layer}s, while also being aware of other {@link DecalandPlugin}s that
+ * were applied to the Gradle {@link Project} before the current one.
  */
-public abstract class DecalandPlugin implements Plugin<Project> {
-
-    private static final String MSG_UNSUPPORTED_GRADLE_VERSION
-            = "Touchstone plugins require %s. Current version is %s";
-    private static final String MSG_MISSING_REQUIRED_PLUGINS
-            = "Cannot apply Touchstone plugin '%s': it requires all of these plugins to be applied first: %s";
-    private static final String MSG_MISSING_ANY_REQUIRED_PLUGIN
-            = "Cannot apply Touchstone plugin '%s': it requires any of these plugins to be applied first: %s";
-    private static final String MSG_FOUND_INCOMPATIBLE_PLUGINS
-            = "Cannot apply Touchstone plugin '%s': it conflicts with these plugins: %s";
+public interface DecalandPlugin extends Plugin<Project> {
 
     /**
-     * Applies built-in validation logic, instantiates the plugin’s
-     * {@link Loadout}, and configures it according to the implementor’s
-     * instructions.
-     *
-     * @param project the consuming Gradle project
+     * Message to be printed to Gradle lifecycle log whenever a
+     * {@link DecalandPlugin} is applied; should contain a single
+     * <code>%s</code> placeholder that is to be substituted for the plugin ID,
+     * as returned by the {@link DecalandPlugin#getPluginId()} method.
      */
-    @Override
-    public final void apply(@NotNull Project project) {
-        validateGradleVersion();
-        ensurePluginIsApplicable(project);
-        Loadout pluginLoadout = new Loadout(project);
-        configurePluginLoadout(pluginLoadout);
-        pluginLoadout.putOn();
-    }
-
-    protected abstract void configurePluginLoadout(Loadout pluginLoadout);
+    String LIFECYCLE_LOG_APPLY_PLUGIN = "  Apply Touchstone plugin '%s'";
 
     /**
-     * Should return the implementor’s {@link Class} object, which is used in
-     * calculating applicability of this Decaland Touchstone plugin by comparing
-     * it to other applied Decaland Touchstone plugins.
+     * Ensures that the user’s Gradle is of compatible version and that the
+     * current plugin is compatible with other {@link DecalandPlugin}s applied
+     * before, then constructs the {@link Loadout} and applies it to the given
+     * {@link Project}.
      *
-     * @return the Class object of the implementor
+     * @param target the Gradle {@link Project} to apply the plugin to
+     */
+    void apply(@NotNull Project target);
+
+    /**
+     * Returns the {@link Loadout} instance that is associated with this plugin
+     * instance.
+     *
+     * @return the {@link Loadout} that is used by this plugin
      */
     @NotNull
-    protected abstract Class<? extends DecalandPlugin> getPluginType();
+    Loadout getLoadout();
 
     /**
-     * Calculates and returns the id of this Decaland Touchstone plugin, which
-     * is derived from the implementor’s class name according to the convention
-     * outlined in the method {@link #extractDecalandPluginId(Class)}.
+     * Returns the textual plugin ID, the one that is used by the end user when
+     * applying this {@link DecalandPlugin} in their <code>build.gradle</code>
+     * file.
      *
-     * @return the id of this plugin
+     * @return the textual plugin ID
      */
     @NotNull
-    public final String getPluginId() {
-        return extractDecalandPluginId(getPluginType());
-    }
+    String getPluginId();
 
     /**
-     * Returns the list of Decaland Touchstone plugins that must also be applied
-     * in order for this plugin to work properly.
+     * Returns the minimum {@link GradleVersion} compatible with this plugin.
      *
-     * @return the {@link Collection} of required plugin class objects
+     * @return the minimum {@link GradleVersion} compatible with this plugin
      */
     @NotNull
-    protected Collection<Class<? extends DecalandPlugin>> getRequiredPlugins() {
-        return List.of();
-    }
+    GradleVersion getMinimumGradleVersion();
 
     /**
-     * Returns the list of Decaland Touchstone plugins, from which any one (or
-     * more) must also be applied in order for this plugin to work properly.
+     * Returns a collection of {@link DecalandPlugin} class objects,
+     * representing the set plugins, at least one of which must be applied
+     * before the current one.
      *
-     * @return the {@link Collection} of plugin class objects, of which any
-     * one (or more) is required
+     * @return the list of plugins, at least one of which is required
      */
     @NotNull
-    protected Collection<Class<? extends DecalandPlugin>> getAnyRequiredPlugins() {
-        return List.of();
-    }
+    Collection<Class<? extends DecalandPlugin>> getAnyRequiredPlugins();
 
     /**
-     * Returns the list of Decaland Touchstone plugins, of which not one may be
-     * applied together with this plugin.
+     * Returns a collection of {@link DecalandPlugin} class objects,
+     * representing the set plugins, all of which must be applied before the
+     * current one.
      *
-     * @return the {@link Collection} of incompatible plugin class objects
+     * @return the list of plugins, all of which is required
      */
     @NotNull
-    protected Collection<Class<? extends DecalandPlugin>> getIncompatiblePlugins() {
-        return List.of();
-    }
+    Collection<Class<? extends DecalandPlugin>> getAllRequiredPlugins();
 
     /**
-     * Ensures that this plugin is being applied with a version of Gradle that
-     * is supported.
-     */
-    private void validateGradleVersion() {
-        GradleVersion currentVersion = GradleVersion.current();
-        GradleVersion minVersion = GradleVersion.version(MIN_VERSION_GRADLE);
-        if (currentVersion.compareTo(minVersion) < 0) {
-            throw new GradleException(String.format(MSG_UNSUPPORTED_GRADLE_VERSION, minVersion, currentVersion));
-        }
-    }
-
-    /**
-     * Analyzes Gradle plugins that are currently applied to the project and
-     * ensures that the current Decaland Touchstone plugin is applicable
-     * according to the declared dependency and compatibility rules. If not,
-     * throws a {@link GradleException}.
+     * Returns a collection of {@link DecalandPlugin} class objects,
+     * representing the set plugins, none of which must be applied before the
+     * current one.
      *
-     * Because this plugin may only see the Gradle plugins applied before
-     * itself, all dependency and compatibility rules between Decaland
-     * Touchstone plugins must be declared symmetrically.
-     *
-     * @param project the consuming Gradle project
-     */
-    private void ensurePluginIsApplicable(@NotNull Project project) {
-        PluginContainer pluginContainer = project.getPlugins();
-
-        Collection<Class<? extends DecalandPlugin>> requiredPlugins = getRequiredPlugins();
-        if (!requiredPlugins.stream().allMatch(pluginContainer::hasPlugin)) {
-            handlePluginConflict(requiredPlugins, MSG_MISSING_REQUIRED_PLUGINS);
-        }
-
-        Collection<Class<? extends DecalandPlugin>> anyRequiredPlugins = getAnyRequiredPlugins();
-        if (!anyRequiredPlugins.isEmpty() && anyRequiredPlugins.stream().noneMatch(pluginContainer::hasPlugin)) {
-            handlePluginConflict(anyRequiredPlugins, MSG_MISSING_ANY_REQUIRED_PLUGIN);
-        }
-
-        Collection<Class<? extends DecalandPlugin>> incompatiblePlugins = getIncompatiblePlugins()
-                .stream()
-                .filter(pluginContainer::hasPlugin)
-                .collect(Collectors.toUnmodifiableList());
-        if (!incompatiblePlugins.isEmpty()) {
-            handlePluginConflict(incompatiblePlugins, MSG_FOUND_INCOMPATIBLE_PLUGINS);
-        }
-    }
-
-    /**
-     * Encapsulates the common logic of throwing a Gradle exception.
-     *
-     * @param conflictingPlugins a {@link Collection} of plugin objects that
-     *                           cause a conflict
-     * @param errorMessage a {@link String#format(String, Object...)} template
-     *                     for the error message; must follow a hard-coded
-     *                     pattern
-     */
-    private void handlePluginConflict(Collection<Class<? extends DecalandPlugin>> conflictingPlugins, String errorMessage) {
-        throw new GradleException(String.format(
-                errorMessage,
-                getPluginId(),
-                composeListOfClasses(conflictingPlugins)
-        ));
-    }
-
-    @NotNull
-    private String composeListOfClasses(Collection<Class<? extends DecalandPlugin>> pluginClasses) {
-        return pluginClasses.stream()
-                .map(this::extractDecalandPluginId)
-                .collect(joining("', '", "'", "'"));
-    }
-
-    /**
-     * Defines logic that converts the simple name of this plugin’s class object
-     * to its id: CamelCase is converted to kebab-case, the '-plugin' suffix is
-     * removed, and some words are shortened. The plugin must follow this
-     * convention in order for potential error messages to be human-readable.
-     *
-     * @param clazz the class object of a Decaland Touchstone plugin
-     * @return the plugin id
+     * @return the list of plugins that are incompatible with the current one
      */
     @NotNull
-    private String extractDecalandPluginId(Class<? extends DecalandPlugin> clazz) {
-        return clazz.getSimpleName()
-                .replaceAll("([a-z])([A-Z])", "$1-$2")
-                .toLowerCase()
-                .replace("decaland", "dcl")
-                .replace("spring-boot", "boot")
-                .replace("library", "lib")
-                .replace("application", "app")
-                .replace("-plugin", "");
-    }
+    Collection<Class<? extends DecalandPlugin>> getIncompatiblePlugins();
 }

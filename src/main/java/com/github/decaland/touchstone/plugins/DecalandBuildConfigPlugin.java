@@ -10,7 +10,7 @@ import java.util.List;
  * The base abstraction of a Decaland Touchstone plugin that configures some
  * aspects of the build process for the consuming project.
  */
-public abstract class DecalandBuildConfigPlugin extends DecalandPlugin {
+public abstract class DecalandBuildConfigPlugin extends DecalandBasePlugin {
 
     /**
      * Catalogues all plugin types that extend this base abstraction.
