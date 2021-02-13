@@ -36,7 +36,7 @@ public class DependencyBom {
         // https://junit.org/junit5/docs/snapshot/release-notes
         group("org.junit.jupiter")
                 .name("junit-jupiter")
-                .version("5.7.0")
+                .version("5.7.1")
                 .add();
         // https://github.com/junit-team/junit4/releases
         group("junit")
