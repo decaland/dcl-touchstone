@@ -22,7 +22,7 @@ repositories {
 
 // Download the full version of Gradle wrapper
 wrapper {
-    gradleVersion = "${project.property('dcl.minversion.gradle')}"
+    gradleVersion = "${project.property('dcl.version.gradle')}"
     distributionType = Wrapper.DistributionType.ALL
 }
 

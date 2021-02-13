@@ -2,6 +2,7 @@ package com.github.decaland.touchstone.plugins.builds;
 
 import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.configs.DependencyManagementLayer;
+import com.github.decaland.touchstone.loadout.layers.configs.GradleWrapperLayer;
 import com.github.decaland.touchstone.loadout.layers.configs.MavenPublishLayer;
 import com.github.decaland.touchstone.loadout.layers.configs.RepositoryConfigurationLayer;
 import com.github.decaland.touchstone.loadout.layers.flavors.JavaLayer;
@@ -21,6 +22,7 @@ public class DecalandSpringBootApplicationJavaKotlinPlugin extends DecalandBuild
     @Override
     public Loadout supplyLoadout() {
         return Loadout.builder()
+                .add(new GradleWrapperLayer())
                 .add(new RepositoryConfigurationLayer())
                 .add(new DependencyManagementLayer())
                 .add(new MavenPublishLayer())
