@@ -12,6 +12,8 @@ public class UsesJunitFiveLayer extends ProjectAwareLayer {
     private static final String JUNIT_DEP = "org.junit.jupiter:junit-jupiter";
     private static final String JUNIT_DEP_KOTLIN = "org.jetbrains.kotlin:kotlin-test-junit5";
     private static final String JUNIT_DEP_SPRING = "org.springframework.boot:spring-boot-starter-test";
+    private static final String MOCKITO_DEP = "org.mockito:mockito-junit-jupiter";
+    private static final String ASSERTJ_DEP = "org.assertj:assertj-core";
 
     public UsesJunitFiveLayer() {
     }
@@ -24,6 +26,8 @@ public class UsesJunitFiveLayer extends ProjectAwareLayer {
     private void addJunitFiveDependencies(Project project) {
         final String config = "testImplementation";
         project.getDependencies().add(config, JUNIT_DEP);
+        project.getDependencies().add(config, MOCKITO_DEP);
+        project.getDependencies().add(config, ASSERTJ_DEP);
         if (project.getPlugins().hasPlugin(KotlinPluginWrapper.class)) {
             project.getDependencies().add(config, JUNIT_DEP_KOTLIN);
         }
