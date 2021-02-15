@@ -33,6 +33,7 @@ public class SpringBootLayer extends ProjectAwareLayer {
         if (isLibrary()) {
             configureSpringBootLibrary(project);
         }
+        addDependenciesForSpringBoot(project);
     }
 
     private void configureSpringBootLibrary(Project project) {
@@ -46,5 +47,9 @@ public class SpringBootLayer extends ProjectAwareLayer {
 
     public boolean isLibrary() {
         return !isApplication;
+    }
+
+    private void addDependenciesForSpringBoot(Project project) {
+        project.getDependencies().add("implementation", "org.springframework.boot:spring-boot-starter");
     }
 }
