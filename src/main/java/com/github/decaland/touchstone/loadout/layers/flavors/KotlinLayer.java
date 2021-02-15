@@ -45,6 +45,10 @@ public class KotlinLayer extends ProjectAwareLayer {
     private void addDependencies(Project project) {
         project.getDependencies().add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8");
         project.getDependencies().add("implementation", "org.jetbrains.kotlin:kotlin-reflect");
+        project.afterEvaluate(this::addDelayedDependencies);
+    }
+
+    private void addDelayedDependencies(Project project) {
         project.getDependencies().add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin");
     }
 }
