@@ -62,21 +62,24 @@ tasks.withType(AbstractPublishToMaven) {
 
 // Set up dependencies for plugin development & testing
 dependencies {
-    testIntegrationImplementation(project)
-    testFunctionalImplementation(project)
-
-    testImplementation("org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}")
-    testImplementation("org.mockito:mockito-junit-jupiter:${property('dcl.version.mockito')}")
-    testImplementation("org.assertj:assertj-core:${property('dcl.version.assertj')}")
-    testIntegrationImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
-    testFunctionalImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
-
+    // Third party plugins applied to consumer projects
     implementation "org.springframework.boot:spring-boot-gradle-plugin:${property('dcl.version.spring-boot')}"
     implementation "io.spring.gradle:dependency-management-plugin:${property('dcl.version.spring-dependency-management')}"
     implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:${property('dcl.version.kotlin')}"
     implementation "org.jetbrains.kotlin:kotlin-allopen:${property('dcl.version.kotlin')}"
-
     implementation "io.freefair.gradle:lombok-plugin:${property('dcl.version.lombok')}"
+
+    // Tests naturally depend on the code in the main project
+    testIntegrationImplementation(project)
+    testFunctionalImplementation(project)
+
+    // As an arbitrary choice, unit tests use jUnit5, Mockito, and AssertJ ...
+    testImplementation("org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}")
+    testImplementation("org.mockito:mockito-junit-jupiter:${property('dcl.version.mockito')}")
+    testImplementation("org.assertj:assertj-core:${property('dcl.version.assertj')}")
+    // ... and integration/functional tests use Spock
+    testIntegrationImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
+    testFunctionalImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
 }
 
 // Ensure new test configurations extend from implementation

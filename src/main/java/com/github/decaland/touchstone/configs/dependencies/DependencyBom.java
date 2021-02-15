@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.github.decaland.touchstone.configs.dependencies.MultiBomEntry.library;
 import static com.github.decaland.touchstone.configs.dependencies.UniBomEntry.group;
 
 public class DependencyBom {
@@ -11,6 +12,18 @@ public class DependencyBom {
     static final List<BomEntry> entries = new LinkedList<>();
 
     static {
+
+        /*
+        SPRING FRAMEWORK
+         */
+
+        // Versions of Spring components are included with the Spring plugin
+
+
+        /*
+        UTILITY LIBRARIES
+         */
+
         // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
         group("org.apache.commons")
                 .name("commons-lang3")
@@ -27,11 +40,21 @@ public class DependencyBom {
                 .version("1.9.4")
                 .add();
 
+
+        /*
+        SPECIALIZED TOOLS
+         */
+
         // https://mvnrepository.com/artifact/com.github.javafaker/javafaker
         group("com.github.javafaker")
                 .name("javafaker")
                 .version("1.0.2")
                 .add();
+
+
+        /*
+        TESTING LIBRARIES
+         */
 
         // https://junit.org/junit5/docs/snapshot/release-notes
         group("org.junit.jupiter")
@@ -42,6 +65,27 @@ public class DependencyBom {
         group("junit")
                 .name("junit")
                 .version("4.13.1")
+                .add();
+        // https://mvnrepository.com/artifact/org.mockito/mockito-core
+        library("org.mockito")
+                .name("mockito-core")
+                .name("mockito-junit-jupiter")
+                .version("3.7.7")
+                .add();
+        // https://mvnrepository.com/artifact/org.assertj/assertj-core
+        group("org.assertj")
+                .name("assertj-core")
+                .version("3.19.0")
+                .add();
+        // https://mvnrepository.com/artifact/org.hamcrest/hamcrest
+        group("org.hamcrest")
+                .name("hamcrest")
+                .version("2.2")
+                .add();
+        // https://mvnrepository.com/artifact/org.spockframework/spock-core
+        group("org.spockframework")
+                .name("spock-core")
+                .version("1.3-groovy-2.5")
                 .add();
     }
 
