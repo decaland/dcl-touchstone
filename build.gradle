@@ -152,11 +152,11 @@ gradlePluginDevelopmentExtension.plugins { pluginContainer ->
         plugin.description = 'Decaland Spring Boot-based application written in Java or Kotlin or both'
         plugin.implementationClass = 'com.github.decaland.touchstone.plugins.builds.DecalandSpringBootApplicationJavaKotlinPlugin'
     }
-    pluginContainer.create("decalandEssentialDependencies") { plugin ->
-        plugin.id = 'dcl-essential-dependencies'
-        plugin.displayName = 'Decaland essential library dependencies'
-        plugin.description = 'Decaland essential library dependencies'
-        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.dependencies.DecalandEssentialDependenciesPlugin'
+    pluginContainer.create("decalandUsesJunitFive") { plugin ->
+        plugin.id = 'dcl-uses-junit-five'
+        plugin.displayName = 'Decaland jUnit5 dependencies'
+        plugin.description = 'Decaland jUnit5 dependencies'
+        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.dependencies.testing.DecalandUsesJunitFivePlugin'
     }
 }
 

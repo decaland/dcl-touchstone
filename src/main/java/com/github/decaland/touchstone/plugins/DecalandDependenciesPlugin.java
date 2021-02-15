@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.plugins;
 
-import com.github.decaland.touchstone.plugins.dependencies.DecalandEssentialDependenciesPlugin;
+import com.github.decaland.touchstone.plugins.dependencies.testing.DecalandUsesJunitFivePlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -18,7 +18,7 @@ public abstract class DecalandDependenciesPlugin extends DecalandBasePlugin {
      * Catalogues all plugin types that extend this base abstraction.
      */
     final static Collection<Class<? extends DecalandPlugin>> DECALAND_DEPENDENCIES_PLUGIN_TYPES = List.of(
-            DecalandEssentialDependenciesPlugin.class
+            DecalandUsesJunitFivePlugin.class
     );
 
     /**

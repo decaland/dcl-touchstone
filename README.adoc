@@ -25,13 +25,13 @@ The long-winded property at the end is optional: it forces Gradle to publish htt
 ----
 pluginManagement {
     plugins {
-        id 'dcl-lib-java' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-lib-java-kotlin' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-boot-lib-java' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-boot-lib-java-kotlin' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-boot-app-java' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-boot-app-java-kotlin' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-essential-dependencies' version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-lib-java'               version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-lib-java-kotlin'        version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-boot-lib-java'          version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-boot-lib-java-kotlin'   version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-boot-app-java'          version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-boot-app-java-kotlin'   version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-uses-junit-five'        version "${getProperty('dcl.version.touchstone')}"
     }
     repositories {
         maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-releases' }
@@ -51,7 +51,7 @@ pluginManagement {
 ----
 plugins {
     id 'dcl-lib-java'
-    id 'dcl-essential-dependencies'
+    id 'dcl-uses-junit-five'
 }
 
 // group = 'com.github.decaland'
@@ -69,7 +69,7 @@ The following Touchstone plugins are available and provide their described build
 `*dcl-boot-app-java*`:: Spring Boot-based _bootable applications_ written in pure Java.
 `*dcl-boot-app-java-kotlin*`:: Spring Boot-based _bootable applications_ written in Java, Kotlin, or mix thereof.
 
-Along with any of the build configurations above, the consumer might want to also apply a small set of basic library dependencies via the additional Gradle plugin:
+Along with any of the build configurations above, the consumer might want to also apply library dependencies via additional Touchstone plugins:
 
 [horizontal]
-`*dcl-essential-dependencies*`:: `lombok`; `kotlin-stdlib` & `kotlin-reflect`; `spring-boot-starter-test`.
+`*dcl-uses-junit-five*`:: testing dependencies centered on jUnit5.

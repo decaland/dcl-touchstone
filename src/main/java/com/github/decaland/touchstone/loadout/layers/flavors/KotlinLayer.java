@@ -31,6 +31,7 @@ public class KotlinLayer extends ProjectAwareLayer {
     @Override
     public void configure(Project project, Loadout.Layers layers) {
         project.getTasks().withType(KotlinCompile.class, this::configureKotlinPluginCompileTasks);
+        addDependencies(project);
     }
 
     private void configureKotlinPluginCompileTasks(@NotNull KotlinCompile task) {
@@ -39,5 +40,11 @@ public class KotlinLayer extends ProjectAwareLayer {
         kotlinOptions.setLanguageVersion(VERSION_KOTLIN_API);
         kotlinOptions.setJvmTarget(VERSION_JAVA);
         kotlinOptions.setFreeCompilerArgs(Collections.singletonList("-Xjsr305=strict"));
+    }
+
+    private void addDependencies(Project project) {
+        project.getDependencies().add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8");
+        project.getDependencies().add("implementation", "org.jetbrains.kotlin:kotlin-reflect");
+        project.getDependencies().add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin");
     }
 }
