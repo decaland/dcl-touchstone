@@ -20,10 +20,12 @@ public class DependencyBom {
          */
         group("org.jetbrains.kotlinx")
                 .name("kotlinx-serialization-json")
-                .version(VERSION_KOTLINX_SERIALIZATION);
+                .version(VERSION_KOTLINX_SERIALIZATION)
+                .add();
         group("org.jetbrains.kotlinx")
                 .name("kotlinx-coroutines-core")
-                .version(VERSION_KOTLINX_COROUTINES);
+                .version(VERSION_KOTLINX_COROUTINES)
+                .add();
 
         /*
         SPRING FRAMEWORK
