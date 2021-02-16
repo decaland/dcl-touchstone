@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.allopen.gradle.SpringGradleSubplugin;
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
+import org.jetbrains.kotlinx.serialization.gradle.SerializationGradleSubplugin;
 import org.springframework.boot.gradle.plugin.SpringBootPlugin;
 
 import java.util.Collections;
@@ -26,6 +27,7 @@ public class KotlinLayer extends ProjectAwareLayer {
         project.getPlugins().withType(SpringBootPlugin.class, plugin -> {
             project.getPluginManager().apply(SpringGradleSubplugin.class);
         });
+        project.getPluginManager().apply(SerializationGradleSubplugin.class);
     }
 
     @Override
@@ -45,10 +47,7 @@ public class KotlinLayer extends ProjectAwareLayer {
     private void addDependencies(Project project) {
         project.getDependencies().add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8");
         project.getDependencies().add("implementation", "org.jetbrains.kotlin:kotlin-reflect");
-        project.afterEvaluate(this::addDelayedDependencies);
-    }
-
-    private void addDelayedDependencies(Project project) {
-        project.getDependencies().add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin");
+        project.getDependencies().add("implementation", "org.jetbrains.kotlinx:kotlinx-serialization-json");
+        project.getDependencies().add("implementation", "org.jetbrains.kotlinx:kotlinx-coroutines-core");
     }
 }

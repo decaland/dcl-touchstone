@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.github.decaland.touchstone.configs.BuildParametersManifest.VERSION_KOTLINX_COROUTINES;
+import static com.github.decaland.touchstone.configs.BuildParametersManifest.VERSION_KOTLINX_SERIALIZATION;
 import static com.github.decaland.touchstone.configs.dependencies.MultiBomEntry.library;
 import static com.github.decaland.touchstone.configs.dependencies.UniBomEntry.group;
 
@@ -12,6 +14,16 @@ public class DependencyBom {
     static final List<BomEntry> entries = new LinkedList<>();
 
     static {
+
+        /*
+        Kotlin libraries
+         */
+        group("org.jetbrains.kotlinx")
+                .name("kotlinx-serialization-json")
+                .version(VERSION_KOTLINX_SERIALIZATION);
+        group("org.jetbrains.kotlinx")
+                .name("kotlinx-coroutines-core")
+                .version(VERSION_KOTLINX_COROUTINES);
 
         /*
         SPRING FRAMEWORK

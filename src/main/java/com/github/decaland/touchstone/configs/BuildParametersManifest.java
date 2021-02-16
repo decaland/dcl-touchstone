@@ -20,6 +20,8 @@ public class BuildParametersManifest {
     static {
         VERSION_KOTLIN_API = extractKotlinApiVersion(VERSION_KOTLIN);
     }
+    public static final String VERSION_KOTLINX_SERIALIZATION = "1.1.0-RC";
+    public static final String VERSION_KOTLINX_COROUTINES = "1.4.2";
 
     // https://gradle.org/releases
 

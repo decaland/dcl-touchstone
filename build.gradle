@@ -67,6 +67,7 @@ dependencies {
     implementation "io.spring.gradle:dependency-management-plugin:${property('dcl.version.spring-dependency-management')}"
     implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:${property('dcl.version.kotlin')}"
     implementation "org.jetbrains.kotlin:kotlin-allopen:${property('dcl.version.kotlin')}"
+    implementation "org.jetbrains.kotlin:kotlin-serialization:${property('dcl.version.kotlin')}"
     implementation "io.freefair.gradle:lombok-plugin:${property('dcl.version.lombok')}"
 
     // Tests naturally depend on the code in the main project
