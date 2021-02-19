@@ -78,7 +78,7 @@ public class DependencyBom {
         // https://github.com/junit-team/junit4/releases
         group("junit")
                 .name("junit")
-                .version("4.13.1")
+                .version("4.13.2")
                 .add();
         // https://mvnrepository.com/artifact/org.mockito/mockito-core
         library("org.mockito")

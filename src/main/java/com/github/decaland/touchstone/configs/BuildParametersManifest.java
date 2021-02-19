@@ -24,7 +24,6 @@ public class BuildParametersManifest {
     public static final String VERSION_KOTLINX_COROUTINES = "1.4.2";
 
     // https://gradle.org/releases
-
     public static final String MIN_VERSION_GRADLE = "6.0";
 
 
