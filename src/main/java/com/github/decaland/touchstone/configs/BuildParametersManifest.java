@@ -27,7 +27,8 @@ public class BuildParametersManifest {
     public static final String VERSION_KOTLIN_JACKSON = "2.12.1";
 
     // https://gradle.org/releases
-    public static final String MIN_VERSION_GRADLE = "6.0";
+    // https://docs.gradle.org/current/userguide/dependency_resolution.html#sub:cache_copy
+    public static final String MIN_VERSION_GRADLE = "6.4";
 
 
     /*
