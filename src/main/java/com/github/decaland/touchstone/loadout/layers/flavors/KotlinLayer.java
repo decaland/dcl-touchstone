@@ -49,5 +49,6 @@ public class KotlinLayer extends ProjectAwareLayer {
         project.getDependencies().add("implementation", "org.jetbrains.kotlin:kotlin-reflect");
         project.getDependencies().add("implementation", "org.jetbrains.kotlinx:kotlinx-serialization-json");
         project.getDependencies().add("implementation", "org.jetbrains.kotlinx:kotlinx-coroutines-core");
+        project.getDependencies().add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin");
     }
 }

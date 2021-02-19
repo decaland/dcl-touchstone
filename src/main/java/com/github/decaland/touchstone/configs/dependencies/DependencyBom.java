@@ -4,8 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.github.decaland.touchstone.configs.BuildParametersManifest.VERSION_KOTLINX_COROUTINES;
-import static com.github.decaland.touchstone.configs.BuildParametersManifest.VERSION_KOTLINX_SERIALIZATION;
+import static com.github.decaland.touchstone.configs.BuildParametersManifest.*;
 import static com.github.decaland.touchstone.configs.dependencies.MultiBomEntry.library;
 import static com.github.decaland.touchstone.configs.dependencies.UniBomEntry.group;
 
@@ -25,6 +24,10 @@ public class DependencyBom {
         group("org.jetbrains.kotlinx")
                 .name("kotlinx-coroutines-core")
                 .version(VERSION_KOTLINX_COROUTINES)
+                .add();
+        group("com.fasterxml.jackson.module")
+                .name("jackson-module-kotlin")
+                .version(VERSION_KOTLIN_JACKSON)
                 .add();
 
         /*

@@ -23,6 +23,9 @@ public class BuildParametersManifest {
     public static final String VERSION_KOTLINX_SERIALIZATION = "1.1.0-RC";
     public static final String VERSION_KOTLINX_COROUTINES = "1.4.2";
 
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin
+    public static final String VERSION_KOTLIN_JACKSON = "2.12.1";
+
     // https://gradle.org/releases
     public static final String MIN_VERSION_GRADLE = "6.0";
 
