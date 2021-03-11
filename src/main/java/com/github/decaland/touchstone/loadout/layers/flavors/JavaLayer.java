@@ -5,7 +5,7 @@ import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import io.freefair.gradle.plugins.lombok.LombokPlugin;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.Copy;
@@ -25,7 +25,7 @@ public class JavaLayer extends ProjectAwareLayer {
 
     @Override
     public void apply(Project project, Loadout.Layers layers) {
-        project.getPluginManager().apply(JavaPlugin.class);
+        project.getPluginManager().apply(ApplicationPlugin.class);
     }
 
     @Override
