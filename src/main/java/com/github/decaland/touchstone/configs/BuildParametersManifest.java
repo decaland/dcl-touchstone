@@ -49,6 +49,8 @@ public class BuildParametersManifest {
 
     public static final String PROP_KEY_SERPNET_PASSWORD = "dcl.repository.maven.password";
 
+    public static final String TASK_DOWNLOAD_DEPENDENCIES = "downloadDependencies";
+
     private BuildParametersManifest() {
     }
 

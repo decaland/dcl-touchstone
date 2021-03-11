@@ -6,13 +6,17 @@ import io.freefair.gradle.plugins.lombok.LombokPlugin;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
+import org.gradle.api.tasks.Copy;
+import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.jetbrains.annotations.NotNull;
 
-import static com.github.decaland.touchstone.configs.BuildParametersManifest.SOURCE_ENCODING;
-import static com.github.decaland.touchstone.configs.BuildParametersManifest.VERSION_JAVA;
+import java.util.UUID;
+
+import static com.github.decaland.touchstone.configs.BuildParametersManifest.*;
 
 public class JavaLayer extends ProjectAwareLayer {
 
@@ -29,6 +33,8 @@ public class JavaLayer extends ProjectAwareLayer {
         configureJavaPluginExtension(project);
         project.getTasks().withType(JavaCompile.class, this::configureJavaPluginCompileTasks);
         project.getTasks().withType(Test.class, this::configureJavaPluginTestCompileTasks);
+        project.getTasks().withType(Jar.class, task -> configureJavaPluginJarTasks(project, task));
+        createTaskForDownloadingDependencies(project);
         addDependencies(project);
     }
 
@@ -45,6 +51,25 @@ public class JavaLayer extends ProjectAwareLayer {
 
     private void configureJavaPluginTestCompileTasks(@NotNull Test task) {
         task.getSystemProperties().put("file.encoding", SOURCE_ENCODING);
+    }
+
+    private void configureJavaPluginJarTasks(@NotNull Project project, @NotNull Jar task) {
+        task.getArchiveFileName().set(
+                project.provider(
+                        () -> String.format("%s.jar", project.getName())
+                )
+        );
+    }
+
+    private void createTaskForDownloadingDependencies(@NotNull Project project) {
+        project.getTasks().register(TASK_DOWNLOAD_DEPENDENCIES, Copy.class, copyTask -> {
+            project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().forEach(sourceSet -> {
+                copyTask.from(sourceSet.getRuntimeClasspath());
+            });
+            String tempDir = String.format("/tmp/%s", UUID.randomUUID());
+            copyTask.into(tempDir);
+            copyTask.doLast(ignored -> project.delete(tempDir));
+        });
     }
 
     private void addDependencies(@NotNull Project project) {
