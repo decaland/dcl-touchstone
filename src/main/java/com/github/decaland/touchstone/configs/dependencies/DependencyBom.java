@@ -44,7 +44,7 @@ public class DependencyBom {
         // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
         group("org.apache.commons")
                 .name("commons-lang3")
-                .version("3.11")
+                .version("3.12.0")
                 .add();
         // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
         group("org.apache.commons")
@@ -87,7 +87,7 @@ public class DependencyBom {
         library("org.mockito")
                 .name("mockito-core")
                 .name("mockito-junit-jupiter")
-                .version("3.7.7")
+                .version("3.8.0")
                 .add();
         // https://mvnrepository.com/artifact/org.assertj/assertj-core
         group("org.assertj")
