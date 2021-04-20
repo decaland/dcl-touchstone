@@ -70,17 +70,26 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-serialization:${property('dcl.version.kotlin')}"
     implementation "io.freefair.gradle:lombok-plugin:${property('dcl.version.lombok')}"
 
-    // Tests naturally depend on the code in the main project
-    testIntegrationImplementation(project)
-    testFunctionalImplementation(project)
+    // Unit tests use jUnit5, Mockito, and AssertJ
+    testImplementation "org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${property('dcl.version.mockito')}"
+    testImplementation "org.assertj:assertj-core:${property('dcl.version.assertj')}"
 
-    // As an arbitrary choice, unit tests use jUnit5, Mockito, and AssertJ ...
-    testImplementation("org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}")
-    testImplementation("org.mockito:mockito-junit-jupiter:${property('dcl.version.mockito')}")
-    testImplementation("org.assertj:assertj-core:${property('dcl.version.assertj')}")
-    // ... and integration/functional tests use Spock
-    testIntegrationImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
-    testFunctionalImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
+    // Tests naturally depend on the code in the main project
+    testIntegrationImplementation project
+    testFunctionalImplementation project
+
+    // Integration/functional tests use Spock
+    testIntegrationImplementation platform("org.spockframework:spock-bom:${property('dcl.version.spock-core')}")
+    testIntegrationImplementation("org.spockframework:spock-core") {
+        exclude group: 'org.codehaus.groovy'
+    }
+
+    testFunctionalImplementation platform("org.spockframework:spock-bom:${property('dcl.version.spock-core')}")
+    testFunctionalImplementation("org.spockframework:spock-core") {
+        exclude group: 'org.codehaus.groovy'
+    }
+    testFunctionalImplementation "org.spockframework:spock-junit4"
 }
 
 // Ensure new test configurations extend from implementation
@@ -88,11 +97,17 @@ def implementationConfiguration = configurations.getByName('implementation')
 configurations.getByName('testIntegrationImplementation').extendsFrom(implementationConfiguration)
 configurations.getByName('testFunctionalImplementation').extendsFrom(implementationConfiguration)
 
-// Configure unit tests (and only unit tests) to use JUnit
-test {
-    useJUnitPlatform {
-        includeEngines('junit-jupiter')
-        excludeEngines('junit-vintage')
+// Configure tests to use JUnit platform
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+
+    // Gradle needs to fail if no tests are found (https://github.com/gradle/gradle/issues/7452)
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            if (result.testCount == 0) {
+                throw new IllegalStateException("Tests not found")
+            }
+        }
     }
 }
 

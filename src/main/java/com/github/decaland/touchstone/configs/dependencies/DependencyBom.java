@@ -87,7 +87,7 @@ public class DependencyBom {
         library("org.mockito")
                 .name("mockito-core")
                 .name("mockito-junit-jupiter")
-                .version("3.8.0")
+                .version("3.9.0")
                 .add();
         // https://mvnrepository.com/artifact/org.assertj/assertj-core
         group("org.assertj")

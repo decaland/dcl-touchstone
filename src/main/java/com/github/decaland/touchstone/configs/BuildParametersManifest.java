@@ -24,11 +24,12 @@ public class BuildParametersManifest {
     public static final String VERSION_KOTLINX_COROUTINES = "1.4.3";
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin
-    public static final String VERSION_KOTLIN_JACKSON = "2.12.2";
+    public static final String VERSION_KOTLIN_JACKSON = "2.12.3";
 
     // https://gradle.org/releases
     // https://docs.gradle.org/current/userguide/dependency_resolution.html#sub:cache_copy
-    public static final String MIN_VERSION_GRADLE = "6.4";
+    // Gradle 7 switched to Groovy 3, a major change
+    public static final String MIN_VERSION_GRADLE = "7.0";
 
 
     /*
