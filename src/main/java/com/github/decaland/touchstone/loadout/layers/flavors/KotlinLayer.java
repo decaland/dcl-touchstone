@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.allopen.gradle.SpringGradleSubplugin;
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
+import org.jetbrains.kotlin.noarg.gradle.KotlinJpaSubplugin;
 import org.jetbrains.kotlinx.serialization.gradle.SerializationGradleSubplugin;
 import org.springframework.boot.gradle.plugin.SpringBootPlugin;
 
@@ -26,6 +27,7 @@ public class KotlinLayer extends ProjectAwareLayer {
         project.getPluginManager().apply(KotlinPluginWrapper.class);
         project.getPlugins().withType(SpringBootPlugin.class, plugin -> {
             project.getPluginManager().apply(SpringGradleSubplugin.class);
+            project.getPluginManager().apply(KotlinJpaSubplugin.class);
         });
         project.getPluginManager().apply(SerializationGradleSubplugin.class);
     }
