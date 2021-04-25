@@ -4,6 +4,8 @@ import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.allopen.gradle.AllOpenExtension;
+import org.jetbrains.kotlin.allopen.gradle.AllOpenGradleSubplugin;
 import org.jetbrains.kotlin.allopen.gradle.SpringGradleSubplugin;
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
@@ -27,14 +29,16 @@ public class KotlinLayer extends ProjectAwareLayer {
         project.getPluginManager().apply(KotlinPluginWrapper.class);
         project.getPlugins().withType(SpringBootPlugin.class, plugin -> {
             project.getPluginManager().apply(SpringGradleSubplugin.class);
-            project.getPluginManager().apply(KotlinJpaSubplugin.class);
         });
         project.getPluginManager().apply(SerializationGradleSubplugin.class);
+        project.getPluginManager().apply(AllOpenGradleSubplugin.class);
+        project.getPluginManager().apply(KotlinJpaSubplugin.class);
     }
 
     @Override
     public void configure(Project project, Loadout.Layers layers) {
         project.getTasks().withType(KotlinCompile.class, this::configureKotlinPluginCompileTasks);
+        openClassesForJpa(project);
         addDependencies(project);
     }
 
@@ -44,6 +48,17 @@ public class KotlinLayer extends ProjectAwareLayer {
         kotlinOptions.setLanguageVersion(VERSION_KOTLIN_API);
         kotlinOptions.setJvmTarget(VERSION_JAVA);
         kotlinOptions.setFreeCompilerArgs(Collections.singletonList("-Xjsr305=strict"));
+    }
+
+    private void openClassesForJpa(Project project) {
+        AllOpenExtension allOpenExtension = project.getExtensions().findByType(AllOpenExtension.class);
+        if (allOpenExtension != null) {
+            allOpenExtension.annotations(
+                    "javax.persistence.Entity",
+                    "javax.persistence.MappedSuperclass",
+                    "javax.persistence.Embeddable"
+            );
+        }
     }
 
     private void addDependencies(Project project) {
