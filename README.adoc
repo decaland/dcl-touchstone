@@ -12,7 +12,7 @@ To use the Touchstone plugins, add the following files to the consumer Gradle pr
 ----
 # version=0.1.0-SNAPSHOT  # consumer project’s version
 
-dcl.version.touchstone=0.2.2-SNAPSHOT  # Touchstone version
+dcl.version.touchstone=0.2.3-SNAPSHOT  # Touchstone version
 
 systemProp.org.gradle.internal.publish.checksums.insecure=true
 ----

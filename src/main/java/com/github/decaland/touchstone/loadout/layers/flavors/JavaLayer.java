@@ -74,6 +74,7 @@ public class JavaLayer extends ProjectAwareLayer {
 
     private void addDependencies(@NotNull Project project) {
         project.getPluginManager().apply(LombokPlugin.class);
-        requireTask(project, "generateLombokConfig").setEnabled(false);
+        // Gradle plugin 'io.freefair.lombok' v6 deprecates 'generateLombokConfig' task:
+        // requireTask(project, "generateLombokConfig").setEnabled(false);
     }
 }

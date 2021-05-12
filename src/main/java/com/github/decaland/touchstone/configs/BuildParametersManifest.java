@@ -15,13 +15,13 @@ public class BuildParametersManifest {
     public static final String VERSION_JAVA = "11";
 
     // https://kotlinlang.org/releases.html
-    public static final String VERSION_KOTLIN = "1.4.32";
+    public static final String VERSION_KOTLIN = "1.5.0";
     public static final String VERSION_KOTLIN_API;
     static {
         VERSION_KOTLIN_API = extractKotlinApiVersion(VERSION_KOTLIN);
     }
-    public static final String VERSION_KOTLINX_SERIALIZATION = "1.1.0";
-    public static final String VERSION_KOTLINX_COROUTINES = "1.4.3";
+    public static final String VERSION_KOTLINX_SERIALIZATION = "1.2.0";
+    public static final String VERSION_KOTLINX_COROUTINES = "1.5.0-RC";
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin
     public static final String VERSION_KOTLIN_JACKSON = "2.12.3";

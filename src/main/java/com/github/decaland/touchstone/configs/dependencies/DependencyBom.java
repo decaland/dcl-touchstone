@@ -292,7 +292,7 @@ public class DependencyBom {
         // https://mvnrepository.com/artifact/org.spockframework/spock-core
         group("org.spockframework")
                 .name("spock-core")
-                .version("1.3-groovy-2.5")
+                .version("2.0-M5-groovy-3.0")
                 .add();
     }
 
