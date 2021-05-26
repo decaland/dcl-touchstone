@@ -266,7 +266,7 @@ public class DependencyBom {
         // https://junit.org/junit5/docs/snapshot/release-notes
         group("org.junit.jupiter")
                 .name("junit-jupiter")
-                .version("5.7.1")
+                .version("5.7.2")
                 .add();
         // https://github.com/junit-team/junit4/releases
         group("junit")
@@ -277,7 +277,7 @@ public class DependencyBom {
         library("org.mockito")
                 .name("mockito-core")
                 .name("mockito-junit-jupiter")
-                .version("3.9.0")
+                .version("3.10.0")
                 .add();
         // https://mvnrepository.com/artifact/org.assertj/assertj-core
         group("org.assertj")
@@ -292,7 +292,7 @@ public class DependencyBom {
         // https://mvnrepository.com/artifact/org.spockframework/spock-core
         group("org.spockframework")
                 .name("spock-core")
-                .version("2.0-M5-groovy-3.0")
+                .version("2.0-groovy-3.0")
                 .add();
     }
 
