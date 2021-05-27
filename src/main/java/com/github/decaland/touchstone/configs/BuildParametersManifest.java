@@ -26,6 +26,9 @@ public class BuildParametersManifest {
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin
     public static final String VERSION_KOTLIN_JACKSON = "2.12.3";
 
+    // Go to https://start.spring.io, choose Spring Boot version, add any Spring Cloud dependency, then Explore
+    public static final String VERSION_SPRING_CLOUD = "2020.0.3-SNAPSHOT";
+
     // https://gradle.org/releases
     // https://docs.gradle.org/current/userguide/dependency_resolution.html#sub:cache_copy
     // Gradle 7 switched to Groovy 3, a major change
