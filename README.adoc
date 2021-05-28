@@ -10,11 +10,14 @@ To use the Touchstone plugins, add the following files to the consumer Gradle pr
 +
 [source,properties]
 ----
-# version=0.1.0-SNAPSHOT  # consumer project’s version
+version=0.1.0-SNAPSHOT  # consumer project’s version
 
-dcl.version.touchstone=0.2.5-SNAPSHOT  # Touchstone version
+dcl.version.touchstone=0.2.7-SNAPSHOT  # Touchstone version
 
+# Generate insecure checksums to avoid warnings from current version of Serpnet Artifactory
 systemProp.org.gradle.internal.publish.checksums.insecure=true
+# Use official Kotlin style: https://kotlinlang.org/docs/code-style-migration-guide.html
+kotlin.code.style=official
 ----
 +
 Use the latest stable version of the `dcl-touchstone` project.
@@ -39,11 +42,13 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
         mavenLocal()
+        maven { url 'https://repo.spring.io/snapshot' }
+        maven { url 'https://repo.spring.io/milestone' }
     }
 }
 
-// rootProject.name = 'dcl-project'
-// include('dcl-project-alpha', 'dcl-project-bravo', 'dcl-project-charlie')
+rootProject.name = 'dcl-project'
+include('dcl-project-alpha', 'dcl-project-bravo', 'dcl-project-charlie')
 ----
 
 * In each build module the Touchstone plugins can be applied by including them in the `build.gradle` file, e.g.:
@@ -55,7 +60,7 @@ plugins {
     id 'dcl-uses-junit-five'
 }
 
-// group = 'com.github.decaland'
+group = 'com.github.decaland.project'
 ----
 
 == Provided Gradle plugins
