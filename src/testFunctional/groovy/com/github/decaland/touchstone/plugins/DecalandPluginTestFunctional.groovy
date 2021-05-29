@@ -39,6 +39,7 @@ class DecalandPluginTestFunctional extends Specification {
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
+                .withArguments("--info")
                 .build()
 
         then:
