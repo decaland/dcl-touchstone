@@ -1,1 +1,3 @@
 rootProject.name = 'dcl-touchstone'
+
+includeBuild('dcl-tabula')

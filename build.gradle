@@ -7,6 +7,11 @@ plugins {
 
 group = 'com.github.decaland.touchstone'
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 ext {
     /*
     Publishing to Serpnet artifactory is achieved by providing `-Pserpnet`

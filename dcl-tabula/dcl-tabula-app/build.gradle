@@ -1,0 +1,10 @@
+plugins {
+    id 'dcl-boot-app-java-kotlin'
+    id 'dcl-uses-junit-five'
+}
+
+group = 'com.github.decaland.tabula'
+
+dependencies {
+    implementation project(':dcl-tabula-model')
+}

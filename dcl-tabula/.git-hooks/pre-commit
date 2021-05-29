@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+main() {
+  define_console_colors
+  update_license_year
+}
+
+define_console_colors() {
+  RED="$( printf '\033[31m' )"
+  GREEN="$( printf '\033[32m' )"
+  YELLOW="$( printf '\033[33m' )"
+  BOLD="$( printf '\033[1m' )"
+  NORMAL="$( printf '\033[0m' )"
+  SUCCESS="${BOLD}[${GREEN}SUCCESS${NORMAL}${BOLD}]${NORMAL}"
+  WARNING="${BOLD}[${YELLOW}WARNING${NORMAL}${BOLD}]${NORMAL}"
+  ERROR="${BOLD}[${RED}ERROR  ${NORMAL}${BOLD}]${NORMAL}"
+}
+
+update_license_year() {
+  local license_filepath="LICENSE"
+
+  if [ -n "$( git status -s "$license_filepath" )" ]; then
+    printf >&2 '%s Skipping updating license year: license file is dirty\n' "$WARNING"
+    return 0
+  fi
+
+  local copyright_pattern="^Copyright (c) [0-9]\{4\}\(-[0-9]\{4\}\)\?"
+
+  if ! grep -q "$copyright_pattern" "$license_filepath"; then
+    printf >&2 "%s Could not match copyright pattern '%s' against the license file '%s'\n" \
+      "$ERROR" "$copyright_pattern" "$license_filepath"
+    return 1
+  fi
+
+  local lic_year_str new_lic_year_str cur_year
+  lic_year_str="$( grep "$copyright_pattern" "$license_filepath" | cut -d' ' -f3 )"
+  cur_year="$( date +%Y )"
+  if [[ $lic_year_str =~ ^[0-9]{4}-[0-9]{4}$ ]]; then
+    new_lic_year_str="$( cut -d'-' -f1 <<<"$lic_year_str" )-$cur_year"
+  else
+    if [ "$lic_year_str" = "$cur_year" ]; then
+      new_lic_year_str="$lic_year_str"
+    else
+      new_lic_year_str="$lic_year_str-$cur_year"
+    fi
+  fi
+
+  if [ "$lic_year_str" = "$cur_year" ]; then
+    printf >&2 "%s License year is up to date: '%s'\n" "$SUCCESS" "$lic_year_str"
+  else
+    printf >&2 "%s Updating license year from '%s' to '%s'\n" \
+      "$WARNING" "$lic_year_str" "$new_lic_year_str"
+  fi
+
+  if sed --version &>/dev/null; then
+    sed -i "s/Copyright (c) $lic_year_str/Copyright (c) $new_lic_year_str/" \
+      "$license_filepath"
+  else
+    sed -i '' "s/Copyright (c) $lic_year_str/Copyright (c) $new_lic_year_str/" \
+      "$license_filepath"
+  fi
+
+  if [ $? -ne 0 ]; then
+    printf >&2 '%s Failed to update license year\n' "$ERROR"
+    return 1
+  fi
+
+  if git add -- "$license_filepath"; then
+    printf >&2 "%s Updated license year from '%s' to '%s'\n" \
+      "$SUCCESS" "$lic_year_str" "$new_lic_year_str"
+    return 0
+  else
+    printf >&2 '%s Failed to stage update to license year: %s\n' "$ERROR" "$license_filepath"
+    return 1
+  fi
+}
+
+main "$@"

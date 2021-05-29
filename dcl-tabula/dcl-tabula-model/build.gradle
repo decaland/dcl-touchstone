@@ -1,0 +1,6 @@
+plugins {
+    id 'dcl-lib-java-kotlin'
+    id 'dcl-uses-junit-five'
+}
+
+group = 'com.github.decaland.tabula'
