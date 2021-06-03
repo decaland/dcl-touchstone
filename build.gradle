@@ -76,6 +76,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-allopen:${property('dcl.version.kotlin')}"
     implementation "org.jetbrains.kotlin:kotlin-serialization:${property('dcl.version.kotlin')}"
     implementation "org.jetbrains.kotlin:kotlin-noarg:${property('dcl.version.kotlin')}"
+    implementation "org.jetbrains.dokka:dokka-gradle-plugin:${property('dcl.version.dokka')}"
     implementation "io.freefair.gradle:lombok-plugin:${property('dcl.version.lombok')}"
 
     // Unit tests use jUnit5, Mockito, and AssertJ
