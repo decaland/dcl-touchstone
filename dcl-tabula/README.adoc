@@ -4,8 +4,8 @@ A blank sample project to be used as a template for new Decaland microservices.
 Includes three sub-projects:
 
 - `app`: the executable application,
-- `client`: the consumable library that provides ways to consume the application's public API,
-- `model`: the consumable library that provides models that are part of the application's public API.
+- `client`: the consumable library that provides a way to access the application's public API,
+- `model`: the consumable library that provides models exposed by the application's public API.
 
 This sample project is included inside (and version-controlled along with) its parent project, `dcl-touchstone`.
 The Touchstone Gradle plugins are the basis of Decaland services, and this sample project illustrates the proper usage thereof.

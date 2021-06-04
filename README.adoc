@@ -8,7 +8,7 @@ Custom Gradle plugins that provide the common build configuration for Decaland a
 The usage of Touchstone plugins is exemplified by the sub-project `dcl-tabula`, included as part of {url-gradle-composite}[Gradle composite build].
 To create a project based on Touchstone plugins:
 
-* either copy project structure from `dcl-tabula`,
+* either copy project structure/configuration from `dcl-tabula`,
 * or use the `create_decaland_service.sh` script, which is documented in the `dcl-tabula`’s README file.
 
 == Provided Gradle plugins
@@ -38,4 +38,8 @@ testing dependencies centered on jUnit5.
 == Maintenance note
 
 The sub-project `dcl-tabula` is included as part of {url-gradle-composite}[Gradle composite build] and is thus more or less independent.
-Once a new version of `dcl-touchstone` is released, `dcl-tabula` should be upgraded to use that new version, built via Gradle (as a sanity check), and committed to version control.
+Once a new version of `dcl-touchstone` is released, `dcl-tabula` should be:
+
+* upgraded to use that new version,
+* built via Gradle (as a sanity check),
+* and committed to version control.
