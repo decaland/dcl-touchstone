@@ -279,6 +279,7 @@ create_service() {
   local file_names=(
     '.gitattributes'
     '.gitignore'
+    'Dockerfile'
     'gradle.properties'
     'gradlew'
     'gradlew.bat'
@@ -310,6 +311,20 @@ create_service() {
       exit 1
     fi
   done
+
+  # Special treatment for Dockerfile
+  dst_path="$SERVICE_DIRPATH/Dockerfile"
+  if sed --version &>/dev/null; then
+    sed -i "s/$TEMPLATE_NAME/$SERVICE_NAME/g" "$dst_path"
+  else
+    sed -i '' "s/$TEMPLATE_NAME/$SERVICE_NAME/g" "$dst_path"
+  fi
+  if [ $? -eq 0 ]; then
+    printf >&2 'Modified file     : %s\n' "$dst_path"
+  else
+    printf >&2 '%s Failed while modifying file: %s\n' "$ERROR" "$dst_path"
+    exit 1
+  fi
 
   # Special treatment for README
   src_path="$SERVICE_DIRPATH/README.template"
