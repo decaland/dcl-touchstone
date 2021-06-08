@@ -17,13 +17,13 @@ COPY ${DCL_APP_NAME}-app/build.gradle       ${DCL_APP_NAME}-app/build.gradle
 COPY ${DCL_APP_NAME}-client/build.gradle    ${DCL_APP_NAME}-client/build.gradle
 COPY ${DCL_APP_NAME}-model/build.gradle     ${DCL_APP_NAME}-model/build.gradle
 
-RUN --mount=type=cache,target=/root/.gradle ./gradlew --no-daemon downloadDependencies
+RUN --mount=type=cache,target=/root/.gradle ./gradlew --no-daemon :${DCL_APP_NAME}-app:downloadDependencies
 
 COPY ${DCL_APP_NAME}-app/src                ${DCL_APP_NAME}-app/src
 COPY ${DCL_APP_NAME}-client/src             ${DCL_APP_NAME}-client/src
 COPY ${DCL_APP_NAME}-model/src              ${DCL_APP_NAME}-model/src
 
-RUN --mount=type=cache,target=/root/.gradle ./gradlew --no-daemon build
+RUN --mount=type=cache,target=/root/.gradle ./gradlew --no-daemon :${DCL_APP_NAME}-app:bootJar
 
 RUN mkdir -p exploded-jar
 RUN unzip -q ${DCL_APP_NAME}-app/build/libs/${DCL_APP_NAME}-app.jar -d exploded-jar
