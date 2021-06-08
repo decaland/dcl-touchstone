@@ -204,7 +204,7 @@ announce_intentions() {
 
 prompt_user() {
   local input
-  printf >&2 'Proceed? '
+  printf >&2 'Proceed? (y/n) '
   while true; do
     read -rsn1 input
     case $input in
