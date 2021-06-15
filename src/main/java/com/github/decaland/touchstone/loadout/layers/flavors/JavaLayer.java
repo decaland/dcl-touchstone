@@ -6,7 +6,6 @@ import io.freefair.gradle.plugins.lombok.LombokPlugin;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ApplicationPlugin;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Copy;
@@ -89,9 +88,7 @@ public class JavaLayer extends ProjectAwareLayer {
 
     private void createTaskForDownloadingDependencies(@NotNull TaskContainer tasks) {
         tasks.register(TASK_DOWNLOAD_DEPENDENCIES, Copy.class, copyTask -> {
-            copyTask.getProject()
-                    .getConvention()
-                    .getPlugin(JavaPluginConvention.class)
+            requireExtension(copyTask.getProject(), JavaPluginExtension.class)
                     .getSourceSets()
                     .forEach(sourceSet -> copyTask.from(sourceSet.getRuntimeClasspath()));
             Path tempDir = Path.of(

@@ -5,7 +5,7 @@ import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.logging.LogLevel;
-import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.internal.logging.services.DefaultLoggingManager;
 import org.jetbrains.annotations.NotNull;
@@ -44,9 +44,10 @@ public class KotlinLayer extends ProjectAwareLayer {
     @Override
     public void apply(Project project, Loadout.Layers layers) {
         project.getPluginManager().apply(KotlinPluginWrapper.class);
-        project.getPlugins().withType(SpringBootPlugin.class, plugin -> {
-            project.getPluginManager().apply(SpringGradleSubplugin.class);
-        });
+        project.getPlugins().withType(
+                SpringBootPlugin.class,
+                plugin -> project.getPluginManager().apply(SpringGradleSubplugin.class)
+        );
         project.getPluginManager().apply(SerializationGradleSubplugin.class);
         project.getPluginManager().apply(AllOpenGradleSubplugin.class);
         project.getPluginManager().apply(KotlinJpaSubplugin.class);
@@ -84,8 +85,8 @@ public class KotlinLayer extends ProjectAwareLayer {
         // Set up convinience variables
         TaskContainer tasks = project.getTasks();
         ConfigurationContainer configurations = project.getConfigurations();
-        JavaPluginConvention convention = project.getConvention().getPlugin(JavaPluginConvention.class);
-        File kdocDir = new File(convention.getDocsDir(), KDOC_DIRECTORY_NAME);
+        JavaPluginExtension extension = requireExtension(project, JavaPluginExtension.class);
+        File kdocDir = extension.getDocsDir().dir(KDOC_DIRECTORY_NAME).get().getAsFile();
 
         // Set up dokka HTML task
         tasks.named(DOKKA_HTML_TASK_NAME, DokkaTask.class, dokkaHtmlTask -> {

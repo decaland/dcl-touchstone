@@ -27,7 +27,12 @@ public class DecalandBasePluginTest {
             @NotNull
             @Override
             public GradleVersion getMinimumGradleVersion() {
-                return GradleVersion.current().getNextMajor();
+                int currentMajor = Integer.parseInt(GradleVersion.current()
+                        .getBaseVersion()
+                        .getVersion()
+                        .split("\\.")[0]
+                );
+                return GradleVersion.version(String.format("%d.0", currentMajor + 1));
             }
         };
         Project project = ProjectBuilder.builder().build();

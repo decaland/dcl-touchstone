@@ -12,6 +12,10 @@ java {
     withSourcesJar()
 }
 
+compileJava {
+    options.compilerArgs << '-Xlint:deprecation'  // include detailed deprecation info, if any
+}
+
 ext {
     /*
     Publishing to Serpnet artifactory is achieved by providing `-Pserpnet`
