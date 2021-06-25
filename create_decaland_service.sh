@@ -199,7 +199,7 @@ announce_intentions() {
   printf >&2 'Service path      : %s\n' "${GREEN}${BOLD}${SERVICE_DIRPATH}${NORMAL}"
   printf >&2 'Service name      : %s\n' "${GREEN}${BOLD}${FULL_SERVICE_NAME}${NORMAL}"
   printf >&2 'Pretty name       : %s\n' "${GREEN}${BOLD}${FULL_PRETTY_NAME}${NORMAL}"
-  printf >&2 'Java package name : %s\n' "${GREEN}${BOLD}${PACKAGE_NAME}${NORMAL}"
+  printf >&2 'Root Java package : %s\n' "${GREEN}${BOLD}${ROOT_PACKAGE}.${PACKAGE_NAME}${NORMAL}"
 }
 
 prompt_user() {
