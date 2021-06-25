@@ -1,75 +1,77 @@
 = Decaland Touchstone
+:url-gradle-composite: https://docs.gradle.org/current/userguide/composite_builds.html
+:toc: preamble
 
 Custom Gradle plugins that provide the common build configuration for Decaland applications.
 
-== Usage
+The usage of Touchstone plugins is exemplified by the sub-project `dcl-tabula`, included as part of {url-gradle-composite}[Gradle composite build].
+To create a project based on Touchstone plugins:
 
-To use the Touchstone plugins, add the following files to the consumer Gradle project:
-
-* `gradle.properties` (in the root of the consumer project)
-+
-[source,properties]
-----
-# version = 0.1.0-SNAPSHOT  # consumer project’s version
-
-dcl.version.touchstone = 0.2.0  # Touchstone version
-
-systemProp.org.gradle.internal.publish.checksums.insecure = true
-----
-+
-Use the latest stable version of the `dcl-touchstone` project.
-The long-winded property at the end is optional: it forces Gradle to publish https://docs.gradle.org/6.0.1/release-notes.html[insecure checksums], to prevent warnings from the current version of Serpnet Artifactory.
-* `settings.gradle` (in the root of the consumer project)
-+
-[source,groovy]
-----
-pluginManagement {
-    plugins {
-        id 'dcl-lib-java' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-lib-java-kotlin' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-boot-lib-java' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-boot-lib-java-kotlin' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-boot-app-java' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-boot-app-java-kotlin' version "${getProperty('dcl.version.touchstone')}"
-        id 'dcl-essential-dependencies' version "${getProperty('dcl.version.touchstone')}"
-    }
-    repositories {
-        maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-releases' }
-        maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-snapshots' }
-        gradlePluginPortal()
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
-// rootProject.name = 'dcl-project'
-// include('dcl-project-alpha', 'dcl-project-bravo', 'dcl-project-charlie')
-----
-* In each build module the Touchstone plugins can be applied by including them in the `build.gradle` file, e.g.:
-+
-[source,groovy]
-----
-plugins {
-    id 'dcl-lib-java'
-    id 'dcl-essential-dependencies'
-}
-
-// group = 'com.github.decaland'
-----
+* either copy project structure/configuration from `dcl-tabula`,
+* or use the `create_decaland_service.sh` script, documented <<create-service,below>>.
 
 == Provided Gradle plugins
 
 The following Touchstone plugins are available and provide their described build configuration (only one of these can be applied at a time):
 
 [horizontal]
-`*dcl-lib-java*`:: libraries written in pure Java.
-`*dcl-lib-java-kotlin*`:: libraries written in Java, Kotlin, or mix thereof.
-`*dcl-boot-lib-java*`:: Spring Boot-based libraries written in pure Java.
-`*dcl-boot-lib-java-kotlin*`:: Spring Boot-based libraries written in Java, Kotlin, or mix thereof.
-`*dcl-boot-app-java*`:: Spring Boot-based _bootable applications_ written in pure Java.
-`*dcl-boot-app-java-kotlin*`:: Spring Boot-based _bootable applications_ written in Java, Kotlin, or mix thereof.
+`*dcl-lib-java*`::
+libraries written in pure Java.
+`*dcl-lib-java-kotlin*`::
+libraries written in Java, Kotlin, or mix thereof.
+`*dcl-boot-lib-java*`::
+Spring Boot-based libraries written in pure Java.
+`*dcl-boot-lib-java-kotlin*`::
+Spring Boot-based libraries written in Java, Kotlin, or mix thereof.
+`*dcl-boot-app-java*`::
+Spring Boot-based _bootable applications_ written in pure Java.
+`*dcl-boot-app-java-kotlin*`::
+Spring Boot-based _bootable applications_ written in Java, Kotlin, or mix thereof.
 
-Along with any of the build configurations above, the consumer might want to also apply a small set of basic library dependencies via the additional Gradle plugin:
+Along with any of the build configurations above, the consumer might want to also apply library dependencies via additional Touchstone plugins:
 
 [horizontal]
-`*dcl-essential-dependencies*`:: `lombok`; `kotlin-stdlib` & `kotlin-reflect`; `spring-boot-starter-test`.
+`*dcl-uses-junit-five*`::
+testing dependencies centered on jUnit5.
+
+== [[create-service]] How to use
+
+Run the provided `create_decaland_service.sh` script from the root of the  repository:
+
+[source,bash]
+----
+./create_decaland_service.sh <SERVICE_NAME> \
+    --pretty-name <PRETTY_NAME> \
+    --package-name <PACKAGE_NAME>
+----
+
+This helper script prints its intentions and prompts for confirmation _before_ introducing any changes.
+
+* The `<SERVICE_NAME>` should be a kebab-case identifier, e.g., `super-service`.
+** The `dcl-` prefix is added automatically, and all characters are made lowercase.
+* The `<PRETTY_NAME>` should be a human-readable name, e.g., `Super Service`.
+** The full name is prefixed with the word ‘Decaland,’ e.g., ‘Decaland Super Service.’
+** If not provided, the pretty name is generated by taking the service name, substituting dashes for spaces, and capitalizing first letters of every word.
+* The `<PACKAGE_NAME>` should be the name of the root Java package, e.g., `superservice`.
+** Only lowercase ASCII letters are allowed.
+** The package is put directly under `com.github.decaland`.
+** If not provided, the package name is generated by taking the service name and dropping all dashes.
+
+The script creates the resulting project in a sibling directory to the one containing the helper.
+In that new directory, the `git init .` command is run, but the initial commit is _not_ performed.
+
+The full usage hint for the script is:
+
+[source]
+----
+./create_decaland_service.sh <SERVICE_NAME> [-h|--pretty-name <PRETTY_NAME>] [-p|--package-name <PACKAGE_NAME>]
+----
+
+== Maintenance
+
+The sub-project `dcl-tabula` is included as part of {url-gradle-composite}[Gradle composite build] and is thus more or less independent.
+Once a new version of `dcl-touchstone` is released, `dcl-tabula` should be:
+
+* upgraded to use that new Touchstone version,
+* built via Gradle (as a sanity check),
+* and committed to version control.

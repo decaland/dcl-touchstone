@@ -16,7 +16,7 @@ public interface Layer {
      * as the stream of layers included in the current {@link Loadout}, and
      * returns a judgement on whether the current layer can be applied at this
      * point in time.
-     * <p/>
+     * <p>
      * The goal is to allow ordering of layers while they are being applied to
      * a {@link Project}. The {@link Loadout} does not provide means to tell
      * whether a particular {@link Layer} has been applied or not: instead

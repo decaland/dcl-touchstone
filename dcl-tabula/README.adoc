@@ -1,0 +1,28 @@
+= Decaland Tabula (sample project)
+
+A blank sample project to be used as a template for new Decaland microservices.
+Includes three sub-projects:
+
+- `app`: the executable application,
+- `client`: the consumable library that provides a way to access the application's public API,
+- `model`: the consumable library that provides models exposed by the application's public API.
+
+This sample project is included inside (and version-controlled along with) its parent project, `dcl-touchstone`.
+The Touchstone Gradle plugins are the basis of Decaland services, and this sample project illustrates the proper usage thereof.
+
+== Dockerfile
+
+This sample includes a way to containerize the `app` module via the provided Dockerfile.
+The sample command to build the Docker image is:
+
+[source,bash]
+----
+docker build -t decaland/dcl-tabula:latest .
+----
+
+Specifically for production environments, the `DCL_PROD` build argument must be set to a non-empty value (in order to disable the debug features):
+
+[source,bash]
+----
+docker build --build-arg DCL_PROD=1 -t decaland/dcl-tabula:latest .
+----

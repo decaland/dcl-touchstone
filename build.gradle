@@ -7,6 +7,15 @@ plugins {
 
 group = 'com.github.decaland.touchstone'
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+compileJava {
+    options.compilerArgs << '-Xlint:deprecation'  // include detailed deprecation info, if any
+}
+
 ext {
     /*
     Publishing to Serpnet artifactory is achieved by providing `-Pserpnet`
@@ -18,11 +27,13 @@ ext {
 repositories {
     mavenCentral()
     gradlePluginPortal()
+    maven { url 'https://repo.spring.io/snapshot' }
+    maven { url 'https://repo.spring.io/milestone' }
 }
 
 // Download the full version of Gradle wrapper
 wrapper {
-    gradleVersion = "${project.property('dcl.minversion.gradle')}"
+    gradleVersion = "${project.property('dcl.version.gradle')}"
     distributionType = Wrapper.DistributionType.ALL
 }
 
@@ -62,21 +73,36 @@ tasks.withType(AbstractPublishToMaven) {
 
 // Set up dependencies for plugin development & testing
 dependencies {
-    testIntegrationImplementation(project)
-    testFunctionalImplementation(project)
-
-    testImplementation("org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}")
-    testImplementation("org.mockito:mockito-junit-jupiter:${property('dcl.version.mockito')}")
-    testImplementation("org.assertj:assertj-core:${property('dcl.version.assertj')}")
-    testIntegrationImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
-    testFunctionalImplementation("org.spockframework:spock-core:${property('dcl.version.spock-core')}")
-
+    // Third party plugins applied to consumer projects
     implementation "org.springframework.boot:spring-boot-gradle-plugin:${property('dcl.version.spring-boot')}"
     implementation "io.spring.gradle:dependency-management-plugin:${property('dcl.version.spring-dependency-management')}"
     implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:${property('dcl.version.kotlin')}"
     implementation "org.jetbrains.kotlin:kotlin-allopen:${property('dcl.version.kotlin')}"
-
+    implementation "org.jetbrains.kotlin:kotlin-serialization:${property('dcl.version.kotlin')}"
+    implementation "org.jetbrains.kotlin:kotlin-noarg:${property('dcl.version.kotlin')}"
+    implementation "org.jetbrains.dokka:dokka-gradle-plugin:${property('dcl.version.dokka')}"
     implementation "io.freefair.gradle:lombok-plugin:${property('dcl.version.lombok')}"
+
+    // Unit tests use jUnit5, Mockito, and AssertJ
+    testImplementation "org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${property('dcl.version.mockito')}"
+    testImplementation "org.assertj:assertj-core:${property('dcl.version.assertj')}"
+
+    // Tests naturally depend on the code in the main project
+    testIntegrationImplementation project
+    testFunctionalImplementation project
+
+    // Integration/functional tests use Spock
+    testIntegrationImplementation platform("org.spockframework:spock-bom:${property('dcl.version.spock-core')}")
+    testIntegrationImplementation("org.spockframework:spock-core") {
+        exclude group: 'org.codehaus.groovy'
+    }
+
+    testFunctionalImplementation platform("org.spockframework:spock-bom:${property('dcl.version.spock-core')}")
+    testFunctionalImplementation("org.spockframework:spock-core") {
+        exclude group: 'org.codehaus.groovy'
+    }
+    testFunctionalImplementation "org.spockframework:spock-junit4"
 }
 
 // Ensure new test configurations extend from implementation
@@ -84,11 +110,17 @@ def implementationConfiguration = configurations.getByName('implementation')
 configurations.getByName('testIntegrationImplementation').extendsFrom(implementationConfiguration)
 configurations.getByName('testFunctionalImplementation').extendsFrom(implementationConfiguration)
 
-// Configure unit tests (and only unit tests) to use JUnit
-test {
-    useJUnitPlatform {
-        includeEngines('junit-jupiter')
-        excludeEngines('junit-vintage')
+// Configure tests to use JUnit platform
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+
+    // Gradle needs to fail if no tests are found (https://github.com/gradle/gradle/issues/7452)
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            if (result.testCount == 0) {
+                throw new IllegalStateException("Tests not found")
+            }
+        }
     }
 }
 
@@ -149,11 +181,11 @@ gradlePluginDevelopmentExtension.plugins { pluginContainer ->
         plugin.description = 'Decaland Spring Boot-based application written in Java or Kotlin or both'
         plugin.implementationClass = 'com.github.decaland.touchstone.plugins.builds.DecalandSpringBootApplicationJavaKotlinPlugin'
     }
-    pluginContainer.create("decalandEssentialDependencies") { plugin ->
-        plugin.id = 'dcl-essential-dependencies'
-        plugin.displayName = 'Decaland essential library dependencies'
-        plugin.description = 'Decaland essential library dependencies'
-        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.dependencies.DecalandEssentialDependenciesPlugin'
+    pluginContainer.create("decalandUsesJunitFive") { plugin ->
+        plugin.id = 'dcl-uses-junit-five'
+        plugin.displayName = 'Decaland jUnit5 dependencies'
+        plugin.description = 'Decaland jUnit5 dependencies'
+        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.dependencies.testing.DecalandUsesJunitFivePlugin'
     }
 }
 

@@ -1,7 +1,8 @@
 package com.github.decaland.touchstone.plugins
 
+
 import com.github.decaland.touchstone.plugins.builds.*
-import com.github.decaland.touchstone.plugins.dependencies.DecalandEssentialDependenciesPlugin
+import com.github.decaland.touchstone.plugins.dependencies.testing.DecalandUsesJunitFivePlugin
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildSuccess
 import org.junit.Rule
@@ -38,6 +39,7 @@ class DecalandPluginTestFunctional extends Specification {
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
+                .withArguments("--info")
                 .build()
 
         then:
@@ -81,7 +83,7 @@ class DecalandPluginTestFunctional extends Specification {
                 ],
                 [
                         null,
-                        new DecalandEssentialDependenciesPlugin(),
+                        new DecalandUsesJunitFivePlugin(),
                 ],
         ].combinations() + [[null, null]]
     }
@@ -101,32 +103,32 @@ class DecalandPluginTestFunctional extends Specification {
                 [
                         new DecalandLibraryJavaPlugin(),
                         new DecalandLibraryJavaPlugin(),
-                        new DecalandEssentialDependenciesPlugin(),
+                        new DecalandUsesJunitFivePlugin(),
                 ],
                 [
                         new DecalandLibraryJavaKotlinPlugin(),
                         new DecalandLibraryJavaPlugin(),
-                        new DecalandEssentialDependenciesPlugin(),
+                        new DecalandUsesJunitFivePlugin(),
                 ],
                 [
-                        new DecalandEssentialDependenciesPlugin(),
+                        new DecalandUsesJunitFivePlugin(),
                         null,
                         null,
                 ],
                 [
-                        new DecalandEssentialDependenciesPlugin(),
+                        new DecalandUsesJunitFivePlugin(),
                         new DecalandSpringBootLibraryJavaPlugin(),
                         null,
                 ],
                 [
                         new DecalandSpringBootLibraryJavaPlugin(),
-                        new DecalandEssentialDependenciesPlugin(),
-                        new DecalandEssentialDependenciesPlugin(),
+                        new DecalandUsesJunitFivePlugin(),
+                        new DecalandUsesJunitFivePlugin(),
                 ],
                 [
                         null,
-                        new DecalandEssentialDependenciesPlugin(),
-                        new DecalandEssentialDependenciesPlugin(),
+                        new DecalandUsesJunitFivePlugin(),
+                        new DecalandUsesJunitFivePlugin(),
                 ],
         ]
     }

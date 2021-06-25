@@ -48,9 +48,10 @@ public class BaseLoadout implements Loadout {
             anyApplied = false;
             for (Layer layer : layerList) {
                 if (!appliedLayers.contains(layer) && layer.isReady(project, layers)) {
-                    project.getLogger().lifecycle(
-                            String.format(LIFECYCLE_LOG_APPLY_LAYER, layer.getClass().getSimpleName())
-                    );
+                    project.getLogger().info(String.format(
+                            LIFECYCLE_LOG_APPLY_LAYER,
+                            layer.getClass().getSimpleName()
+                    ));
                     layer.apply(project, layers);
                     anyApplied = true;
                     appliedLayers.add(layer);
@@ -77,9 +78,10 @@ public class BaseLoadout implements Loadout {
 
     private void configureAppliedLayers(@NotNull LinkedHashSet<Layer> appliedLayers, Project project) {
         for (Layer appliedLayer : appliedLayers) {
-            project.getLogger().lifecycle(
-                    String.format(LIFECYCLE_LOG_CONFIGURE_LAYER, appliedLayer.getClass().getSimpleName())
-            );
+            project.getLogger().info(String.format(
+                    LIFECYCLE_LOG_CONFIGURE_LAYER,
+                    appliedLayer.getClass().getSimpleName()
+            ));
             appliedLayer.configure(project, layers);
         }
     }

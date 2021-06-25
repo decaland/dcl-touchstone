@@ -1,0 +1,23 @@
+pluginManagement {
+    plugins {
+        id 'dcl-lib-java'               version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-lib-java-kotlin'        version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-boot-lib-java'          version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-boot-lib-java-kotlin'   version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-boot-app-java'          version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-boot-app-java-kotlin'   version "${getProperty('dcl.version.touchstone')}"
+        id 'dcl-uses-junit-five'        version "${getProperty('dcl.version.touchstone')}"
+    }
+    repositories {
+        maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-releases' }
+        maven { url 'https://serpnet.jfrog.io/artifactory/decaland-maven-snapshots' }
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
+        maven { url 'https://repo.spring.io/snapshot' }
+        maven { url 'https://repo.spring.io/milestone' }
+    }
+}
+
+rootProject.name = 'dcl-tabula'
+include('dcl-tabula-app', 'dcl-tabula-client', 'dcl-tabula-model')

@@ -1,6 +1,5 @@
 package com.github.decaland.touchstone.plugins
 
-
 import com.github.decaland.touchstone.loadout.Loadout
 import com.github.decaland.touchstone.loadout.layers.Layer
 import com.github.decaland.touchstone.plugins.DecalandBasePlugin

@@ -28,5 +28,14 @@ public class RepositoryConfigurationLayer extends ProjectAwareLayer {
         });
         repositories.mavenCentral();
         repositories.mavenLocal();
+        repositories.maven(repository -> {
+            repository.setName("springSnapshots");
+            repository.setUrl("https://repo.spring.io/snapshot");
+            repository.mavenContent(MavenRepositoryContentDescriptor::snapshotsOnly);
+        });
+        repositories.maven(repository -> {
+            repository.setName("springMilestones");
+            repository.setUrl("https://repo.spring.io/milestone");
+        });
     }
 }

@@ -78,7 +78,7 @@ public abstract class ProjectAwareLayer extends BaseLayer {
             return function.apply(propertyObject);
         } catch (RuntimeException ignored) {
             throw new GradleException(
-                    String.format(MSG_ILLEGAL_MANDATORY_PROPERTY, propertyName, propertyObject.toString())
+                    String.format(MSG_ILLEGAL_MANDATORY_PROPERTY, propertyName, propertyObject)
             );
         }
     }

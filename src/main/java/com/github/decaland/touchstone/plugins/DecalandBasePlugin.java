@@ -30,7 +30,7 @@ public abstract class DecalandBasePlugin implements DecalandPlugin {
     @Override
     public final void apply(@NotNull Project project) {
         String pluginId = getPluginId();
-        project.getLogger().lifecycle(String.format(LIFECYCLE_LOG_APPLY_PLUGIN, pluginId));
+        project.getLogger().info(String.format(LIFECYCLE_LOG_APPLY_PLUGIN, pluginId));
         validateGradleVersion();
         ensurePluginIsApplicable(project);
         getLoadout().apply(project, pluginId);

@@ -35,7 +35,7 @@ public interface Loadout {
     /**
      * Applies the {@link Layers} to a given Gradle {@link Project}, using the
      * given plugin ID in potential error output.
-     * <p/>
+     * <p>
      * The implementations should follow the following contract:
      * <ul>
      * <li>Repeatedly scan through internal collection of {@link Layer}s,
