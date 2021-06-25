@@ -279,6 +279,7 @@ create_service() {
   local file_names=(
     '.gitattributes'
     '.gitignore'
+    'build.gradle'
     'Dockerfile'
     'gradle.properties'
     'gradlew'
