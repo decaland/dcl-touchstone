@@ -32,8 +32,9 @@ public class BuildParametersManifest {
 
     // https://gradle.org/releases
     // https://docs.gradle.org/current/userguide/dependency_resolution.html#sub:cache_copy
-    // Gradle 7 switched to Groovy 3, a major change
-    public static final String MIN_VERSION_GRADLE = "7.0";
+    // Gradle 7.0 switched to Groovy 3, a major change
+    // Gradle 7.1 changed signature of JavaPluginExtension.getDocsDir(), which we use
+    public static final String MIN_VERSION_GRADLE = "7.1";
 
 
     /*
