@@ -6,6 +6,11 @@ import com.github.decaland.touchstone.plugins.DecalandBasePlugin;
 import com.github.decaland.touchstone.plugins.DecalandPlugin;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Plugin containing solely the {@link ReleaseFlowLayer}; not to be distributed
+ * to consumers, but instead used by the Touchstone project itself via the
+ * hack-y {@code buildSrc} directory.
+ */
 public class DecalandReleaseFlowPlugin extends DecalandBasePlugin {
 
     @NotNull
