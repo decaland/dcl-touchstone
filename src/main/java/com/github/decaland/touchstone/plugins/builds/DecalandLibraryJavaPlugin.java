@@ -5,6 +5,7 @@ import com.github.decaland.touchstone.loadout.layers.configs.DependencyManagemen
 import com.github.decaland.touchstone.loadout.layers.configs.MavenPublishLayer;
 import com.github.decaland.touchstone.loadout.layers.configs.RepositoryConfigurationLayer;
 import com.github.decaland.touchstone.loadout.layers.flavors.JavaLibraryLayer;
+import com.github.decaland.touchstone.loadout.layers.releasing.ReleaseFlowLayer;
 import com.github.decaland.touchstone.plugins.DecalandBuildConfigPlugin;
 import com.github.decaland.touchstone.plugins.DecalandPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +23,7 @@ public class DecalandLibraryJavaPlugin extends DecalandBuildConfigPlugin {
                 .add(new RepositoryConfigurationLayer())
                 .add(new DependencyManagementLayer())
                 .add(new MavenPublishLayer())
+                .add(new ReleaseFlowLayer())
                 .add(new JavaLibraryLayer())
                 .build();
     }

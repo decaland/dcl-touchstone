@@ -41,15 +41,6 @@ Unless noted otherwise, any combination of these can be applied.
 [horizontal]
 `*dcl-uses-junit-five*`::
 testing infrastructure centered on jUnit5.
-
-=== Utility plugins
-
-These plugins have specialized functions.
-
-[horizontal]
-`*dcl-release-flow*`::
-automated flow for creating regular and `SNAPSHOT` releases.
-
 == [[create-service]] How to use
 
 Run the provided `create_decaland_service.sh` script from the root of the  repository:

@@ -198,16 +198,6 @@ gradlePluginDevelopmentExtension.plugins { pluginContainer ->
         plugin.description = 'Decaland jUnit5 dependencies'
         plugin.implementationClass = 'com.github.decaland.touchstone.plugins.dependencies.testing.DecalandUsesJunitFivePlugin'
     }
-
-
-    // Utility plugins
-
-    pluginContainer.create("decalandReleaseFlow") { plugin ->
-        plugin.id = 'dcl-release-flow'
-        plugin.displayName = 'Decaland Release Flow'
-        plugin.description = 'Decaland Release Flow'
-        plugin.implementationClass = 'com.github.decaland.touchstone.plugins.releasing.DecalandReleaseFlowPlugin'
-    }
 }
 
 // Configure Intellij IDEA to recognize additional source sets
