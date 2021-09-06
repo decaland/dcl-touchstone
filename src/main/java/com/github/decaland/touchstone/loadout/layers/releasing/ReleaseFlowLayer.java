@@ -2,49 +2,146 @@ package com.github.decaland.touchstone.loadout.layers.releasing;
 
 import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
+import com.github.decaland.touchstone.loadout.layers.releasing.services.ReleaseConductor;
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.initialization.IncludedBuild;
 import org.gradle.api.plugins.BasePlugin;
-import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.publish.plugins.PublishingPlugin;
+import org.gradle.api.tasks.TaskProvider;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+
+import static com.github.decaland.touchstone.configs.BuildParametersManifest.PROP_KEY_SERPNET;
+import static org.gradle.api.Project.PATH_SEPARATOR;
 import static org.gradle.api.publish.plugins.PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME;
-import static org.gradle.language.base.plugins.LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
-import static org.gradle.language.base.plugins.LifecycleBasePlugin.BUILD_TASK_NAME;
+import static org.gradle.language.base.plugins.LifecycleBasePlugin.*;
 
 public class ReleaseFlowLayer extends ProjectAwareLayer {
 
-    public static final String PREPARE_RELEASE_TASK_NAME = "prepareRelease";
-    public static final String RELEASE_LIFECYCLE_TASK_NAME = "release";
-    public static final String RELEASE_GROUP_NAME = "Release";
+    public static final String TASK_NAME_PLAN_RELEASE = "planRelease";
+    public static final String TASK_NAME_CREATE_RELEASE = "createRelease";
+    public static final String TASK_NAME_FINALIZE_RELEASE = "finalizeRelease";
+
+    public static final String TASK_NAME_RELEASE = "release";
+    public static final String GROUP_NAME_RELEASE = "Release";
+
+    public static final String PROP_RELEASE_CONDUCTOR = "releaseConductor";
 
     @Override
     public boolean isReady(Project project, Loadout.Layers layers) {
-        PluginContainer plugins = project.getPlugins();
-        return plugins.hasPlugin(BasePlugin.class)
-                && plugins.hasPlugin(PublishingPlugin.class);
+        return project.getPlugins().hasPlugin(BasePlugin.class)
+                && project.getPlugins().hasPlugin(PublishingPlugin.class);
     }
+
+    private Project project;
 
     @Override
     public void apply(Project project, Loadout.Layers layers) {
-        project.getTasks().register(PREPARE_RELEASE_TASK_NAME, taskConfig -> {
-            taskConfig.setGroup(RELEASE_GROUP_NAME);
-            taskConfig.setDescription("Creates release commit");
-            taskConfig.doLast(task -> {
-                task.getLogger().lifecycle("[DEBUG] Preparing release");
-            });
+        // Store reference to the project
+        this.project = project;
+
+        // Check for included builds: this is incompatible with GradleBuild task types
+        Collection<IncludedBuild> includedBuilds = project.getGradle().getIncludedBuilds();
+        if (!includedBuilds.isEmpty()) {
+            throw new GradleException(String.format(
+                    "Release flow is incompatible with Gradle composite builds;" +
+                            " the following included builds must be removed: '%s'",
+                    includedBuilds.stream()
+                            .map(IncludedBuild::getName)
+                            .collect(Collectors.joining("', '"))
+            ));
+        }
+
+        // Register tasks
+        TaskProvider<Task> releaseTask =
+                registerReleaseTask(TASK_NAME_RELEASE, "Lifecycle task");
+        TaskProvider<Task> planReleaseTask =
+                registerReleaseTask(TASK_NAME_PLAN_RELEASE, "Establishes release plan");
+        TaskProvider<Task> createReleaseTask =
+                registerReleaseTask(TASK_NAME_CREATE_RELEASE, "Creates release commit");
+        TaskProvider<Task> finalizeReleaseTask =
+                registerReleaseTask(TASK_NAME_FINALIZE_RELEASE, "Cleans up and creates next iteration");
+
+        // Set up dependencies and ordering
+        releaseTask.configure(it -> {
+            it.dependsOn(
+                    planReleaseTask,
+                    createReleaseTask,
+                    finalizeReleaseTask,
+                    project.getTasks().named(ASSEMBLE_TASK_NAME),
+                    project.getTasks().named(CHECK_TASK_NAME),
+                    project.getTasks().named(BUILD_TASK_NAME),
+                    project.getTasks().named(PUBLISH_LIFECYCLE_TASK_NAME)
+            );
         });
-        project.getTasks().register(RELEASE_LIFECYCLE_TASK_NAME, taskConfig -> {
-            taskConfig.setGroup(RELEASE_GROUP_NAME);
-            taskConfig.setDescription("Lifecycle task");
-            taskConfig.dependsOn(project.getTasks().named(PREPARE_RELEASE_TASK_NAME));
-            taskConfig.dependsOn(project.getTasks().named(PUBLISH_LIFECYCLE_TASK_NAME));
-            taskConfig.dependsOn(project.getTasks().named(BUILD_TASK_NAME));
-            taskConfig.doLast(task -> {
-                task.getProject().getLogger().lifecycle("[DEBUG] Releasing");
-            });
+        createReleaseTask.configure(it -> it.dependsOn(planReleaseTask));
+        finalizeReleaseTask.configure(it -> it.dependsOn(planReleaseTask, createReleaseTask));
+        project.getTasks().named(ASSEMBLE_TASK_NAME, it -> it.mustRunAfter(createReleaseTask));
+        project.getTasks().named(CHECK_TASK_NAME, it -> it.mustRunAfter(planReleaseTask));
+        project.getTasks().named(BUILD_TASK_NAME, it -> it.mustRunAfter(createReleaseTask));
+
+        // Make sure that when releasing, publishing goes into Serpnet Artifactory
+        String releaseTaskPath = String.format("%s%s", PATH_SEPARATOR, TASK_NAME_RELEASE);
+        project.getGradle().getTaskGraph().whenReady(taskGraph -> {
+            if (taskGraph.hasTask(releaseTaskPath) && !project.hasProperty(PROP_KEY_SERPNET)) {
+                project.getExtensions().getExtraProperties().set(PROP_KEY_SERPNET, "");
+            }
         });
-        project.getTasks().named(ASSEMBLE_TASK_NAME, classesTask -> {
-            classesTask.mustRunAfter(project.getTasks().named(PREPARE_RELEASE_TASK_NAME));
+
+        releaseTask.configure(task -> {
+            task.getProject().getGradle().getStartParameter().newInstance();
         });
+
+        // Assign actions to tasks
+        planReleaseTask.configure(it -> it.doLast(this::doPlanRelease));
+        createReleaseTask.configure(it -> it.doLast(this::doCreateRelease));
+        finalizeReleaseTask.configure(it -> it.doLast(this::doFinalizeRelease));
+    }
+
+    private @NotNull TaskProvider<Task> registerReleaseTask(
+            @NotNull String taskName,
+            @NotNull String taskDescription) {
+        return project.getTasks()
+                .register(taskName, it -> {
+                    it.setGroup(GROUP_NAME_RELEASE);
+                    it.setDescription(taskDescription);
+                });
+    }
+
+    private void doPlanRelease(Task prepareReleaseTask) {
+        ReleaseConductor releaseConductor = ReleaseConductor.forProject(project);
+        storeReleaseConductor(releaseConductor);
+        releaseConductor.planRelease();
+    }
+
+    private void doCreateRelease(Task createReleaseTask) {
+        retrieveReleaseConductor().createRelease();
+    }
+
+    private void doFinalizeRelease(Task finalizeReleaseTask) {
+        retrieveReleaseConductor().finalizeRelease();
+    }
+
+    private void storeReleaseConductor(@NotNull ReleaseConductor releaseConductor) {
+        project.getExtensions()
+                .getExtraProperties()
+                .set(PROP_RELEASE_CONDUCTOR, releaseConductor);
+    }
+
+    private @NotNull ReleaseConductor retrieveReleaseConductor() {
+        Object releaseConductor = project.getExtensions()
+                .getExtraProperties()
+                .get(PROP_RELEASE_CONDUCTOR);
+        if (!(releaseConductor instanceof ReleaseConductor)) {
+            throw new GradleException(String.format(
+                    "Failed to retrieve previously stored instance of %s",
+                    ReleaseConductor.class.getSimpleName()
+            ));
+        }
+        return (ReleaseConductor) releaseConductor;
     }
 }

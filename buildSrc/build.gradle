@@ -24,7 +24,8 @@ sourceSets {
                 'com/github/decaland/touchstone/loadout/layers/Layer.java',
                 'com/github/decaland/touchstone/loadout/layers/BaseLayer.java',
                 'com/github/decaland/touchstone/loadout/layers/ProjectAwareLayer.java',
-                'com/github/decaland/touchstone/loadout/layers/releasing/ReleaseFlowLayer.java',
+                'com/github/decaland/touchstone/loadout/layers/releasing/**/*.java',
+                'com/github/decaland/touchstone/utils/**/*.java',
         ])
     }
 }

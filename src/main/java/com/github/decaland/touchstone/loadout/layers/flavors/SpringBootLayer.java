@@ -5,7 +5,6 @@ import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin;
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.gradle.plugin.SpringBootPlugin;
 
@@ -56,10 +55,9 @@ public class SpringBootLayer extends ProjectAwareLayer {
     }
 
     private void addSpringCloudVersion(@NotNull Project project) {
-        project.getExtensions().configure(
-                ExtraPropertiesExtension.class,
-                ext -> ext.set("springCloudVersion", VERSION_SPRING_CLOUD)
-        );
+        project.getExtensions()
+                .getExtraProperties()
+                .set("springCloudVersion", VERSION_SPRING_CLOUD);
     }
 
     private void addDependencyManagement(Project project) {
