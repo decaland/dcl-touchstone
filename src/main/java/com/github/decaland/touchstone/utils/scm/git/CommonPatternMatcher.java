@@ -1,7 +1,9 @@
 package com.github.decaland.touchstone.utils.scm.git;
 
+import com.github.decaland.touchstone.utils.lazy.Lazy;
 import org.intellij.lang.annotations.RegExp;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,59 +12,47 @@ class CommonPatternMatcher {
 
     @RegExp
     public static final String PATTERN_SHA = "^[0-9a-fA-F]{40}$";
-    private Matcher shaMatcher;
 
     @RegExp
     public static final String PATTERN_REF_NAME = "^[\\w.-]+(/[\\w.-]+)+$";
-    private Matcher refNameMatcher;
 
     @RegExp
     public static final String PATTERN_COMMIT_MESSAGE = "^[^\\s\"][^\"]*[^\\s\"]$";
-    private Matcher commitMessageMatcher;
+
+    private final Lazy<Matcher> shaMatcher;
+    private final Lazy<Matcher> refNameMatcher;
+    private final Lazy<Matcher> commitMessageMatcher;
 
     private static CommonPatternMatcher instance;
 
     @Contract(pure = true)
     private CommonPatternMatcher() {
+        shaMatcher = Lazy.using(() -> compile(PATTERN_SHA));
+        refNameMatcher = Lazy.using(() -> compile(PATTERN_REF_NAME));
+        commitMessageMatcher = Lazy.using(() -> compile(PATTERN_COMMIT_MESSAGE));
     }
 
-    static CommonPatternMatcher getCommonPatternMatcher() {
+    public static @NotNull CommonPatternMatcher getCommonPatternMatcher() {
         if (instance == null) {
             instance = new CommonPatternMatcher();
         }
         return instance;
     }
 
-    private Matcher getShaMatcher() {
-        if (shaMatcher == null) {
-            shaMatcher = Pattern.compile(PATTERN_SHA).matcher("");
-        }
-        return shaMatcher;
+    @Contract("_ -> new")
+    private static @NotNull Matcher compile(@NotNull String pattern) {
+        return Pattern.compile(pattern).matcher("");
     }
 
-    private Matcher getRefNameMatcher() {
-        if (refNameMatcher == null) {
-            refNameMatcher = Pattern.compile(PATTERN_REF_NAME).matcher("");
-        }
-        return refNameMatcher;
+    public boolean shaMatches(@NotNull String input) {
+        return shaMatcher.get().reset(input).matches();
     }
 
-    private Matcher getCommitMessageMatcher() {
-        if (commitMessageMatcher == null) {
-            commitMessageMatcher = Pattern.compile(PATTERN_COMMIT_MESSAGE).matcher("");
-        }
-        return commitMessageMatcher;
+    public boolean refNameMatches(@NotNull String input) {
+        return refNameMatcher.get().reset(input).matches();
     }
 
-    public boolean shaMatches(String input) {
-        return getShaMatcher().reset(input).matches();
-    }
-
-    public boolean refNameMatches(String input) {
-        return getRefNameMatcher().reset(input).matches();
-    }
-
-    public boolean commitMessageMatches(String input) {
-        return getCommitMessageMatcher().reset(input).matches();
+    public boolean commitMessageMatches(@NotNull String input) {
+        return commitMessageMatcher.get().reset(input).matches();
     }
 }

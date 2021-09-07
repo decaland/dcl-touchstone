@@ -3,6 +3,7 @@ package com.github.decaland.touchstone.loadout.layers.releasing;
 import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import com.github.decaland.touchstone.loadout.layers.releasing.services.ReleaseConductor;
+import com.github.decaland.touchstone.utils.lazy.Lazy;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -29,8 +30,6 @@ public class ReleaseFlowLayer extends ProjectAwareLayer {
     public static final String TASK_NAME_RELEASE = "release";
     public static final String GROUP_NAME_RELEASE = "Release";
 
-    public static final String PROP_RELEASE_CONDUCTOR = "releaseConductor";
-
     @Override
     public boolean isReady(Project project, Loadout.Layers layers) {
         return project.getPlugins().hasPlugin(BasePlugin.class)
@@ -38,11 +37,13 @@ public class ReleaseFlowLayer extends ProjectAwareLayer {
     }
 
     private Project project;
+    private Lazy<ReleaseConductor> releaseConductor;
 
     @Override
     public void apply(Project project, Loadout.Layers layers) {
         // Store reference to the project
         this.project = project;
+        this.releaseConductor = ReleaseConductor.lazyFor(project);
 
         // Check for included builds: this is incompatible with GradleBuild task types
         Collection<IncludedBuild> includedBuilds = project.getGradle().getIncludedBuilds();
@@ -113,35 +114,14 @@ public class ReleaseFlowLayer extends ProjectAwareLayer {
     }
 
     private void doPlanRelease(Task prepareReleaseTask) {
-        ReleaseConductor releaseConductor = ReleaseConductor.forProject(project);
-        storeReleaseConductor(releaseConductor);
-        releaseConductor.planRelease();
+        releaseConductor.get().planRelease();
     }
 
     private void doCreateRelease(Task createReleaseTask) {
-        retrieveReleaseConductor().createRelease();
+        releaseConductor.get().createRelease();
     }
 
     private void doFinalizeRelease(Task finalizeReleaseTask) {
-        retrieveReleaseConductor().finalizeRelease();
-    }
-
-    private void storeReleaseConductor(@NotNull ReleaseConductor releaseConductor) {
-        project.getExtensions()
-                .getExtraProperties()
-                .set(PROP_RELEASE_CONDUCTOR, releaseConductor);
-    }
-
-    private @NotNull ReleaseConductor retrieveReleaseConductor() {
-        Object releaseConductor = project.getExtensions()
-                .getExtraProperties()
-                .get(PROP_RELEASE_CONDUCTOR);
-        if (!(releaseConductor instanceof ReleaseConductor)) {
-            throw new GradleException(String.format(
-                    "Failed to retrieve previously stored instance of %s",
-                    ReleaseConductor.class.getSimpleName()
-            ));
-        }
-        return (ReleaseConductor) releaseConductor;
+        releaseConductor.get().finalizeRelease();
     }
 }

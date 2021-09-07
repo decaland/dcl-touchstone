@@ -1,5 +1,6 @@
 package com.github.decaland.touchstone.utils.shell;
 
+import com.github.decaland.touchstone.utils.lazy.Lazy;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,8 +32,21 @@ public class BashExecutor implements ShellExecutor {
         require(BASH_EXECUTABLE);
     }
 
-    synchronized public static @NotNull BashExecutor forProject(@NotNull Project project) {
-        return managedInstances.computeIfAbsent(project, BashExecutor::new);
+    synchronized private static @NotNull BashExecutor forProject(
+            @NotNull Project project,
+            @NotNull String... requiredExecutables
+    ) {
+        BashExecutor bashExecutor = managedInstances.computeIfAbsent(project, BashExecutor::new);
+        Arrays.stream(requiredExecutables).forEach(bashExecutor::require);
+        return bashExecutor;
+    }
+
+    @Contract("_, _ -> new")
+    public static @NotNull Lazy<BashExecutor> lazyFor(
+            @NotNull Project project,
+            @NotNull String... requiredExecutables
+    ) {
+        return Lazy.using(() -> BashExecutor.forProject(project, requiredExecutables));
     }
 
     synchronized public void require(@NotNull String executable) {

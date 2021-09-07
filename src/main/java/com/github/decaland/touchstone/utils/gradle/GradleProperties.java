@@ -1,5 +1,6 @@
 package com.github.decaland.touchstone.utils.gradle;
 
+import com.github.decaland.touchstone.utils.lazy.Lazy;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.Contract;
@@ -20,8 +21,13 @@ public class GradleProperties {
         this.project = project;
     }
 
-    synchronized public static @NotNull GradleProperties forProject(@NotNull Project project) {
+    synchronized private static @NotNull GradleProperties forProject(@NotNull Project project) {
         return managedInstances.computeIfAbsent(project, GradleProperties::new);
+    }
+
+    @Contract("_ -> new")
+    public static @NotNull Lazy<GradleProperties> lazyFor(@NotNull Project project) {
+        return Lazy.using(() -> GradleProperties.forProject(project));
     }
 
     public @NotNull String requireOrDefaultsValidated(

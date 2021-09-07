@@ -5,10 +5,12 @@ import com.github.decaland.touchstone.loadout.layers.releasing.models.VersionTra
 import com.github.decaland.touchstone.loadout.layers.releasing.services.devisers.BranchDeviser;
 import com.github.decaland.touchstone.loadout.layers.releasing.services.extractors.VersionExtractor;
 import com.github.decaland.touchstone.loadout.layers.releasing.steps.ReleaseStep;
+import com.github.decaland.touchstone.utils.lazy.Lazy;
 import com.github.decaland.touchstone.utils.scm.git.GitAdapter;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -18,22 +20,30 @@ import static org.gradle.api.Project.GRADLE_PROPERTIES;
 public class ReleaseConductor {
 
     private final Project project;
-    private final GitAdapter git;
-    private BranchDeviser branchDeviser;
-    private VersionExtractor versionExtractor;
-    private ReleasePlanner releasePlanner;
+    private final Lazy<GitAdapter> git;
+    private final Lazy<BranchDeviser> branchDeviser;
+    private final Lazy<VersionExtractor> versionExtractor;
+    private final Lazy<ReleasePlanner> releasePlanner;
 
-    private final Deque<ReleaseStep> stepsPerformed = new ArrayDeque<>();
+    private final Lazy<Deque<ReleaseStep>> stepsPerformed = Lazy.using(ArrayDeque::new);
 
     private static final Map<Project, ReleaseConductor> managedInstances = new HashMap<>();
 
     private ReleaseConductor(@NotNull Project project) {
         this.project = project;
-        this.git = GitAdapter.forProject(project);
+        this.git = GitAdapter.lazyFor(project);
+        this.branchDeviser = BranchDeviser.lazyFor(project);
+        this.versionExtractor = VersionExtractor.lazyFor(project);
+        this.releasePlanner = ReleasePlanner.lazyFor(project);
     }
 
-    synchronized public static @NotNull ReleaseConductor forProject(@NotNull Project project) {
+    synchronized private static @NotNull ReleaseConductor forProject(@NotNull Project project) {
         return managedInstances.computeIfAbsent(project, ReleaseConductor::new);
+    }
+
+    @Contract("_ -> new")
+    public static @NotNull Lazy<ReleaseConductor> lazyFor(@NotNull Project project) {
+        return Lazy.using(() -> ReleaseConductor.forProject(project));
     }
 
     public void planRelease() {
@@ -54,9 +64,10 @@ public class ReleaseConductor {
 
     private void doAnalyze() {
         try {
+            GitAdapter git = this.git.get();
             git.requireCleanWorkTree();
-            git.checkout(getBranchDeviser().deviseDevBranch());
-            announceIntentions(getReleasePlanner().getReleasePlan());
+            git.checkout(branchDeviser.get().deviseDevBranch());
+            announceIntentions(releasePlanner.get().getReleasePlan());
         } catch (GradleException exception) {
             throw new GradleException(String.format(
                     "Halted release while analyzing current project state: %s", exception.getMessage()
@@ -66,10 +77,11 @@ public class ReleaseConductor {
 
     private void doPrepareRelease() {
         try {
-            ReleasePlan releasePlan = getReleasePlanner().getReleasePlan();
+            GitAdapter git = this.git.get();
+            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
             VersionTransition versionTransition = releasePlan.getVersionTransition();
             git.checkoutNew(releasePlan.getReleaseBranch());
-            getVersionExtractor().replaceVersion(versionTransition.getCurrent(), versionTransition.getRelease());
+            versionExtractor.get().replaceVersion(versionTransition.getCurrent(), versionTransition.getRelease());
             git.commitFiles(releasePlan.getReleaseCommitMsg(), GRADLE_PROPERTIES);
             git.tagCurrentCommit(releasePlan.getReleaseTag());
         } catch (GradleException exception) {
@@ -81,7 +93,8 @@ public class ReleaseConductor {
 
     private void doMergeRelease() {
         try {
-            ReleasePlan releasePlan = getReleasePlanner().getReleasePlan();
+            GitAdapter git = this.git.get();
+            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
             git.checkout(releasePlan.getMainBranch());
             git.mergeIntoCurrentBranch(releasePlan.getReleaseBranch());
         } catch (GradleException exception) {
@@ -93,10 +106,11 @@ public class ReleaseConductor {
 
     private void doPrepareNext() {
         try {
-            ReleasePlan releasePlan = getReleasePlanner().getReleasePlan();
+            GitAdapter git = this.git.get();
+            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
             VersionTransition versionTransition = releasePlan.getVersionTransition();
             git.checkout(releasePlan.getReleaseBranch());
-            getVersionExtractor().replaceVersion(versionTransition.getRelease(), versionTransition.getNext());
+            versionExtractor.get().replaceVersion(versionTransition.getRelease(), versionTransition.getNext());
             git.commitFiles(releasePlan.getNextCommitMsg(), GRADLE_PROPERTIES);
         } catch (GradleException exception) {
             throw new GradleException(String.format(
@@ -107,7 +121,8 @@ public class ReleaseConductor {
 
     private void doMergeNext() {
         try {
-            ReleasePlan releasePlan = getReleasePlanner().getReleasePlan();
+            GitAdapter git = this.git.get();
+            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
             git.checkout(releasePlan.getDevBranch());
             git.mergeIntoCurrentBranch(releasePlan.getReleaseBranch());
         } catch (GradleException exception) {
@@ -119,7 +134,8 @@ public class ReleaseConductor {
 
     private void doCleanup() {
         try {
-            ReleasePlan releasePlan = getReleasePlanner().getReleasePlan();
+            GitAdapter git = this.git.get();
+            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
             git.delete(releasePlan.getReleaseBranch());
         } catch (GradleException exception) {
             throw new GradleException(String.format(
@@ -130,7 +146,8 @@ public class ReleaseConductor {
 
     private void doPush() {
         try {
-            ReleasePlan releasePlan = getReleasePlanner().getReleasePlan();
+            GitAdapter git = this.git.get();
+            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
             git.push(releasePlan.getMainBranch(), releasePlan.getDevBranch(), releasePlan.getReleaseTag());
         } catch (GradleException exception) {
             throw new GradleException(String.format(
@@ -156,6 +173,7 @@ public class ReleaseConductor {
     }
 
     private synchronized void revertSteps() {
+        Deque<ReleaseStep> stepsPerformed = this.stepsPerformed.get();
         while (!stepsPerformed.isEmpty()) {
             try {
                 stepsPerformed.pop().revert();
@@ -176,7 +194,7 @@ public class ReleaseConductor {
     }
 
     private @NotNull String describeRemainingSteps() {
-        Iterator<ReleaseStep> iterator = stepsPerformed.descendingIterator();
+        Iterator<ReleaseStep> iterator = stepsPerformed.get().descendingIterator();
         ReleaseStep lastStep = iterator.next();
         StringBuilder stepList = new StringBuilder()
                 .append(String.format(
@@ -193,26 +211,5 @@ public class ReleaseConductor {
             ));
         }
         return stepList.toString();
-    }
-
-    private @NotNull BranchDeviser getBranchDeviser() {
-        if (branchDeviser == null) {
-            branchDeviser = BranchDeviser.forProject(project);
-        }
-        return branchDeviser;
-    }
-
-    private @NotNull VersionExtractor getVersionExtractor() {
-        if (versionExtractor == null) {
-            versionExtractor = VersionExtractor.forProject(project);
-        }
-        return versionExtractor;
-    }
-
-    private @NotNull ReleasePlanner getReleasePlanner() {
-        if (releasePlanner == null) {
-            releasePlanner = ReleasePlanner.forProject(project);
-        }
-        return releasePlanner;
     }
 }

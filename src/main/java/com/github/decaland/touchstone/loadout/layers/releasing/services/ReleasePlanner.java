@@ -6,6 +6,7 @@ import com.github.decaland.touchstone.loadout.layers.releasing.services.devisers
 import com.github.decaland.touchstone.loadout.layers.releasing.services.devisers.VersionDeviser;
 import com.github.decaland.touchstone.loadout.layers.releasing.services.extractors.VersionExtractor;
 import com.github.decaland.touchstone.utils.gradle.GradleProperties;
+import com.github.decaland.touchstone.utils.lazy.Lazy;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.Contract;
@@ -19,43 +20,46 @@ import static com.github.decaland.touchstone.loadout.layers.releasing.services.d
 
 public class ReleasePlanner {
 
-    private final Project project;
-    private GradleProperties gradleProperties;
-    private BranchDeviser branchDeviser;
-    private VersionDeviser versionDeviser;
-    private VersionExtractor versionExtractor;
+    private final Lazy<GradleProperties> gradleProperties;
+    private final Lazy<BranchDeviser> branchDeviser;
+    private final Lazy<VersionDeviser> versionDeviser;
+    private final Lazy<VersionExtractor> versionExtractor;
 
-    private ReleasePlan releasePlan;
-    private VersionTransition versionTransition;
+    private final Lazy<ReleasePlan> releasePlan;
+    private final Lazy<VersionTransition> versionTransition;
 
     private static final Map<Project, ReleasePlanner> managedInstances = new HashMap<>();
 
     @Contract(pure = true)
     private ReleasePlanner(@NotNull Project project) {
-        this.project = project;
+        this.gradleProperties = GradleProperties.lazyFor(project);
+        this.branchDeviser = BranchDeviser.lazyFor(project);
+        this.versionDeviser = VersionDeviser.lazyFor(project);
+        this.versionExtractor = VersionExtractor.lazyFor(project);
+        this.releasePlan = Lazy.using(this::planRelease);
+        this.versionTransition = Lazy.using(this::planVersionTransition);
     }
 
-    synchronized public static @NotNull ReleasePlanner forProject(@NotNull Project project) {
+    synchronized private static @NotNull ReleasePlanner forProject(@NotNull Project project) {
         return managedInstances.computeIfAbsent(project, ReleasePlanner::new);
     }
 
+    @Contract("_ -> new")
+    public static @NotNull Lazy<ReleasePlanner> lazyFor(@NotNull Project project) {
+        return Lazy.using(() -> ReleasePlanner.forProject(project));
+    }
+
     public @NotNull ReleasePlan getReleasePlan() {
-        if (releasePlan == null) {
-            releasePlan = planRelease();
-        }
-        return releasePlan;
+        return releasePlan.get();
     }
 
     public @NotNull VersionTransition getVersionTransition() {
-        if (versionTransition == null) {
-            versionTransition = planVersionTransition();
-        }
-        return versionTransition;
+        return versionTransition.get();
     }
 
     @Contract(" -> new")
     private @NotNull ReleasePlan planRelease() {
-        BranchDeviser branchDeviser = getBranchDeviser();
+        BranchDeviser branchDeviser = this.branchDeviser.get();
         return new ReleasePlan(
                 getVersionTransition(),
                 branchDeviser.deviseMainBranch(),
@@ -64,7 +68,7 @@ public class ReleasePlanner {
     }
 
     private @NotNull VersionTransition planVersionTransition() {
-        GradleProperties gradleProperties = getGradleProperties();
+        GradleProperties gradleProperties = this.gradleProperties.get();
         boolean versionGivenExplicitly = gradleProperties.has(PROPERTY_KEY_RELEASE_VERSION);
         boolean strategyGivenExplicitly = gradleProperties.has(PROPERTY_KEY_VERSION_STRATEGY);
         if (versionGivenExplicitly && strategyGivenExplicitly) {
@@ -75,41 +79,13 @@ public class ReleasePlanner {
         }
         if (versionGivenExplicitly) {
             return VersionTransition.between(
-                    getVersionExtractor().extractVersion(),
-                    getVersionDeviser().deviseReleaseVersion()
+                    versionExtractor.get().extractVersion(),
+                    versionDeviser.get().deviseReleaseVersion()
             );
         }
         return VersionTransition.from(
-                getVersionExtractor().extractVersion(),
-                getVersionDeviser().deviseVersionStrategy()
+                versionExtractor.get().extractVersion(),
+                versionDeviser.get().deviseVersionStrategy()
         );
-    }
-
-    private @NotNull GradleProperties getGradleProperties() {
-        if (gradleProperties == null) {
-            gradleProperties = GradleProperties.forProject(project);
-        }
-        return gradleProperties;
-    }
-
-    private @NotNull BranchDeviser getBranchDeviser() {
-        if (branchDeviser == null) {
-            branchDeviser = BranchDeviser.forProject(project);
-        }
-        return branchDeviser;
-    }
-
-    private @NotNull VersionDeviser getVersionDeviser() {
-        if (versionDeviser == null) {
-            versionDeviser = VersionDeviser.forProject(project);
-        }
-        return versionDeviser;
-    }
-
-    private @NotNull VersionExtractor getVersionExtractor() {
-        if (versionExtractor == null) {
-            versionExtractor = VersionExtractor.forProject(project);
-        }
-        return versionExtractor;
     }
 }

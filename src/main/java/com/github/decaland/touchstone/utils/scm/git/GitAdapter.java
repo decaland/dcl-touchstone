@@ -1,9 +1,11 @@
 package com.github.decaland.touchstone.utils.scm.git;
 
+import com.github.decaland.touchstone.utils.lazy.Lazy;
 import com.github.decaland.touchstone.utils.shell.BashExecutor;
 import com.github.decaland.touchstone.utils.shell.ShellExecutor;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -17,19 +19,23 @@ public class GitAdapter {
 
     private static final Map<Project, GitAdapter> managedInstances = new HashMap<>();
 
-    private final ShellExecutor shell;
+    private final Lazy<? extends ShellExecutor> shell;
 
     private GitAdapter(@NotNull Project project) {
-        shell = BashExecutor.forProject(project);
-        shell.require("git");
+        shell = BashExecutor.lazyFor(project, "git");
     }
 
-    synchronized public static @NotNull GitAdapter forProject(@NotNull Project project) {
+    synchronized private static @NotNull GitAdapter forProject(@NotNull Project project) {
         return managedInstances.computeIfAbsent(project, GitAdapter::new);
     }
 
+    @Contract("_ -> new")
+    public static @NotNull Lazy<GitAdapter> lazyFor(@NotNull Project project) {
+        return Lazy.using(() -> GitAdapter.forProject(project));
+    }
+
     synchronized public boolean workTreeIsDirty() {
-        return shell.test("test -n \"$( git status --porcelain )\"");
+        return shell.get().test("test -n \"$( git status --porcelain )\"");
     }
 
     public void requireCleanWorkTree() {
@@ -41,11 +47,11 @@ public class GitAdapter {
     synchronized public boolean exists(@NotNull GitRef ref) {
         switch (ref.getType()) {
             case BRANCH:
-                return shell.test(String.format(
+                return shell.get().test(String.format(
                         "test -n \"$( git branch --list -- \"%s\" )\"", ref.getName()
                 ));
             case TAG:
-                return shell.test(String.format(
+                return shell.get().test(String.format(
                         "test -n \"$( git tag --list -- \"%s\" )\"", ref.getName()
                 ));
             default:
@@ -61,7 +67,7 @@ public class GitAdapter {
                     "Attempted to checkout non-existent Git branch '%s' without creating it first", branch.getName()
             ));
         }
-        shell.insist(String.format(
+        shell.get().insist(String.format(
                 "git checkout \"%s\"", branch.getName()
         ));
     }
@@ -73,7 +79,7 @@ public class GitAdapter {
                     branch.getType().getHumanReadableType(), branch.getName()
             ));
         }
-        shell.insist(String.format(
+        shell.get().insist(String.format(
                 "git checkout -b \"%s\"", branch.getName()
         ));
     }
@@ -86,7 +92,7 @@ public class GitAdapter {
             ));
         }
         return GitObject.ofSha(
-                shell.insist(String.format(
+                shell.get().insist(String.format(
                         "git rev-parse --verify \"%s\"", ref.getFullName()
                 )).getStdOut()
         );
@@ -95,12 +101,12 @@ public class GitAdapter {
     synchronized public void delete(@NotNull GitRef ref) {
         switch (ref.getType()) {
             case BRANCH:
-                shell.insist(String.format(
+                shell.get().insist(String.format(
                         "git branch --delete \"%s\"", ref.getName()
                 ));
                 break;
             case TAG:
-                shell.insist(String.format(
+                shell.get().insist(String.format(
                         "git tag --delete \"%s\"", ref.getName()
                 ));
                 break;
@@ -112,7 +118,7 @@ public class GitAdapter {
     }
 
     synchronized public void reset(@NotNull GitObject location) {
-        shell.insist(String.format(
+        shell.get().insist(String.format(
                 "git reset --hard \"%s\"", location.getSha()
         ));
     }
@@ -121,7 +127,7 @@ public class GitAdapter {
             @NotNull String file,
             String... additionalFiles
     ) {
-        shell.insist(String.format(
+        shell.get().insist(String.format(
                 "git add -- \"%s\"",
                 Stream.concat(Stream.of(file), Arrays.stream(additionalFiles))
                         .filter(Objects::nonNull)
@@ -135,26 +141,26 @@ public class GitAdapter {
             String... additionalFiles
     ) {
         addFiles(file, additionalFiles);
-        shell.insist(String.format(
+        shell.get().insist(String.format(
                 "git commit --message=\"%s\"", message
         ));
     }
 
     public void tagCurrentCommit(@NotNull GitTag tag) {
-        shell.insist(String.format(
+        shell.get().insist(String.format(
                 "git tag --annotate \"%s\" --message=\"%s\"",
                 tag.getName(), tag.getMessage()
         ));
     }
 
     synchronized public void mergeIntoCurrentBranch(@NotNull GitBranch other) {
-        shell.insist(String.format(
+        shell.get().insist(String.format(
                 "git merge --no-ff --no-edit -- \"%s\"", other.getName()
         ));
     }
 
     synchronized public void push(@NotNull GitRef... refs) {
-        shell.insist(String.format(
+        shell.get().insist(String.format(
                 "git push origin \"%s\"",
                 Arrays.stream(refs)
                         .map(GitRef::getFullName)

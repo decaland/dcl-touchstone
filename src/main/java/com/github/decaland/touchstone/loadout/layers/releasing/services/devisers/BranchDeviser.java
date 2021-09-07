@@ -1,6 +1,7 @@
 package com.github.decaland.touchstone.loadout.layers.releasing.services.devisers;
 
 import com.github.decaland.touchstone.utils.gradle.GradleProperties;
+import com.github.decaland.touchstone.utils.lazy.Lazy;
 import com.github.decaland.touchstone.utils.scm.git.GitAdapter;
 import com.github.decaland.touchstone.utils.scm.git.GitBranch;
 import org.gradle.api.Project;
@@ -15,36 +16,37 @@ public class BranchDeviser {
     public static final String PROPERTY_KEY_BRANCH_MAIN = "mainBranch";
     public static final String PROPERTY_KEY_BRANCH_DEV = "devBranch";
 
-    private final Project project;
-    private GitAdapter git;
-    private GradleProperties gradleProperties;
+    private final Lazy<GitAdapter> git;
+    private final Lazy<GradleProperties> gradleProperties;
 
-    private GitBranch mainBranch;
-    private GitBranch devBranch;
+    private final Lazy<GitBranch> mainBranch;
+    private final Lazy<GitBranch> devBranch;
 
     private static final Map<Project, BranchDeviser> managedInstances = new HashMap<>();
 
     @Contract(pure = true)
     private BranchDeviser(@NotNull Project project) {
-        this.project = project;
+        this.git = GitAdapter.lazyFor(project);
+        this.gradleProperties = GradleProperties.lazyFor(project);
+        this.mainBranch = Lazy.using(() -> deviseBranch(PROPERTY_KEY_BRANCH_MAIN, "main", "master"));
+        this.devBranch = Lazy.using(() -> deviseBranch(PROPERTY_KEY_BRANCH_DEV, "dev"));
     }
 
-    synchronized public static @NotNull BranchDeviser forProject(@NotNull Project project) {
+    synchronized private static @NotNull BranchDeviser forProject(@NotNull Project project) {
         return managedInstances.computeIfAbsent(project, BranchDeviser::new);
     }
 
+    @Contract("_ -> new")
+    public static @NotNull Lazy<BranchDeviser> lazyFor(@NotNull Project project) {
+        return Lazy.using(() -> BranchDeviser.forProject(project));
+    }
+
     public @NotNull GitBranch deviseMainBranch() {
-        if (mainBranch == null) {
-            mainBranch = deviseBranch(PROPERTY_KEY_BRANCH_MAIN, "main", "master");
-        }
-        return mainBranch;
+        return mainBranch.get();
     }
 
     public @NotNull GitBranch deviseDevBranch() {
-        if (devBranch == null) {
-            devBranch = deviseBranch(PROPERTY_KEY_BRANCH_DEV, "dev");
-        }
-        return devBranch;
+        return devBranch.get();
     }
 
     private @NotNull GitBranch deviseBranch(
@@ -52,27 +54,13 @@ public class BranchDeviser {
             @NotNull String... defaultValues
     ) {
         return GitBranch.named(
-                getGradleProperties().requireOrDefaultsValidated(
+                gradleProperties.get().requireOrDefaultsValidated(
                         propertyKey, this::branchExists, defaultValues
                 )
         );
     }
 
     private boolean branchExists(@NotNull String branchName) {
-        return getGit().exists(GitBranch.named(branchName));
-    }
-
-    private @NotNull GradleProperties getGradleProperties() {
-        if (gradleProperties == null) {
-            gradleProperties = GradleProperties.forProject(project);
-        }
-        return gradleProperties;
-    }
-
-    private @NotNull GitAdapter getGit() {
-        if (git == null) {
-            git = GitAdapter.forProject(project);
-        }
-        return git;
+        return git.get().exists(GitBranch.named(branchName));
     }
 }

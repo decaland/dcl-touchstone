@@ -2,6 +2,7 @@ package com.github.decaland.touchstone.utils.gradle;
 
 import com.github.decaland.touchstone.utils.files.FileWrangler;
 import com.github.decaland.touchstone.utils.files.FileWranglingException;
+import com.github.decaland.touchstone.utils.lazy.Lazy;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.intellij.lang.annotations.RegExp;
@@ -33,8 +34,13 @@ public class GradlePropertiesFile {
         this.project = project;
     }
 
-    synchronized public static @NotNull GradlePropertiesFile forProject(@NotNull Project project) {
+    synchronized private static @NotNull GradlePropertiesFile forProject(@NotNull Project project) {
         return managedInstances.computeIfAbsent(project, GradlePropertiesFile::new);
+    }
+
+    @Contract("_ -> new")
+    public static @NotNull Lazy<GradlePropertiesFile> lazyFor(@NotNull Project project) {
+        return Lazy.using(() -> GradlePropertiesFile.forProject(project));
     }
 
     private static boolean keyIsInvalid(@NotNull String key) {
