@@ -15,7 +15,7 @@ import java.util.Map;
 import static java.io.InputStream.nullInputStream;
 import static java.io.OutputStream.nullOutputStream;
 
-public final class BashExecutor implements ShellExecutor {
+public class BashExecutor implements ShellExecutor {
 
     public static final String BASH_EXECUTABLE = "bash";
 

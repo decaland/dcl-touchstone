@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class GitAdapter {
+public class GitAdapter {
 
     private static final Map<Project, GitAdapter> managedInstances = new HashMap<>();
 

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class GitTag extends GitRef {
+public class GitTag extends GitRef {
 
     private static final Map<String, GitTag> managedInstances = new HashMap<>();
 

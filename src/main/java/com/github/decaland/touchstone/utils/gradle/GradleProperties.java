@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public final class GradleProperties {
+public class GradleProperties {
 
     private final Project project;
 

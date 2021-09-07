@@ -17,7 +17,7 @@ import java.util.Map;
 import static com.github.decaland.touchstone.loadout.layers.releasing.services.devisers.VersionDeviser.PROPERTY_KEY_RELEASE_VERSION;
 import static com.github.decaland.touchstone.loadout.layers.releasing.services.devisers.VersionDeviser.PROPERTY_KEY_VERSION_STRATEGY;
 
-public final class ReleasePlanner {
+public class ReleasePlanner {
 
     private final Project project;
     private GradleProperties gradleProperties;

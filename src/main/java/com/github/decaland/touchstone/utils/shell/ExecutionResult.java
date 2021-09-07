@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public final class ExecutionResult {
+public class ExecutionResult {
 
     private final String command;
     private final int exitValue;

@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 import static java.lang.Integer.MAX_VALUE;
 
-public final class FileWrangler {
+public class FileWrangler {
 
     private static final Map<Path, FileWrangler> managedInstances = new HashMap<>();
 

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 import static org.gradle.api.Project.GRADLE_PROPERTIES;
 
-public final class GradlePropertiesFile {
+public class GradlePropertiesFile {
 
     private final Project project;
     private FileWrangler file;

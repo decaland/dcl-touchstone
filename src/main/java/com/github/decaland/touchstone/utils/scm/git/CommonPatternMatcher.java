@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Contract;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-final class CommonPatternMatcher {
+class CommonPatternMatcher {
 
     @RegExp
     public static final String PATTERN_SHA = "^[0-9a-fA-F]{40}$";

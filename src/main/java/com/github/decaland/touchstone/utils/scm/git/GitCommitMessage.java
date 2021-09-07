@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.github.decaland.touchstone.utils.scm.git.CommonPatternMatcher.getCommonPatternMatcher;
 
-public final class GitCommitMessage {
+public class GitCommitMessage {
 
     private static final int COMMIT_MESSAGE_LENGTH_MIN = 10;
     private static final int COMMIT_MESSAGE_LENGTH_MAX = 255;

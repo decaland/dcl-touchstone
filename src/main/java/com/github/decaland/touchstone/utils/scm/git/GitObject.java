@@ -9,7 +9,7 @@ import java.util.Objects;
 
 import static com.github.decaland.touchstone.utils.scm.git.CommonPatternMatcher.getCommonPatternMatcher;
 
-public final class GitObject {
+public class GitObject {
 
     private static final Map<String, GitObject> managedInstances = new HashMap<>();
 
