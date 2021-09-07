@@ -1,6 +1,6 @@
 package com.github.decaland.touchstone.loadout.layers.releasing.services.devisers;
 
-import com.github.decaland.touchstone.loadout.layers.releasing.services.gradle.GradleProperties;
+import com.github.decaland.touchstone.utils.gradle.GradleProperties;
 import com.github.decaland.touchstone.utils.scm.git.GitAdapter;
 import com.github.decaland.touchstone.utils.scm.git.GitBranch;
 import org.gradle.api.Project;

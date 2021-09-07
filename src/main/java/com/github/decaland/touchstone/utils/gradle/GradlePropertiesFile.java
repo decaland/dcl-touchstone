@@ -1,4 +1,4 @@
-package com.github.decaland.touchstone.loadout.layers.releasing.services.gradle;
+package com.github.decaland.touchstone.utils.gradle;
 
 import com.github.decaland.touchstone.utils.files.FileWrangler;
 import com.github.decaland.touchstone.utils.files.FileWranglingException;

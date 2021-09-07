@@ -5,7 +5,7 @@ import com.github.decaland.touchstone.loadout.layers.releasing.models.VersionTra
 import com.github.decaland.touchstone.loadout.layers.releasing.services.devisers.BranchDeviser;
 import com.github.decaland.touchstone.loadout.layers.releasing.services.devisers.VersionDeviser;
 import com.github.decaland.touchstone.loadout.layers.releasing.services.extractors.VersionExtractor;
-import com.github.decaland.touchstone.loadout.layers.releasing.services.gradle.GradleProperties;
+import com.github.decaland.touchstone.utils.gradle.GradleProperties;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.Contract;

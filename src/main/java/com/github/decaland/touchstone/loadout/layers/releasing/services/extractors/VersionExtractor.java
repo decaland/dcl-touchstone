@@ -2,7 +2,7 @@ package com.github.decaland.touchstone.loadout.layers.releasing.services.extract
 
 import com.github.decaland.touchstone.loadout.layers.releasing.models.IllegalVersionException;
 import com.github.decaland.touchstone.loadout.layers.releasing.models.Version;
-import com.github.decaland.touchstone.loadout.layers.releasing.services.gradle.GradlePropertiesFile;
+import com.github.decaland.touchstone.utils.gradle.GradlePropertiesFile;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.Contract;
