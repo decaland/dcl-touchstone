@@ -44,6 +44,16 @@ public class GitAdapter {
         }
     }
 
+    synchronized public @NotNull GitBranch requireCurrentBranch() {
+        String branchName = shell.get().insist("git rev-parse --abbrev-ref HEAD").getStdOut();
+        if ("HEAD".equals(branchName) || branchName.isBlank()) {
+            throw new GradleException(
+                    "Encountered Git HEAD in detached state while expecting a branch to be checked out"
+            );
+        }
+        return GitBranch.named(branchName);
+    }
+
     synchronized public boolean exists(@NotNull GitRef ref) {
         switch (ref.getType()) {
             case BRANCH:
@@ -84,6 +94,12 @@ public class GitAdapter {
         ));
     }
 
+    synchronized public GitObject locate() {
+        return GitObject.ofSha(
+                shell.get().insist("git rev-parse --verify HEAD").getStdOut()
+        );
+    }
+
     synchronized public GitObject locate(@NotNull GitRef ref) {
         if (!exists(ref)) {
             throw new GradleException(String.format(
@@ -98,11 +114,15 @@ public class GitAdapter {
         );
     }
 
+    synchronized public GitBranchSnapshot takeSnapshot(@NotNull GitBranch branch) {
+        return new GitBranchSnapshot(branch, locate(branch));
+    }
+
     synchronized public void delete(@NotNull GitRef ref) {
         switch (ref.getType()) {
             case BRANCH:
                 shell.get().insist(String.format(
-                        "git branch --delete \"%s\"", ref.getName()
+                        "git branch --delete --force \"%s\"", ref.getName()
                 ));
                 break;
             case TAG:
@@ -142,20 +162,20 @@ public class GitAdapter {
     ) {
         addFiles(file, additionalFiles);
         shell.get().insist(String.format(
-                "git commit --message=\"%s\"", message
+                "git commit --message=\"%s\" --no-gpg-sign", message
         ));
     }
 
     public void tagCurrentCommit(@NotNull GitTag tag) {
         shell.get().insist(String.format(
-                "git tag --annotate \"%s\" --message=\"%s\"",
+                "git tag --annotate \"%s\" --message=\"%s\" --no-sign",
                 tag.getName(), tag.getMessage()
         ));
     }
 
     synchronized public void mergeIntoCurrentBranch(@NotNull GitBranch other) {
         shell.get().insist(String.format(
-                "git merge --no-ff --no-edit -- \"%s\"", other.getName()
+                "git merge --no-ff --no-edit --no-gpg-sign -- \"%s\"", other.getName()
         ));
     }
 

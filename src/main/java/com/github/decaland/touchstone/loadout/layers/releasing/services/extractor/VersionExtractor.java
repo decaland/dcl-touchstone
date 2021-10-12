@@ -1,4 +1,4 @@
-package com.github.decaland.touchstone.loadout.layers.releasing.services.extractors;
+package com.github.decaland.touchstone.loadout.layers.releasing.services.extractor;
 
 import com.github.decaland.touchstone.loadout.layers.releasing.models.IllegalVersionException;
 import com.github.decaland.touchstone.loadout.layers.releasing.models.Version;
@@ -41,9 +41,10 @@ public class VersionExtractor {
         try {
             return new Version(versionString);
         } catch (IllegalVersionException exception) {
-            throw new GradleException(String.format(
-                    "File '%s' contains invalid current version '%s'", GRADLE_PROPERTIES, versionString
-            ));
+            throw new GradleException(
+                    String.format("File '%s' contains invalid current version '%s'", GRADLE_PROPERTIES, versionString),
+                    exception
+            );
         }
     }
 

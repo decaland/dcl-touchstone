@@ -4,17 +4,17 @@ import com.github.decaland.touchstone.loadout.Loadout;
 import com.github.decaland.touchstone.loadout.layers.ProjectAwareLayer;
 import com.github.decaland.touchstone.loadout.layers.releasing.services.ReleaseConductor;
 import com.github.decaland.touchstone.utils.lazy.Lazy;
-import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.initialization.IncludedBuild;
+import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.publish.plugins.PublishingPlugin;
 import org.gradle.api.tasks.TaskProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.github.decaland.touchstone.configs.BuildParametersManifest.PROP_KEY_SERPNET;
 import static org.gradle.api.Project.PATH_SEPARATOR;
@@ -23,9 +23,12 @@ import static org.gradle.language.base.plugins.LifecycleBasePlugin.*;
 
 public class ReleaseFlowLayer extends ProjectAwareLayer {
 
+    public static final String RELEASE_MESSAGE_MARKER = "[RELEASE]";
+
     public static final String TASK_NAME_PLAN_RELEASE = "planRelease";
     public static final String TASK_NAME_CREATE_RELEASE = "createRelease";
-    public static final String TASK_NAME_FINALIZE_RELEASE = "finalizeRelease";
+    public static final String TASK_NAME_CREATE_NEXT = "createNext";
+    public static final String TASK_NAME_PUSH_RELEASE = "pushRelease";
 
     public static final String TASK_NAME_RELEASE = "release";
     public static final String GROUP_NAME_RELEASE = "Release";
@@ -37,25 +40,15 @@ public class ReleaseFlowLayer extends ProjectAwareLayer {
     }
 
     private Project project;
+    private Project rootProject;
     private Lazy<ReleaseConductor> releaseConductor;
 
     @Override
     public void apply(Project project, Loadout.Layers layers) {
-        // Store reference to the project
+        // Store reference to both current project and root project of the hierarchy
         this.project = project;
-        this.releaseConductor = ReleaseConductor.lazyFor(project);
-
-        // Check for included builds: this is incompatible with GradleBuild task types
-        Collection<IncludedBuild> includedBuilds = project.getGradle().getIncludedBuilds();
-        if (!includedBuilds.isEmpty()) {
-            throw new GradleException(String.format(
-                    "Release flow is incompatible with Gradle composite builds;" +
-                            " the following included builds must be removed: '%s'",
-                    includedBuilds.stream()
-                            .map(IncludedBuild::getName)
-                            .collect(Collectors.joining("', '"))
-            ));
-        }
+        this.rootProject = project.getRootProject();
+        this.releaseConductor = ReleaseConductor.lazyFor(rootProject);
 
         // Register tasks
         TaskProvider<Task> releaseTask =
@@ -63,44 +56,41 @@ public class ReleaseFlowLayer extends ProjectAwareLayer {
         TaskProvider<Task> planReleaseTask =
                 registerReleaseTask(TASK_NAME_PLAN_RELEASE, "Establishes release plan");
         TaskProvider<Task> createReleaseTask =
-                registerReleaseTask(TASK_NAME_CREATE_RELEASE, "Creates release commit");
-        TaskProvider<Task> finalizeReleaseTask =
-                registerReleaseTask(TASK_NAME_FINALIZE_RELEASE, "Cleans up and creates next iteration");
+                registerReleaseTask(TASK_NAME_CREATE_RELEASE, "Creates, tags, and merges release commit");
+        TaskProvider<Task> createNextTask =
+                registerReleaseTask(TASK_NAME_CREATE_NEXT, "Creates and merges next-iteration commit");
+        TaskProvider<Task> pushReleaseTask =
+                registerReleaseTask(TASK_NAME_PUSH_RELEASE, "Pushes release-related commits");
+
+        List<Task> publishTasks = Stream.of(
+                        ASSEMBLE_TASK_NAME,
+                        CHECK_TASK_NAME,
+                        BUILD_TASK_NAME,
+                        PUBLISH_LIFECYCLE_TASK_NAME
+                )
+                .flatMap(taskName -> rootProject.getTasksByName(taskName, true).stream())
+                .collect(Collectors.toUnmodifiableList());
 
         // Set up dependencies and ordering
-        releaseTask.configure(it -> {
-            it.dependsOn(
-                    planReleaseTask,
-                    createReleaseTask,
-                    finalizeReleaseTask,
-                    project.getTasks().named(ASSEMBLE_TASK_NAME),
-                    project.getTasks().named(CHECK_TASK_NAME),
-                    project.getTasks().named(BUILD_TASK_NAME),
-                    project.getTasks().named(PUBLISH_LIFECYCLE_TASK_NAME)
-            );
-        });
         createReleaseTask.configure(it -> it.dependsOn(planReleaseTask));
-        finalizeReleaseTask.configure(it -> it.dependsOn(planReleaseTask, createReleaseTask));
-        project.getTasks().named(ASSEMBLE_TASK_NAME, it -> it.mustRunAfter(createReleaseTask));
-        project.getTasks().named(CHECK_TASK_NAME, it -> it.mustRunAfter(planReleaseTask));
-        project.getTasks().named(BUILD_TASK_NAME, it -> it.mustRunAfter(createReleaseTask));
+        publishTasks.forEach(it -> it.mustRunAfter(createReleaseTask));
+        createNextTask.configure(it -> it.dependsOn(createReleaseTask, publishTasks));
+        pushReleaseTask.configure(it -> it.dependsOn(createNextTask));
+        releaseTask.configure(it -> it.dependsOn(pushReleaseTask));
 
         // Make sure that when releasing, publishing goes into Serpnet Artifactory
-        String releaseTaskPath = String.format("%s%s", PATH_SEPARATOR, TASK_NAME_RELEASE);
         project.getGradle().getTaskGraph().whenReady(taskGraph -> {
-            if (taskGraph.hasTask(releaseTaskPath) && !project.hasProperty(PROP_KEY_SERPNET)) {
+            if (!project.hasProperty(PROP_KEY_SERPNET) && includesReleaseTask(taskGraph)) {
                 project.getExtensions().getExtraProperties().set(PROP_KEY_SERPNET, "");
             }
-        });
-
-        releaseTask.configure(task -> {
-            task.getProject().getGradle().getStartParameter().newInstance();
         });
 
         // Assign actions to tasks
         planReleaseTask.configure(it -> it.doLast(this::doPlanRelease));
         createReleaseTask.configure(it -> it.doLast(this::doCreateRelease));
-        finalizeReleaseTask.configure(it -> it.doLast(this::doFinalizeRelease));
+        createNextTask.configure(it -> it.doLast(this::doCreateNext));
+        pushReleaseTask.configure(it -> it.doLast(this::doPushRelease));
+        project.getGradle().getTaskGraph().afterTask(this::onAnyFailureAbortRelease);
     }
 
     private @NotNull TaskProvider<Task> registerReleaseTask(
@@ -113,6 +103,14 @@ public class ReleaseFlowLayer extends ProjectAwareLayer {
                 });
     }
 
+    private boolean includesReleaseTask(@NotNull TaskExecutionGraph taskGraph) {
+        String releasePathSuffix = String.format("%s%s", PATH_SEPARATOR, TASK_NAME_RELEASE);
+        return taskGraph.getAllTasks()
+                .stream()
+                .map(Task::getPath)
+                .anyMatch(taskPath -> taskPath.endsWith(releasePathSuffix));
+    }
+
     private void doPlanRelease(Task prepareReleaseTask) {
         releaseConductor.get().planRelease();
     }
@@ -121,7 +119,19 @@ public class ReleaseFlowLayer extends ProjectAwareLayer {
         releaseConductor.get().createRelease();
     }
 
-    private void doFinalizeRelease(Task finalizeReleaseTask) {
-        releaseConductor.get().finalizeRelease();
+    private void doCreateNext(Task createNextTask) {
+        releaseConductor.get().createNext();
+    }
+
+    private void doPushRelease(Task finalizeReleaseTask) {
+        releaseConductor.get().pushRelease();
+    }
+
+    private void onAnyFailureAbortRelease(@NotNull Task anyPrecedingTask) {
+        if (anyPrecedingTask.getState().getFailure() != null) {
+            if (releaseConductor.isInitialized()) {
+                releaseConductor.get().abortRelease();
+            }
+        }
     }
 }

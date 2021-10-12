@@ -7,7 +7,6 @@ import com.github.decaland.touchstone.loadout.layers.configs.RepositoryConfigura
 import com.github.decaland.touchstone.loadout.layers.flavors.JavaLibraryLayer;
 import com.github.decaland.touchstone.loadout.layers.flavors.KotlinLayer;
 import com.github.decaland.touchstone.loadout.layers.flavors.SpringBootLayer;
-import com.github.decaland.touchstone.loadout.layers.releasing.ReleaseFlowLayer;
 import com.github.decaland.touchstone.plugins.DecalandBuildConfigPlugin;
 import com.github.decaland.touchstone.plugins.DecalandPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +25,6 @@ public class DecalandSpringBootLibraryJavaKotlinPlugin extends DecalandBuildConf
                 .add(new RepositoryConfigurationLayer())
                 .add(new DependencyManagementLayer())
                 .add(new MavenPublishLayer())
-                .add(new ReleaseFlowLayer())
                 .add(new JavaLibraryLayer())
                 .add(new KotlinLayer())
                 .add(new SpringBootLayer(false))

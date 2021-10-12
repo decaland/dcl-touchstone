@@ -2,9 +2,8 @@ package com.github.decaland.touchstone.loadout.layers.releasing.services;
 
 import com.github.decaland.touchstone.loadout.layers.releasing.models.ReleasePlan;
 import com.github.decaland.touchstone.loadout.layers.releasing.models.VersionTransition;
-import com.github.decaland.touchstone.loadout.layers.releasing.services.devisers.BranchDeviser;
-import com.github.decaland.touchstone.loadout.layers.releasing.services.extractors.VersionExtractor;
-import com.github.decaland.touchstone.loadout.layers.releasing.steps.ReleaseStep;
+import com.github.decaland.touchstone.loadout.layers.releasing.services.planner.ReleasePlanner;
+import com.github.decaland.touchstone.loadout.layers.releasing.services.steps.ReleaseStepper;
 import com.github.decaland.touchstone.utils.lazy.Lazy;
 import com.github.decaland.touchstone.utils.scm.git.GitAdapter;
 import org.gradle.api.GradleException;
@@ -13,27 +12,27 @@ import org.gradle.api.logging.Logger;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.gradle.api.Project.GRADLE_PROPERTIES;
+import static com.github.decaland.touchstone.loadout.layers.releasing.ReleaseFlowLayer.RELEASE_MESSAGE_MARKER;
 
 public class ReleaseConductor {
 
     private final Project project;
+    private final Lazy<ReleaseStepper> stepper;
     private final Lazy<GitAdapter> git;
-    private final Lazy<BranchDeviser> branchDeviser;
-    private final Lazy<VersionExtractor> versionExtractor;
     private final Lazy<ReleasePlanner> releasePlanner;
 
-    private final Lazy<Deque<ReleaseStep>> stepsPerformed = Lazy.using(ArrayDeque::new);
+    private boolean releaseIsAborted = false;
+    private boolean releaseIsPushed = false;
 
     private static final Map<Project, ReleaseConductor> managedInstances = new HashMap<>();
 
     private ReleaseConductor(@NotNull Project project) {
         this.project = project;
+        this.stepper = ReleaseStepper.lazyFor(project);
         this.git = GitAdapter.lazyFor(project);
-        this.branchDeviser = BranchDeviser.lazyFor(project);
-        this.versionExtractor = VersionExtractor.lazyFor(project);
         this.releasePlanner = ReleasePlanner.lazyFor(project);
     }
 
@@ -46,114 +45,75 @@ public class ReleaseConductor {
         return Lazy.using(() -> ReleaseConductor.forProject(project));
     }
 
-    public void planRelease() {
-        doAnalyze();
+    synchronized public void planRelease() {
+        tryOrAbort(this::doPlanRelease, "analyzing current project state");
     }
 
-    public void createRelease() {
-        doPrepareRelease();
-        doMergeRelease();
+    synchronized public void createRelease() {
+        tryOrAbort(this::doCreateRelease, "creating, tagging, and merging release commit");
     }
 
-    public void finalizeRelease() {
-        doPrepareNext();
-        doMergeNext();
-        doCleanup();
-        doPush();
+    synchronized public void createNext() {
+        tryOrAbort(this::doCreateNext, "creating and merging next-iteration commit");
     }
 
-    private void doAnalyze() {
+    synchronized public void pushRelease() {
+        tryOrAbort(this::doPushRelease, "pushing release-related commits");
+    }
+
+    private void doPlanRelease() {
+        git.get().requireCleanWorkTree();
+        stepper.get().startAtDev();
+        announceIntentions(releasePlanner.get().getReleasePlan());
+    }
+
+    private void doCreateRelease() {
+        ReleaseStepper stepper = this.stepper.get();
+        stepper.createTemp();
+        stepper.updateToRelease();
+        stepper.mergeIntoMain();
+        stepper.tagRelease();
+    }
+
+    private void doCreateNext() {
+        ReleaseStepper stepper = this.stepper.get();
+        stepper.switchToTemp();
+        stepper.updateToNext();
+        stepper.mergeIntoDev();
+        stepper.deleteTemp();
+    }
+
+    private void doPushRelease() {
+        stepper.get().pushRelease();
+        releaseIsPushed = true;
+    }
+
+    private void tryOrAbort(@NotNull Runnable activity, @NotNull String activityDescription) {
         try {
-            GitAdapter git = this.git.get();
-            git.requireCleanWorkTree();
-            git.checkout(branchDeviser.get().deviseDevBranch());
-            announceIntentions(releasePlanner.get().getReleasePlan());
-        } catch (GradleException exception) {
-            throw new GradleException(String.format(
-                    "Halted release while analyzing current project state: %s", exception.getMessage()
-            ));
+            activity.run();
+        } catch (Exception exception) {
+            abortRelease();
+            throw new GradleException(
+                    String.format("Halted release while %s: %s", activityDescription, exception.getMessage()),
+                    exception
+            );
         }
     }
 
-    private void doPrepareRelease() {
-        try {
-            GitAdapter git = this.git.get();
-            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
-            VersionTransition versionTransition = releasePlan.getVersionTransition();
-            git.checkoutNew(releasePlan.getReleaseBranch());
-            versionExtractor.get().replaceVersion(versionTransition.getCurrent(), versionTransition.getRelease());
-            git.commitFiles(releasePlan.getReleaseCommitMsg(), GRADLE_PROPERTIES);
-            git.tagCurrentCommit(releasePlan.getReleaseTag());
-        } catch (GradleException exception) {
-            throw new GradleException(String.format(
-                    "Error while preparing release commit: %s", exception.getMessage()
-            ));
+    synchronized public void abortRelease() {
+        if (releaseIsAborted) {
+            return;
         }
-    }
-
-    private void doMergeRelease() {
-        try {
-            GitAdapter git = this.git.get();
-            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
-            git.checkout(releasePlan.getMainBranch());
-            git.mergeIntoCurrentBranch(releasePlan.getReleaseBranch());
-        } catch (GradleException exception) {
-            throw new GradleException(String.format(
-                    "Error while merging release into main branch: %s", exception.getMessage()
-            ));
+        if (releaseIsPushed) {
+            project.getLogger().error(
+                    "{} Unable to abort release after changes are already pushed",
+                    RELEASE_MESSAGE_MARKER
+            );
+            return;
         }
-    }
-
-    private void doPrepareNext() {
-        try {
-            GitAdapter git = this.git.get();
-            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
-            VersionTransition versionTransition = releasePlan.getVersionTransition();
-            git.checkout(releasePlan.getReleaseBranch());
-            versionExtractor.get().replaceVersion(versionTransition.getRelease(), versionTransition.getNext());
-            git.commitFiles(releasePlan.getNextCommitMsg(), GRADLE_PROPERTIES);
-        } catch (GradleException exception) {
-            throw new GradleException(String.format(
-                    "Error while preparing next iteration commit: %s", exception.getMessage()
-            ));
-        }
-    }
-
-    private void doMergeNext() {
-        try {
-            GitAdapter git = this.git.get();
-            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
-            git.checkout(releasePlan.getDevBranch());
-            git.mergeIntoCurrentBranch(releasePlan.getReleaseBranch());
-        } catch (GradleException exception) {
-            throw new GradleException(String.format(
-                    "Error while merging next iteration into dev branch: %s", exception.getMessage()
-            ));
-        }
-    }
-
-    private void doCleanup() {
-        try {
-            GitAdapter git = this.git.get();
-            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
-            git.delete(releasePlan.getReleaseBranch());
-        } catch (GradleException exception) {
-            throw new GradleException(String.format(
-                    "Error while cleaning up after release: %s", exception.getMessage()
-            ));
-        }
-    }
-
-    private void doPush() {
-        try {
-            GitAdapter git = this.git.get();
-            ReleasePlan releasePlan = releasePlanner.get().getReleasePlan();
-            git.push(releasePlan.getMainBranch(), releasePlan.getDevBranch(), releasePlan.getReleaseTag());
-        } catch (GradleException exception) {
-            throw new GradleException(String.format(
-                    "Error while pushing release objects: %s", exception.getMessage()
-            ));
-        }
+        project.getLogger().error("{} Aborting release", RELEASE_MESSAGE_MARKER);
+        stepper.get().revertSteps();
+        releaseIsAborted = true;
     }
 
     private void announceIntentions(@NotNull ReleasePlan releasePlan) {
@@ -163,53 +123,20 @@ public class ReleaseConductor {
         }
         VersionTransition versionTransition = releasePlan.getVersionTransition();
         logger.lifecycle(
-                "Releasing project '{}': current version is '{}'," +
-                        " releasing version '{}', next version will be '{}';" +
-                        " Splitting from branch '{}', merging into branch '{}'",
-                project.getName(), versionTransition.getCurrent(),
-                versionTransition.getRelease(), versionTransition.getNext(),
-                releasePlan.getDevBranch().getName(), releasePlan.getMainBranch().getName()
+                "{} Release plan for project '{}':\n" +
+                        "Working directory       : {}\n" +
+                        "Current version         : {}\n" +
+                        "Releasing version       : {}\n" +
+                        "Next iteration          : {}\n" +
+                        "Taking source from      : branch '{}' (currently at commit '{}')\n" +
+                        "Merging release into    : branch '{}' (currently at commit '{}')",
+                RELEASE_MESSAGE_MARKER, project.getName(),
+                project.getProjectDir().getAbsolutePath(),
+                versionTransition.getCurrent(),
+                versionTransition.getRelease(),
+                versionTransition.getNext(),
+                releasePlan.getDevBranch().getName(), releasePlan.getDevBranchOrigin().getShortSha(),
+                releasePlan.getMainBranch().getName(), releasePlan.getMainBranchOrigin().getShortSha()
         );
-    }
-
-    private synchronized void revertSteps() {
-        Deque<ReleaseStep> stepsPerformed = this.stepsPerformed.get();
-        while (!stepsPerformed.isEmpty()) {
-            try {
-                stepsPerformed.pop().revert();
-            } catch (Exception exception) {
-                if (stepsPerformed.isEmpty()) throw exception;
-                String newMessage = String.format(
-                        "%s; Consequently, the following steps were not reverted: %s",
-                        exception.getMessage(),
-                        describeRemainingSteps()
-                );
-                if (exception instanceof GradleException) {
-                    throw new GradleException(newMessage, exception);
-                } else {
-                    throw new RuntimeException(newMessage, exception);
-                }
-            }
-        }
-    }
-
-    private @NotNull String describeRemainingSteps() {
-        Iterator<ReleaseStep> iterator = stepsPerformed.get().descendingIterator();
-        ReleaseStep lastStep = iterator.next();
-        StringBuilder stepList = new StringBuilder()
-                .append(String.format(
-                        "%s (%s)",
-                        lastStep.getClass().getSimpleName(),
-                        lastStep.getStepDescription()
-                ));
-        while (iterator.hasNext()) {
-            lastStep = iterator.next();
-            stepList.append(String.format(
-                    ", %s (%s)",
-                    lastStep.getClass().getSimpleName(),
-                    lastStep.getStepDescription()
-            ));
-        }
-        return stepList.toString();
     }
 }

@@ -14,7 +14,7 @@ class CommonPatternMatcher {
     public static final String PATTERN_SHA = "^[0-9a-fA-F]{40}$";
 
     @RegExp
-    public static final String PATTERN_REF_NAME = "^[\\w.-]+(/[\\w.-]+)+$";
+    public static final String PATTERN_REF_NAME = "^[\\w.-]+(/[\\w.-]+)*$";
 
     @RegExp
     public static final String PATTERN_COMMIT_MESSAGE = "^[^\\s\"][^\"]*[^\\s\"]$";

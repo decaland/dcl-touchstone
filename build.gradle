@@ -151,7 +151,6 @@ publishing {
 gradlePluginDevelopmentExtension.plugins { pluginContainer ->
 
     // Artifact type plugins
-
     pluginContainer.create("decalandLibraryJava") { plugin ->
         plugin.id = 'dcl-lib-java'
         plugin.displayName = 'Decaland library written in Java'
@@ -189,9 +188,7 @@ gradlePluginDevelopmentExtension.plugins { pluginContainer ->
         plugin.implementationClass = 'com.github.decaland.touchstone.plugins.builds.DecalandSpringBootApplicationJavaKotlinPlugin'
     }
 
-
     // Dependency collection plugins
-
     pluginContainer.create("decalandUsesJunitFive") { plugin ->
         plugin.id = 'dcl-uses-junit-five'
         plugin.displayName = 'Decaland jUnit5 dependencies'

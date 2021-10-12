@@ -13,7 +13,11 @@ public class GitBranch extends GitRef {
         super(Type.BRANCH, name);
     }
 
-    public static GitBranch named(@NotNull String name) {
+    public static @NotNull GitBranch named(@NotNull String name) {
         return managedInstances.computeIfAbsent(name, GitBranch::new);
+    }
+
+    public GitBranchSnapshot asSnapshot(@NotNull GitAdapter git) {
+        return new GitBranchSnapshot(this, git.locate(this));
     }
 }

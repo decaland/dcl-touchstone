@@ -55,9 +55,10 @@ public class VersionDeviser {
         try {
             return new Version(releaseVersionString);
         } catch (IllegalVersionException exception) {
-            throw new GradleException(String.format(
-                    "Received invalid release version '%s'", releaseVersionString
-            ));
+            throw new GradleException(
+                    String.format("Received invalid release version '%s'", releaseVersionString),
+                    exception
+            );
         }
     }
 

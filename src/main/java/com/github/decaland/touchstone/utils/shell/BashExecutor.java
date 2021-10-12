@@ -59,9 +59,10 @@ public class BashExecutor implements ShellExecutor {
                 execSpec.setErrorOutput(nullOutputStream());
             });
         } catch (ExecException exception) {
-            throw new GradleException(String.format(
-                    "Failed to access required executable `%s` in current system", executable
-            ));
+            throw new GradleException(
+                    String.format("Failed to access required executable `%s` in current system", executable),
+                    exception
+            );
         }
     }
 
@@ -69,7 +70,7 @@ public class BashExecutor implements ShellExecutor {
     @Override
     synchronized public @NotNull ExecutionResult exec(@NotNull String command) {
         if (logger.isInfoEnabled()) {
-            logger.info("Executing command `{}` in shell `{}`", command, BASH_EXECUTABLE);
+            logger.info("Executing {} command: {}", BASH_EXECUTABLE, command);
         }
         ByteArrayOutputStream stdOutStream = new ByteArrayOutputStream();
         ByteArrayOutputStream stdErrStream = new ByteArrayOutputStream();
@@ -82,10 +83,13 @@ public class BashExecutor implements ShellExecutor {
                 execSpec.commandLine(BASH_EXECUTABLE, "-c", command);
             });
         } catch (ExecException exception) {
-            throw new GradleException(String.format(
-                    "Unexpected failure while executing command `%s` in shell `%s`: '%s'",
-                    command, BASH_EXECUTABLE, exception.getMessage()
-            ));
+            throw new GradleException(
+                    String.format(
+                            "Unexpected failure while executing %s command `%s`: '%s'",
+                            BASH_EXECUTABLE, command, exception.getMessage()
+                    ),
+                    exception
+            );
         }
         return new ExecutionResult(command, execResult.getExitValue(), stdOutStream, stdErrStream);
     }
@@ -99,12 +103,10 @@ public class BashExecutor implements ShellExecutor {
     public @NotNull ExecutionResult insist(@NotNull String command) {
         ExecutionResult executionResult = exec(command);
         if (executionResult.exitedAbnormally()) {
-            if (logger.isErrorEnabled()) {
-                logger.error(executionResult.getSummary());
-            }
+            logger.error(executionResult.getSummary());
             throw new GradleException(String.format(
-                    "Unexpected exit value while executing command `%s` in shell `%s`",
-                    command, BASH_EXECUTABLE
+                    "Unexpected exit value while executing %s command: %s",
+                    BASH_EXECUTABLE, command
             ));
         }
         return executionResult;

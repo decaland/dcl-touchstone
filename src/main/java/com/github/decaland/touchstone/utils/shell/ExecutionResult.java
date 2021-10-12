@@ -47,14 +47,14 @@ public class ExecutionResult {
 
     public synchronized @NotNull String getStdOut() {
         if (this.stdOut == null) {
-            this.stdOut = this.stdOutStream.toString(StandardCharsets.UTF_8);
+            this.stdOut = this.stdOutStream.toString(StandardCharsets.UTF_8).strip();
         }
         return this.stdOut;
     }
 
     public synchronized @NotNull String getStdErr() {
         if (this.stdErr == null) {
-            this.stdErr = this.stdErrStream.toString(StandardCharsets.UTF_8);
+            this.stdErr = this.stdErrStream.toString(StandardCharsets.UTF_8).strip();
         }
         return this.stdErr;
     }
@@ -72,7 +72,7 @@ public class ExecutionResult {
                         ? "Successfully executed"
                         : String.format("Abnormal exit value '%d' after executing", exitValue)
         ) + (
-                String.format(" Bash command `%s`", command)
+                String.format(" command `%s`", command)
         ) + (
                 (stdOutStream.size() > 0 || stdErrStream.size() > 0) ? ":" : ""
         ) + (

@@ -47,6 +47,7 @@ update_license_year() {
 
   if [ "$lic_year_str" = "$cur_year" ]; then
     printf >&2 "%s License year is up to date: '%s'\n" "$SUCCESS" "$lic_year_str"
+    return 0
   else
     printf >&2 "%s Updating license year from '%s' to '%s'\n" \
       "$WARNING" "$lic_year_str" "$new_lic_year_str"

@@ -1,24 +1,34 @@
-package com.github.decaland.touchstone.loadout.layers.releasing.steps;
+package com.github.decaland.touchstone.loadout.layers.releasing.services.steps;
 
+import com.github.decaland.touchstone.utils.scm.git.GitAdapter;
 import org.gradle.api.GradleException;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class ReleaseStep {
 
-    public final void revert() {
+    protected final GitAdapter git;
+
+    @Contract(pure = true)
+    public ReleaseStep(@NotNull GitAdapter git) {
+        this.git = git;
+    }
+
+    synchronized public final void perform() {
         try {
-            doRevert();
+            doPerform();
         } catch (Exception exception) {
-            handleException(exception, false);
+            handleException(exception, true);
         }
     }
 
-    protected abstract void doRevert();
+    protected abstract void doPerform();
 
-    protected abstract Class<? extends ReleaseStep> getCurrentClass();
+    protected abstract @NotNull Class<? extends ReleaseStep> getCurrentClass();
 
-    public abstract String getStepDescription();
+    public abstract @NotNull String getStepDescription();
 
-    protected final void handleException(Exception exception, boolean whilePerforming) {
+    protected final void handleException(@NotNull Exception exception, boolean whilePerforming) {
         boolean isGradleException = (exception instanceof GradleException);
         StringBuilder message = new StringBuilder();
         if (isGradleException) {
@@ -31,9 +41,8 @@ public abstract class ReleaseStep {
             ));
         }
         message.append(String.format(
-                " release step %s ('%s'): %s",
+                " release step %s: %s",
                 getCurrentClass().getSimpleName(),
-                getStepDescription(),
                 exception.getMessage()
         ));
         if (isGradleException) {

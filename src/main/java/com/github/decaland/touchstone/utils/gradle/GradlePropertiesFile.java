@@ -64,7 +64,7 @@ public class GradlePropertiesFile {
 
     public @NotNull String require(@NotNull String key) {
         return get(key).orElseThrow(() -> new GradleException(String.format(
-                "Failed to find project property key '%s' in file '%s'", key, GRADLE_PROPERTIES
+                "Failed to find project property key '%s' in '%s' file", key, GRADLE_PROPERTIES
         )));
     }
 
@@ -73,9 +73,10 @@ public class GradlePropertiesFile {
             return getFile().matchFirst(requireKeyValuePattern(key))
                     .map(match -> match.group(2).strip());
         } catch (FileWranglingException exception) {
-            throw new GradleException(String.format(
-                    "Failed while extracting version from file '%s'", GRADLE_PROPERTIES
-            ));
+            throw new GradleException(
+                    String.format("Failed while extracting version from '%s' file", GRADLE_PROPERTIES),
+                    exception
+            );
         }
     }
 
@@ -95,10 +96,13 @@ public class GradlePropertiesFile {
                     }
             );
         } catch (FileWranglingException exception) {
-            throw new GradleException(String.format(
-                    "Failed while updating Gradle property '%s' from '%s' to '%s' in '%s' file",
-                    key, oldValue, newValue, GRADLE_PROPERTIES
-            ));
+            throw new GradleException(
+                    String.format(
+                            "Failed while updating Gradle property '%s' from '%s' to '%s' in '%s' file",
+                            key, oldValue, newValue, GRADLE_PROPERTIES
+                    ),
+                    exception
+            );
         }
         if (!successfullyUpdated) {
             throw new GradleException(String.format(
@@ -119,9 +123,13 @@ public class GradlePropertiesFile {
         try {
             return getFile().contains(requireKeyValuePattern(key));
         } catch (FileWranglingException exception) {
-            throw new GradleException(String.format(
-                    "Failed while searching for Gradle property key '%s' in '%s' file", key, GRADLE_PROPERTIES
-            ));
+            throw new GradleException(
+                    String.format(
+                            "Failed while searching for Gradle property key '%s' in '%s' file",
+                            key, GRADLE_PROPERTIES
+                    ),
+                    exception
+            );
         }
     }
 

@@ -20,13 +20,13 @@ public abstract class GitRef {
             @NotNull Type type,
             @NotNull String name
     ) {
-        validateRefName(name);
         this.type = type;
         this.name = name;
+        validateRefName();
         this.fullName = String.format("%s%s", type.getNamePrefix(), name);
     }
 
-    protected void validateRefName(@NotNull String name) {
+    protected void validateRefName() {
         if (name.isBlank()) {
             throw new GradleException(String.format(
                     "Attempted to refer to %s with blank name",

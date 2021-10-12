@@ -1,9 +1,9 @@
 package com.github.decaland.touchstone.loadout.layers.releasing.models;
 
-import com.github.decaland.touchstone.utils.scm.git.GitBranch;
-import com.github.decaland.touchstone.utils.scm.git.GitCommitMessage;
-import com.github.decaland.touchstone.utils.scm.git.GitTag;
+import com.github.decaland.touchstone.utils.scm.git.*;
 import org.jetbrains.annotations.NotNull;
+
+import static com.github.decaland.touchstone.loadout.layers.releasing.ReleaseFlowLayer.RELEASE_MESSAGE_MARKER;
 
 public class ReleasePlan {
 
@@ -14,36 +14,29 @@ public class ReleasePlan {
     private final GitTag releaseTag;
     private final GitCommitMessage releaseCommitMsg;
     private final GitCommitMessage nextCommitMsg;
-
-    /*
-    private final VersionTransition versionTransition;
-    private final String mainBranch;
-    private final String devBranch;
-    private final String releaseBranch;
-    private final String releaseTag;
-    private final String releaseTagMsg;
-    private final String releaseCommitMsg;
-    private final String nextCommitMsg;
-    */
+    private final GitObject mainBranchOrigin;
+    private final GitObject devBranchOrigin;
 
     public ReleasePlan(
             @NotNull VersionTransition versionTransition,
-            @NotNull GitBranch mainBranch,
-            @NotNull GitBranch devBranch
+            @NotNull GitBranchSnapshot mainBranchSnapshot,
+            @NotNull GitBranchSnapshot devBranchSnapshot
     ) {
         this.versionTransition = versionTransition;
-        this.mainBranch = mainBranch;
-        this.devBranch = devBranch;
+        this.mainBranch = mainBranchSnapshot.getBranch();
+        this.devBranch = devBranchSnapshot.getBranch();
+        this.mainBranchOrigin = mainBranchSnapshot.getLocation();
+        this.devBranchOrigin = devBranchSnapshot.getLocation();
         this.releaseBranch = GitBranch.named(String.format("release/%s", versionTransition.getRelease()));
         this.releaseTag = GitTag.from(
                 String.format("v%s", versionTransition.getRelease()),
-                String.format("[release] Version %s", versionTransition.getRelease())
+                String.format("%s Version %s", RELEASE_MESSAGE_MARKER, versionTransition.getRelease())
         );
         this.releaseCommitMsg = new GitCommitMessage(
-                String.format("[release] Finalize version %s", versionTransition.getRelease())
+                String.format("%s Finalize version %s", RELEASE_MESSAGE_MARKER, versionTransition.getRelease())
         );
         this.nextCommitMsg = new GitCommitMessage(
-                String.format("[release] Introduce version %s", versionTransition.getNext())
+                String.format("%s Introduce version %s", RELEASE_MESSAGE_MARKER, versionTransition.getNext())
         );
     }
 
@@ -73,5 +66,13 @@ public class ReleasePlan {
 
     public GitCommitMessage getNextCommitMsg() {
         return nextCommitMsg;
+    }
+
+    public GitObject getMainBranchOrigin() {
+        return mainBranchOrigin;
+    }
+
+    public GitObject getDevBranchOrigin() {
+        return devBranchOrigin;
     }
 }

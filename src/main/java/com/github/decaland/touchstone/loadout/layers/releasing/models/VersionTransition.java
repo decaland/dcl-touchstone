@@ -53,10 +53,10 @@ public class VersionTransition {
                     true
             );
         } catch (IllegalVersionException exception) {
-            throw new GradleException(String.format(
-                    "Failed to prepare next snapshot from version '%s'",
-                    release
-            ));
+            throw new GradleException(
+                    String.format("Failed to prepare next snapshot from version '%s'", release),
+                    exception
+            );
         }
     }
 
@@ -95,10 +95,10 @@ public class VersionTransition {
                     ));
             }
         } catch (IllegalVersionException exception) {
-            throw new GradleException(String.format(
-                    "Failed to increment version '%s' using strategy '%s'",
-                    current, strategy
-            ));
+            throw new GradleException(
+                    String.format("Failed to increment version '%s' using strategy '%s'", current, strategy),
+                    exception
+            );
         }
     }
 
@@ -159,10 +159,7 @@ public class VersionTransition {
             ));
         }
         if (release.isSnapshot()) {
-            throw new GradleException(String.format(
-                    "Unable to release snapshot version '%s'",
-                    release
-            ));
+            throw new GradleException(String.format("Unable to release snapshot version '%s'", release));
         }
         if (release.getPatchAsInt() == Integer.MAX_VALUE) {
             throw new GradleException(String.format(

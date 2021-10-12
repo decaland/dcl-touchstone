@@ -1,12 +1,14 @@
-package com.github.decaland.touchstone.loadout.layers.releasing.services;
+package com.github.decaland.touchstone.loadout.layers.releasing.services.planner;
 
 import com.github.decaland.touchstone.loadout.layers.releasing.models.ReleasePlan;
 import com.github.decaland.touchstone.loadout.layers.releasing.models.VersionTransition;
 import com.github.decaland.touchstone.loadout.layers.releasing.services.devisers.BranchDeviser;
 import com.github.decaland.touchstone.loadout.layers.releasing.services.devisers.VersionDeviser;
-import com.github.decaland.touchstone.loadout.layers.releasing.services.extractors.VersionExtractor;
+import com.github.decaland.touchstone.loadout.layers.releasing.services.extractor.VersionExtractor;
 import com.github.decaland.touchstone.utils.gradle.GradleProperties;
 import com.github.decaland.touchstone.utils.lazy.Lazy;
+import com.github.decaland.touchstone.utils.scm.git.GitAdapter;
+import com.github.decaland.touchstone.utils.scm.git.GitBranchSnapshot;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.Contract;
@@ -20,6 +22,7 @@ import static com.github.decaland.touchstone.loadout.layers.releasing.services.d
 
 public class ReleasePlanner {
 
+    private final Lazy<GitAdapter> git;
     private final Lazy<GradleProperties> gradleProperties;
     private final Lazy<BranchDeviser> branchDeviser;
     private final Lazy<VersionDeviser> versionDeviser;
@@ -32,6 +35,7 @@ public class ReleasePlanner {
 
     @Contract(pure = true)
     private ReleasePlanner(@NotNull Project project) {
+        this.git = GitAdapter.lazyFor(project);
         this.gradleProperties = GradleProperties.lazyFor(project);
         this.branchDeviser = BranchDeviser.lazyFor(project);
         this.versionDeviser = VersionDeviser.lazyFor(project);
@@ -60,11 +64,10 @@ public class ReleasePlanner {
     @Contract(" -> new")
     private @NotNull ReleasePlan planRelease() {
         BranchDeviser branchDeviser = this.branchDeviser.get();
-        return new ReleasePlan(
-                getVersionTransition(),
-                branchDeviser.deviseMainBranch(),
-                branchDeviser.deviseDevBranch()
-        );
+        GitAdapter git = this.git.get();
+        GitBranchSnapshot mainBranchSnapshot = branchDeviser.deviseMainBranch().asSnapshot(git);
+        GitBranchSnapshot devBranchSnapshot = branchDeviser.deviseDevBranch().asSnapshot(git);
+        return new ReleasePlan(getVersionTransition(), mainBranchSnapshot, devBranchSnapshot);
     }
 
     private @NotNull VersionTransition planVersionTransition() {

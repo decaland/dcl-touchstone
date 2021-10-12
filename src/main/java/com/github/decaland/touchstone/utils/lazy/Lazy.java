@@ -28,17 +28,27 @@ public final class Lazy<T> {
         return new LazyBuilder<>(source);
     }
 
-    public @NotNull T get() {
+    @Contract(value = "_, _ -> new", pure = true)
+    public static <F, S> @NotNull LazyBiBuilder<F, S> from(@NotNull F firstSource, @NotNull S secondSource) {
+        return new LazyBiBuilder<>(firstSource, secondSource);
+    }
+
+    synchronized public @NotNull T get() {
         if (instance == null) {
             try {
                 instance = Objects.requireNonNull(supplier.get());
             } catch (NullPointerException exception) {
                 throw new RuntimeException(
-                        "Lazily generated object received a supplier function that yielded null value"
+                        "Lazily generated object received a supplier function that yielded null value", exception
                 );
             }
         }
         return instance;
+    }
+
+    @Contract(pure = true)
+    synchronized public boolean isInitialized() {
+        return instance != null;
     }
 
     public static final class LazyBuilder<S> {
@@ -53,6 +63,11 @@ public final class Lazy<T> {
         @Contract(value = "_ -> new", pure = true)
         public <T> @NotNull Lazy<T> using(@NotNull Function<S, T> mappingFunction) {
             return new Lazy<>(() -> mappingFunction.apply(source));
+        }
+
+        @Contract(pure = true)
+        public @NotNull S getSource() {
+            return source;
         }
     }
 
@@ -70,6 +85,16 @@ public final class Lazy<T> {
         @Contract(value = "_ -> new", pure = true)
         public <T> @NotNull Lazy<T> using(@NotNull BiFunction<F, S, T> mappingFunction) {
             return new Lazy<>(() -> mappingFunction.apply(firstSource, secondSource));
+        }
+
+        @Contract(pure = true)
+        public @NotNull F getFirstSource() {
+            return firstSource;
+        }
+
+        @Contract(pure = true)
+        public @NotNull S getSecondSource() {
+            return secondSource;
         }
     }
 }

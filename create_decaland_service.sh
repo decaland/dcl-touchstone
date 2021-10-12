@@ -218,7 +218,7 @@ create_service() {
   printf >&2 "\nCreating '%s'...\n" "${GREEN}${BOLD}${FULL_SERVICE_NAME}${NORMAL}"
 
   if mkdir "$SERVICE_DIRPATH"; then
-    printf >&2 'Created directory: %s\n' "$SERVICE_DIRPATH"
+    printf >&2 'Created directory : %s\n' "$SERVICE_DIRPATH"
   else
     printf >&2 '%s Failed while creating service directory: %s\n' "$ERROR" "$SERVICE_DIRPATH"
     exit 1
@@ -279,7 +279,6 @@ create_service() {
   local file_names=(
     '.gitattributes'
     '.gitignore'
-    'build.gradle'
     'Dockerfile'
     'gradle.properties'
     'gradlew'
