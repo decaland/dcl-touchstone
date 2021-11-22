@@ -17,10 +17,14 @@ class CommonPatternMatcher {
     public static final String PATTERN_REF_NAME = "^[\\w.-]+(/[\\w.-]+)*$";
 
     @RegExp
+    public static final String PATTERN_REMOTE_NAME = "^[\\w.-]+(/[\\w.-]+)*$";
+
+    @RegExp
     public static final String PATTERN_COMMIT_MESSAGE = "^[^\\s\"][^\"]*[^\\s\"]$";
 
     private final Lazy<Matcher> shaMatcher;
     private final Lazy<Matcher> refNameMatcher;
+    private final Lazy<Matcher> remoteNameMatcher;
     private final Lazy<Matcher> commitMessageMatcher;
 
     private static CommonPatternMatcher instance;
@@ -29,6 +33,7 @@ class CommonPatternMatcher {
     private CommonPatternMatcher() {
         shaMatcher = Lazy.using(() -> compile(PATTERN_SHA));
         refNameMatcher = Lazy.using(() -> compile(PATTERN_REF_NAME));
+        remoteNameMatcher = Lazy.using(() -> compile(PATTERN_REMOTE_NAME));
         commitMessageMatcher = Lazy.using(() -> compile(PATTERN_COMMIT_MESSAGE));
     }
 
@@ -50,6 +55,10 @@ class CommonPatternMatcher {
 
     public boolean refNameMatches(@NotNull String input) {
         return refNameMatcher.get().reset(input).matches();
+    }
+
+    public boolean remoteNameMatches(@NotNull String input) {
+        return remoteNameMatcher.get().reset(input).matches();
     }
 
     public boolean commitMessageMatches(@NotNull String input) {

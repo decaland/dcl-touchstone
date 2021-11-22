@@ -9,12 +9,15 @@ import com.github.decaland.touchstone.utils.gradle.GradleProperties;
 import com.github.decaland.touchstone.utils.lazy.Lazy;
 import com.github.decaland.touchstone.utils.scm.git.GitAdapter;
 import com.github.decaland.touchstone.utils.scm.git.GitBranchSnapshot;
+import com.github.decaland.touchstone.utils.scm.git.GitRemote;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.github.decaland.touchstone.loadout.layers.releasing.services.devisers.VersionDeviser.PROPERTY_KEY_RELEASE_VERSION;
@@ -67,7 +70,12 @@ public class ReleasePlanner {
         GitAdapter git = this.git.get();
         GitBranchSnapshot mainBranchSnapshot = branchDeviser.deviseMainBranch().asSnapshot(git);
         GitBranchSnapshot devBranchSnapshot = branchDeviser.deviseDevBranch().asSnapshot(git);
-        return new ReleasePlan(getVersionTransition(), mainBranchSnapshot, devBranchSnapshot);
+        return new ReleasePlan(
+                getVersionTransition(),
+                mainBranchSnapshot,
+                devBranchSnapshot,
+                getRemotes()
+        );
     }
 
     private @NotNull VersionTransition planVersionTransition() {
@@ -90,5 +98,11 @@ public class ReleasePlanner {
                 versionExtractor.get().extractVersion(),
                 versionDeviser.get().deviseVersionStrategy()
         );
+    }
+
+    private List<GitRemote> getRemotes() {
+        GradleProperties gradleProperties = this.gradleProperties.get();
+        // TODO: Go on
+        return Collections.emptyList();
     }
 }

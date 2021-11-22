@@ -3,6 +3,9 @@ package com.github.decaland.touchstone.loadout.layers.releasing.models;
 import com.github.decaland.touchstone.utils.scm.git.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.List;
+
 import static com.github.decaland.touchstone.loadout.layers.releasing.ReleaseFlowLayer.RELEASE_MESSAGE_MARKER;
 
 public class ReleasePlan {
@@ -16,11 +19,13 @@ public class ReleasePlan {
     private final GitCommitMessage nextCommitMsg;
     private final GitObject mainBranchOrigin;
     private final GitObject devBranchOrigin;
+    private final List<GitRemote> remotes;
 
     public ReleasePlan(
             @NotNull VersionTransition versionTransition,
             @NotNull GitBranchSnapshot mainBranchSnapshot,
-            @NotNull GitBranchSnapshot devBranchSnapshot
+            @NotNull GitBranchSnapshot devBranchSnapshot,
+            @NotNull List<GitRemote> remotes
     ) {
         this.versionTransition = versionTransition;
         this.mainBranch = mainBranchSnapshot.getBranch();
@@ -38,6 +43,7 @@ public class ReleasePlan {
         this.nextCommitMsg = new GitCommitMessage(
                 String.format("%s Introduce version %s", RELEASE_MESSAGE_MARKER, versionTransition.getNext())
         );
+        this.remotes = Collections.unmodifiableList(remotes);
     }
 
     public VersionTransition getVersionTransition() {
@@ -74,5 +80,9 @@ public class ReleasePlan {
 
     public GitObject getDevBranchOrigin() {
         return devBranchOrigin;
+    }
+
+    public List<GitRemote> getRemotes() {
+        return remotes;
     }
 }
