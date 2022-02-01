@@ -2,7 +2,8 @@
 :url-gradle-composite: https://docs.gradle.org/current/userguide/composite_builds.html
 :toc: preamble
 
-Custom Gradle plugins that provide the common build configuration for Decaland applications.
+This project offers centralized Gradle build configuration for all application and libraries in the Decaland ecosystem.
+The end result is that individual applications will have minimal Gradle configuration
 
 The usage of Touchstone plugins is exemplified by the sub-project `dcl-tabula`, included as part of {url-gradle-composite}[Gradle composite build].
 To create a project based on Touchstone plugins:
@@ -29,9 +30,9 @@ a Spring Boot-based *library* written in pure Java.
 `*dcl-boot-lib-java-kotlin*`::
 a Spring Boot-based *library* written in Java, Kotlin, or mix thereof.
 `*dcl-boot-app-java*`::
-a Spring Boot-based bootable *application* written in pure Java.
+a Spring Boot-based executable *application* written in pure Java.
 `*dcl-boot-app-java-kotlin*`::
-a Spring Boot-based bootable *application* written in Java, Kotlin, or mix thereof.
+a Spring Boot-based executable *application* written in Java, Kotlin, or mix thereof.
 
 === Dependency collection plugins
 
@@ -41,6 +42,7 @@ Unless noted otherwise, any combination of these can be applied.
 [horizontal]
 `*dcl-uses-junit-five*`::
 testing infrastructure centered on jUnit5.
+
 == [[create-service]] How to use
 
 Run the provided `create_decaland_service.sh` script from the root of the  repository:
