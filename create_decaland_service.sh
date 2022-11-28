@@ -199,7 +199,7 @@ announce_intentions() {
   printf >&2 'Service path      : %s\n' "${GREEN}${BOLD}${SERVICE_DIRPATH}${NORMAL}"
   printf >&2 'Service name      : %s\n' "${GREEN}${BOLD}${FULL_SERVICE_NAME}${NORMAL}"
   printf >&2 'Pretty name       : %s\n' "${GREEN}${BOLD}${FULL_PRETTY_NAME}${NORMAL}"
-  printf >&2 'Java package name : %s\n' "${GREEN}${BOLD}${PACKAGE_NAME}${NORMAL}"
+  printf >&2 'Root Java package : %s\n' "${GREEN}${BOLD}${ROOT_PACKAGE}.${PACKAGE_NAME}${NORMAL}"
 }
 
 prompt_user() {
@@ -218,7 +218,7 @@ create_service() {
   printf >&2 "\nCreating '%s'...\n" "${GREEN}${BOLD}${FULL_SERVICE_NAME}${NORMAL}"
 
   if mkdir "$SERVICE_DIRPATH"; then
-    printf >&2 'Created directory: %s\n' "$SERVICE_DIRPATH"
+    printf >&2 'Created directory : %s\n' "$SERVICE_DIRPATH"
   else
     printf >&2 '%s Failed while creating service directory: %s\n' "$ERROR" "$SERVICE_DIRPATH"
     exit 1

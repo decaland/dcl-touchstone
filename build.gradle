@@ -3,6 +3,7 @@ plugins {
     id 'maven-publish'
     id 'groovy'
     id 'idea'
+    id 'dcl-release-flow'
 }
 
 group = 'com.github.decaland.touchstone'
@@ -83,6 +84,9 @@ dependencies {
     implementation "org.jetbrains.dokka:dokka-gradle-plugin:${property('dcl.version.dokka')}"
     implementation "io.freefair.gradle:lombok-plugin:${property('dcl.version.lombok')}"
 
+    // Utility libraries
+    implementation "org.jetbrains:annotations:${property('dcl.version.jetbrains-annotations')}"
+
     // Unit tests use jUnit5, Mockito, and AssertJ
     testImplementation "org.junit.jupiter:junit-jupiter:${property('dcl.version.junit5')}"
     testImplementation "org.mockito:mockito-junit-jupiter:${property('dcl.version.mockito')}"
@@ -145,6 +149,8 @@ publishing {
 
 // Set up metadata of published Touchstone plugins
 gradlePluginDevelopmentExtension.plugins { pluginContainer ->
+
+    // Artifact type plugins
     pluginContainer.create("decalandLibraryJava") { plugin ->
         plugin.id = 'dcl-lib-java'
         plugin.displayName = 'Decaland library written in Java'
@@ -181,6 +187,8 @@ gradlePluginDevelopmentExtension.plugins { pluginContainer ->
         plugin.description = 'Decaland Spring Boot-based application written in Java or Kotlin or both'
         plugin.implementationClass = 'com.github.decaland.touchstone.plugins.builds.DecalandSpringBootApplicationJavaKotlinPlugin'
     }
+
+    // Dependency collection plugins
     pluginContainer.create("decalandUsesJunitFive") { plugin ->
         plugin.id = 'dcl-uses-junit-five'
         plugin.displayName = 'Decaland jUnit5 dependencies'

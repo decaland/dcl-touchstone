@@ -1,0 +1,31 @@
+plugins {
+    id 'java-gradle-plugin'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Jetbrains nullability annotations
+    implementation "org.jetbrains:annotations:21.0.1"
+}
+
+sourceSets {
+    main.java {
+        srcDir '../src/main/java'
+        setIncludes([
+                'com/github/decaland/touchstone/plugins/releasing/DecalandReleaseFlowPlugin.java',
+                'com/github/decaland/touchstone/configs/BuildParametersManifest.java',
+                'com/github/decaland/touchstone/plugins/DecalandPlugin.java',
+                'com/github/decaland/touchstone/plugins/DecalandBasePlugin.java',
+                'com/github/decaland/touchstone/loadout/Loadout.java',
+                'com/github/decaland/touchstone/loadout/BaseLoadout.java',
+                'com/github/decaland/touchstone/loadout/layers/Layer.java',
+                'com/github/decaland/touchstone/loadout/layers/BaseLayer.java',
+                'com/github/decaland/touchstone/loadout/layers/ProjectAwareLayer.java',
+                'com/github/decaland/touchstone/loadout/layers/releasing/**/*.java',
+                'com/github/decaland/touchstone/utils/**/*.java',
+        ])
+    }
+}

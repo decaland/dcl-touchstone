@@ -30,8 +30,8 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     protected Task requireTask(Project project, String taskName) {
         try {
             return Objects.requireNonNull(project.getTasks().findByName(taskName));
-        } catch (NullPointerException ignored) {
-            throw new GradleException(String.format(MSG_MISSING_MANDATORY_TASK, taskName));
+        } catch (NullPointerException exception) {
+            throw new GradleException(String.format(MSG_MISSING_MANDATORY_TASK, taskName), exception);
         }
     }
 
@@ -39,8 +39,8 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     protected SoftwareComponent requireComponent(Project project, String componentName) {
         try {
             return Objects.requireNonNull(project.getComponents().findByName(componentName));
-        } catch (NullPointerException ignored) {
-            throw new GradleException(String.format(MSG_MISSING_MANDATORY_COMPONENT, componentName));
+        } catch (NullPointerException exception) {
+            throw new GradleException(String.format(MSG_MISSING_MANDATORY_COMPONENT, componentName), exception);
         }
     }
 
@@ -48,8 +48,8 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     protected Configuration requireConfiguration(Project project, String configurationName) {
         try {
             return Objects.requireNonNull(project.getConfigurations().findByName(configurationName));
-        } catch (NullPointerException ignored) {
-            throw new GradleException(String.format(MSG_MISSING_MANDATORY_CONFIGURATION, configurationName));
+        } catch (NullPointerException exception) {
+            throw new GradleException(String.format(MSG_MISSING_MANDATORY_CONFIGURATION, configurationName), exception);
         }
     }
 
@@ -57,8 +57,8 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     protected <T> T requireExtension(Project project, Class<T> clazz) {
         try {
             return Objects.requireNonNull(project.getExtensions().findByType(clazz));
-        } catch (NullPointerException ignored) {
-            throw new GradleException(String.format(MSG_MISSING_MANDATORY_EXTENSION, clazz.getSimpleName()));
+        } catch (NullPointerException exception) {
+            throw new GradleException(String.format(MSG_MISSING_MANDATORY_EXTENSION, clazz.getSimpleName()), exception);
         }
     }
 
@@ -66,8 +66,8 @@ public abstract class ProjectAwareLayer extends BaseLayer {
     protected Object requireProjectProperty(Project project, String propertyName) {
         try {
             return Objects.requireNonNull(project.property(propertyName));
-        } catch (MissingPropertyException | NullPointerException ignored) {
-            throw new GradleException(String.format(MSG_MISSING_MANDATORY_PROPERTY, propertyName));
+        } catch (MissingPropertyException | NullPointerException exception) {
+            throw new GradleException(String.format(MSG_MISSING_MANDATORY_PROPERTY, propertyName), exception);
         }
     }
 
@@ -76,9 +76,10 @@ public abstract class ProjectAwareLayer extends BaseLayer {
         Object propertyObject = requireProjectProperty(project, propertyName);
         try {
             return function.apply(propertyObject);
-        } catch (RuntimeException ignored) {
+        } catch (RuntimeException exception) {
             throw new GradleException(
-                    String.format(MSG_ILLEGAL_MANDATORY_PROPERTY, propertyName, propertyObject)
+                    String.format(MSG_ILLEGAL_MANDATORY_PROPERTY, propertyName, propertyObject),
+                    exception
             );
         }
     }
